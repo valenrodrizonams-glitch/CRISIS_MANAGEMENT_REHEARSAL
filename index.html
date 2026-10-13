@@ -66,16 +66,18 @@ main{flex:1;width:100%;max-width:1200px;margin:0 auto;padding-inline:20px;paddin
 
 /* intro */
 .intro{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:48px;align-items:start;padding-top:16px}
-.intro h1{font-size:clamp(34px,4.6vw,60px);font-weight:900;font-stretch:80%;line-height:.92;letter-spacing:-.03em;margin:14px 0 22px}
+.intro h1{font-size:clamp(28px,3.4vw,44px);font-weight:900;font-stretch:80%;line-height:.92;letter-spacing:-.03em;margin:14px 0 22px}
+.intro .eyebrow{font-size:11px}
 .intro h1 em{font-style:normal;color:var(--pink)}
 .ctx{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--pink);border-radius:12px;padding:18px 20px;margin-bottom:20px}
-.ctx p{margin:8px 0 0;font-size:clamp(15px,1.3vw,17px);line-height:1.45;max-width:58ch}
+.ctx p{margin:6px 0 0;font-size:14.5px;line-height:1.45;max-width:58ch}
 .howto{display:grid}
-.howto div{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
-.howto b.n{font-family:var(--f-mono);color:var(--pink);font-size:14px;padding-top:2px}
-.howto strong{display:block;font-family:var(--f-display);font-size:18px}
-.howto span{color:var(--muted);font-size:15px}
-.facts{display:flex;gap:28px;flex-wrap:wrap;margin:22px 0 0;font-size:15px}
+.howto div{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.howto b.n{font-family:var(--f-mono);color:var(--pink);font-size:12.5px;padding-top:2px}
+.howto strong{display:block;font-family:var(--f-display);font-size:15.5px}
+.howto span{color:var(--muted);font-size:13.5px}
+.facts{display:flex;gap:22px;flex-wrap:wrap;margin:0;font-size:15px}
+.side-facts{padding-top:14px;border-top:1px solid var(--line)}
 .facts div{display:flex;flex-direction:column}
 .facts small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);font-weight:700}
 .side{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:14px}
@@ -105,7 +107,8 @@ textarea{min-height:110px;resize:vertical;line-height:1.45}
 .vempty span{color:var(--muted);max-width:48ch;font-size:15px}
 .vst{color:var(--warn)}
 .evtext{margin:16px 0 0;font-size:18px;max-width:75ch;color:var(--cream)}
-.evtext b{color:var(--pink);font-family:var(--f-mono);font-size:14px;font-weight:600;margin-right:8px}
+.evtext p{margin:0 0 10px}
+.evtext b{color:var(--pink);font-weight:700}
 
 /* crisis + áreas */
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;align-items:start}
@@ -229,7 +232,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.45}
 const CONTEXTO = "Tener presente que nuestra fuerza de ventas de representantes médicos conduce autos de la empresa a diario para visitar farmacias y profesionales de la salud en todo el territorio.";
 
 const EVENTS = [
- {id:"e1", n:1, when:"Martes · 2:10 p. m.", text:"Recursos Humanos recibe una llamada de la policía: uno de sus representantes médicos tuvo un accidente de tránsito en una vía rural mientras conducía un auto de la empresa. Un tercero, un motociclista, está gravemente herido. Su empleado está conmocionado, pero físicamente ileso.",
+ {id:"e1", n:1, lead:"Martes · 2:10 p. m.", when:"Martes · 2:10 p. m.", text:"Martes · 2:10 p. m. Se recibe una llamada de la policía: uno de nuestros representantes médicos tuvo un accidente de tránsito en una vía rural mientras conducía un auto de la empresa. Un tercero, un motociclista, está gravemente herido. Su empleado está conmocionado, pero físicamente ileso.",
   min:5,
   qs:["“¿Cuáles son sus primeras acciones en los próximos quince minutos?”",
       "“¿Activa el equipo de crisis ahora? ¿Por qué sí o por qué no?”",
@@ -238,7 +241,7 @@ const EVENTS = [
        "Los hechos aún son escasos: todavía no haga suposiciones sobre la culpa.",
        "Notifique a Legales y Recursos Humanos de inmediato; alerte a la aseguradora y al administrador de la flota.",
        "Registre todo; el vehículo de la empresa y el teléfono pueden convertirse en evidencia."]},
- {id:"e2", n:2, when:"Martes · 3:30 p. m.", text:"La imagen aún se está formando. El motociclista está en cuidados intensivos. La policía retuvo el auto de la empresa y el teléfono de trabajo del empleado. El empleado, angustiado, dice que el motociclista “salió de la nada”; no hubo otros testigos. Un colega comenta que este representante tiene una agenda de visitas exigente y que “siempre va corriendo entre citas”.",
+ {id:"e2", n:2, lead:"Evento #2 a las 3:30 p.m.", when:"Martes · 3:30 p. m.", text:"Evento #2 a las 3:30 p.m. El panorama aún se está formando, el motociclista se encuentra en cuidados intensivos. La policía ha retenido el coche de la empresa y el teléfono de trabajo de su empleado como parte de su investigación.\n\nSu empleado, angustiado, afirma que el motociclista \"salió de la nada\". No hubo otros testigos. La policía se muestra cortés pero evasiva en cuanto a la responsabilidad.\n\nUn colega menciona que este representante tiene una agenda de visitas muy exigente y \"siempre va corriendo entre citas\".",
   min:5,
   qs:["“Realicen un FISA completo. ¿Qué saben frente a qué asumen?”",
       "“¿A quién notifican: al grupo, a la aseguradora, a la familia del empleado?”",
@@ -249,9 +252,9 @@ const EVENTS = [
        "Ningún comentario interno sobre la culpa; nada que pueda parecer instrucción a un testigo (coaching).",
        "Preserven los registros de conducción, el horario y los registros de mantenimiento del vehículo.",
        "Notifiquen al grupo y a la aseguradora; designen un punto de contacto único para la policía."]},
- {id:"e3", n:3, when:"Miércoles", text:"El motociclista falleció a causa de sus lesiones. Ahora es un accidente fatal y se abre una investigación penal; el empleado podría enfrentar cargos personales. La familia de la víctima contacta a un periodista local y aparece una nota: “Auto de farmacéutica mata a motociclista: ¿iba con exceso de velocidad para cumplir sus metas?”. Internamente, los empleados están inquietos y algunos preguntan si las cuotas de visitas los empujan a conducir de forma insegura.",
+ {id:"e3", n:3, lead:"Evento 3, continua el Miércoles.", when:"Miércoles", text:"Evento 3, continua el Miércoles. El motociclista ha fallecido a causa de sus heridas.\n\nEsto se ha convertido ahora en un accidente mortal. Se abre una investigación penal. Nuestro empleado podría enfrentarse a cargos personales dependiendo de los hallazgos.\n\nLa familia de la víctima, afligida y enojada, se pone en contacto con un periodista local. Aparece un artículo breve: \"El coche de empresa de un representante farmacéutico mata a un motociclista: ¿iba con exceso de velocidad para cumplir sus objetivos?\"\n\nInternamente, los empleados están inquietos; algunos se preguntan si las cuotas de visitas de la compañía los empujan a conducir de forma insegura.",
   min:0, qs:null},
- {id:"e4", n:4, when:"Jueves", text:"Los investigadores comparten un hallazgo preliminar: los datos del auto de la empresa y del teléfono de trabajo indican que el empleado conducía por encima del límite de velocidad en el momento del accidente y que había estado enviando mensajes a su gerente minutos antes.",
+ {id:"e4", n:4, lead:"Evento #4, el Jueves", when:"Jueves", text:"Evento #4, el Jueves los investigadores comparten un hallazgo preliminar.\n\nLos datos del coche de empresa y del teléfono de trabajo del empleado indican que iba conduciendo por encima del límite de velocidad en el momento del accidente, y había estado enviando mensajes a su gerente pocos minutos antes.",
   min:7,
   qs:["“¿Cómo cambia su postura el hallazgo sobre el exceso de velocidad y el envío de mensajes?”",
       "“¿Cuál es su responsabilidad si la presión laboral contribuyó al incidente?”",
@@ -262,7 +265,7 @@ const EVENTS = [
        "Informe de situación (SitRep): hechos / estado del empleado / exposición legal / impacto en el personal / próximos pasos.",
        "Coherencia y cuidado equitativo hacia el empleado, la familia de la víctima y el resto del personal.",
        "Una revisión genuina de la seguridad al conducir debe formar parte de la respuesta, no ser una maniobra de distracción."]},
- {id:"e5", n:5, when:"Viernes", text:"La historia ya está en la prensa regional: “Farmacéutica bajo escrutinio tras choque fatal: preguntas sobre la carga de trabajo de los conductores”. Los representantes de los empleados piden revisar las condiciones de conducción de la fuerza de campo. La familia de la víctima, a través de un abogado, anuncia una demanda civil. Un periodista pide una declaración de la empresa antes del final del día y Group Comms pide una sola línea alineada antes de que alguien responda.",
+ {id:"e5", n:5, lead:"Evento #5, el Viernes.", when:"Viernes", text:"Evento #5, el Viernes. La noticia ya está en la prensa regional.\n\n\"Compañía farmacéutica bajo escrutinio tras un accidente mortal: cuestionamientos sobre la carga de trabajo del conductor.\"\n\nLos representantes piden una revisión de las condiciones de conducción de la fuerza de ventas.\n\nLa familia de la víctima, a través de un abogado, señala una demanda civil.\n\nUn periodista solicita una declaración de la empresa antes de que termine el día.",
   min:8,
   qs:["“¿Emiten una declaración pública y qué dice?”",
       "“¿Cómo se comprometen de manera creíble con una revisión de la seguridad al conducir?”",
@@ -412,11 +415,6 @@ function renderIntro(){
         <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada evento, el equipo responde las preguntas con el tiempo corriendo.</span></p></div>
         <div><b class="n">3</b><p style="margin:0"><strong>Decisiones que se vuelven acciones</strong><span>Comparen sus respuestas con lo que se esperaba y conviertan los aprendizajes en acciones.</span></p></div>
       </div>
-      <div class="facts">
-        <div><small>Duración</small>~45 minutos</div>
-        <div><small>Escenas</small>5 eventos + cierre</div>
-        <div><small>Marco</small>Ciclo FISA · SitRep</div>
-      </div>
     </div>
     <div class="side">
       <h3>Nueva sesión</h3>
@@ -425,6 +423,11 @@ function renderIntro(){
       ${PAST.length ? `<div><div class="rgroup">Reportes guardados</div><div class="past-list">${PAST.slice(0,12).map(p=> DEL_ID===p.id
         ? `<div class="prow confirm"><span>¿Borrar el intento de <b>${esc(p.team||"Equipo de crisis")}</b> del ${fmtDate(p.started)}? No se puede deshacer.</span><div class="pbtns"><button class="btn danger" data-delok="${esc(p.id)}">Sí, borrar</button><button class="btn ghost" data-delno="1">Cancelar</button></div></div>`
         : `<div class="prow"><button class="popen" data-open="${esc(p.id)}"><span>${esc(p.team||"Equipo de crisis")}</span><small>${fmtDate(p.started)}${p.ended?"":" · en curso"}</small></button><button class="pdel" data-del="${esc(p.id)}" aria-label="Borrar intento de ${esc(p.team||"Equipo de crisis")}">Borrar</button></div>`).join("")}</div>${DEL_MSG?`<p class="hint" style="margin:8px 0 0">${esc(DEL_MSG)}</p>`:""}</div>` : (DEL_MSG?`<p class="hint">${esc(DEL_MSG)}</p>`:"")}
+      <div class="facts side-facts">
+        <div><small>Duración</small>~45 minutos</div>
+        <div><small>Escenas</small>5 eventos + cierre</div>
+        <div><small>Marco</small>Ciclo FISA · SitRep</div>
+      </div>
     </div>
   </section>`;
 }
@@ -445,7 +448,7 @@ function renderVideoStep(ev){
   h += `<div class="vwrap"><video class="vid" id="evVideo" src="${esc(m.video)}" controls loop autoplay muted playsinline preload="auto"></video></div>`;
   h += `<audio id="evAudio" src="${esc(m.audio)}" preload="auto"></audio>`;
   h += `<div class="actions"><button class="btn pink" id="soundOn" hidden>Activar audio de fondo</button><button class="btn ghost" id="replayAudio" hidden>Repetir audio</button><span class="hint" id="audioHint"></span></div>`;
-  h += `<p class="evtext"><b>${esc(e.when)}</b>${esc(e.text)}</p>`;
+  h += `<div class="evtext">${e.text.split(/\n\n+/).map((x,i)=> i===0 && e.lead && x.startsWith(e.lead) ? `<p><b>${esc(e.lead)}</b>${esc(x.slice(e.lead.length))}</p>` : `<p>${esc(x)}</p>`).join("")}</div>`;
   return h;
 }
 function stopAllAudio(){ document.querySelectorAll("audio").forEach(a=>{ try{ a.pause(); }catch(e){} }); }
@@ -457,12 +460,12 @@ function setupMedia(){
   const startAudio = ()=>{
     started = true;
     try{ a.currentTime = 0; }catch(e){}
-    a.play().then(()=>{ btn.hidden = true; hint.textContent = "Audio de fondo sonando"; })
+    a.play().then(()=>{ btn.hidden = true; })
       .catch(()=>{ started = false; btn.hidden = false; hint.textContent = "El navegador bloqueó el sonido automático."; });
   };
   v.addEventListener("playing", ()=>{ if (!started) startAudio(); else if (!a.ended && a.paused) a.play().catch(()=>{}); });
   v.addEventListener("pause", ()=>{ if (!a.ended) a.pause(); });
-  a.addEventListener("ended", ()=>{ hint.textContent = "Audio de fondo terminado"; again.hidden = false; });
+  a.addEventListener("ended", ()=>{ again.hidden = false; });
   btn.addEventListener("click", ()=>{ try{ v.currentTime = 0; }catch(e){} v.play().catch(()=>{}); startAudio(); });
   again.addEventListener("click", ()=>{ again.hidden = true; try{ v.currentTime = 0; }catch(e){} v.play().catch(()=>{}); startAudio(); });
   if (!v.paused && v.readyState >= 3) startAudio();
