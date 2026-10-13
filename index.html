@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sala de Crisis Opella</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sala de mando proyectada — barra superior con avance por evento, contenido al centro, navegación del facilitador fija abajo */
+:root{
+  color-scheme: dark;
+  --bg:#03230d;
+  --bg-2:#062f14;
+  --panel:#0a3a1b;
+  --line:rgba(246,239,228,.14);
+  --line-2:rgba(246,239,228,.28);
+  --cream:#f6efe4;
+  --muted:#a8bca9;
+  --pink:#ff74cf;
+  --pink-dim:rgba(255,116,207,.16);
+  --on-pink:#2a0820;
+  --good:#86dba6;
+  --warn:#f3c55a;
+  --bad:#ff8574;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--cream);font-family:var(--f-body);font-size:17px;line-height:1.5;
+  background-image:radial-gradient(1200px 600px at 85% -10%,rgba(255,116,207,.07),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(134,219,166,.06),transparent 60%)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--pink);font-weight:700}
+.hint{font-size:14px;color:var(--muted)}
+.app{min-height:100%;display:flex;flex-direction:column}
+
+/* barra superior */
+.hud{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(3,35,13,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hud-row{display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto;min-width:0}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:19px}
+.brand span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);font-weight:700}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{font-family:var(--f-mono);font-size:11px;padding:4px 8px;border:1px solid var(--line);border-radius:4px;color:var(--muted)}
+.chip.on{border-color:var(--pink);color:var(--cream);background:var(--pink-dim)}
+.chip.past{color:var(--cream);border-color:var(--line-2)}
+.elapsed{font-family:var(--f-mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.elapsed b{color:var(--cream);font-weight:600;font-variant-numeric:tabular-nums}
+
+main{flex:1;width:100%;max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:28px 120px}
+.head{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.head h2{font-size:clamp(30px,4.2vw,52px);font-weight:800;font-stretch:88%;line-height:1;letter-spacing:-.02em}
+.head .when{font-family:var(--f-mono);color:var(--muted);font-size:14px;margin-left:auto}
+
+/* botones */
+.btn{padding:12px 18px;border-radius:8px;border:1px solid var(--cream);background:var(--cream);color:var(--bg);font-weight:700;font-size:15px}
+.btn.ghost{background:transparent;color:var(--cream);border-color:var(--line-2)}
+.btn.pink{background:var(--pink);border-color:var(--pink);color:var(--on-pink)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+
+/* intro */
+.intro{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:48px;align-items:start;padding-top:16px}
+.intro h1{font-size:clamp(34px,4.6vw,60px);font-weight:900;font-stretch:80%;line-height:.92;letter-spacing:-.03em;margin:14px 0 22px}
+.intro h1 em{font-style:normal;color:var(--pink)}
+.ctx{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--pink);border-radius:12px;padding:18px 20px;margin-bottom:20px}
+.ctx p{margin:8px 0 0;font-size:clamp(15px,1.3vw,17px);line-height:1.45;max-width:58ch}
+.howto{display:grid}
+.howto div{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.howto b.n{font-family:var(--f-mono);color:var(--pink);font-size:14px;padding-top:2px}
+.howto strong{display:block;font-family:var(--f-display);font-size:18px}
+.howto span{color:var(--muted);font-size:15px}
+.facts{display:flex;gap:28px;flex-wrap:wrap;margin:22px 0 0;font-size:15px}
+.facts div{display:flex;flex-direction:column}
+.facts small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);font-weight:700}
+.side{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:14px}
+.side h3{font-size:20px}
+.field label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px}
+input[type=text],textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line-2);background:var(--bg);color:var(--cream);font:inherit;font-size:16px}
+textarea{min-height:110px;resize:vertical;line-height:1.45}
+.cta{width:100%;padding:16px 18px;border-radius:10px;border:0;background:var(--pink);color:var(--on-pink);font-family:var(--f-display);font-weight:800;font-size:20px}
+.past-list{display:grid;gap:6px}
+.prow{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:stretch}
+.popen{display:flex;justify-content:space-between;gap:10px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:transparent;font-size:14px;min-width:0}
+.popen:hover{border-color:var(--line-2)}
+.popen span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.past-list small{color:var(--muted);font-family:var(--f-mono);font-size:12px;white-space:nowrap}
+.pdel{padding:0 12px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);font-size:13px}
+.pdel:hover{border-color:var(--bad);color:var(--bad)}
+.prow.confirm{grid-template-columns:1fr;padding:12px;border:1px solid var(--bad);border-radius:8px;font-size:14px;background:rgba(255,133,116,.08)}
+.pbtns{display:flex;gap:8px;flex-wrap:wrap}
+.pbtns .btn{padding:8px 14px;font-size:14px}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#2b0703}
+
+/* video */
+.vwrap{border-radius:14px;overflow:hidden;background:#000;border:1px solid var(--line-2)}
+.vid{display:block;width:100%;aspect-ratio:16/9;max-height:calc(100vh - 300px);background:#000}
+.vempty{aspect-ratio:16/9;max-height:calc(100vh - 300px);width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;background:repeating-linear-gradient(135deg,var(--bg-2) 0 14px,var(--bg) 14px 28px)}
+.vempty .miss{font-family:var(--f-display);font-weight:900;font-stretch:85%;font-size:clamp(34px,5vw,64px);color:var(--pink);letter-spacing:-.01em;line-height:1}
+.vempty span{color:var(--muted);max-width:48ch;font-size:15px}
+.vst{color:var(--warn)}
+.evtext{margin:16px 0 0;font-size:18px;max-width:75ch;color:var(--cream)}
+.evtext b{color:var(--pink);font-family:var(--f-mono);font-size:14px;font-weight:600;margin-right:8px}
+
+/* crisis + áreas */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;min-width:0}
+.card h3{font-size:22px;margin-bottom:6px}
+.card p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.rgroup{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);font-weight:700;margin:14px 0 6px}
+.role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.role{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:transparent;text-align:left;min-width:0}
+.role .dot{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--line-2);flex:none;margin-top:3px}
+.role.on{border-color:var(--cream)}
+.role.on .dot{background:var(--pink);border-color:var(--pink)}
+.role .rt{display:flex;flex-direction:column;min-width:0}
+.role .rt b{font-size:14.5px;line-height:1.25}
+.role .rt small{font-size:12px;color:var(--muted)}
+.role:disabled{cursor:default}
+.role .rwhy{font-size:12.5px;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);line-height:1.4}
+.vd{display:block;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.vd.good{color:var(--good)}.vd.bad{color:var(--bad)}
+.role.rv-good{border-color:var(--good)}
+.role.rv-bad{border-color:var(--bad)}
+.role.miss{border-style:dashed}
+.role.rv-good.on .dot{background:var(--good);border-color:var(--good)}
+.role.rv-bad.on .dot{background:var(--bad);border-color:var(--bad)}
+
+/* preguntas */
+.qa{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.qlist{list-style:none;margin:0;padding:0}
+.qlist li{padding:16px 0 16px 26px;border-top:1px solid var(--line);position:relative;font-size:clamp(20px,2.1vw,27px);line-height:1.35}
+.qlist li::before{content:"";position:absolute;left:0;top:28px;width:10px;height:10px;border-radius:50%;background:var(--pink)}
+.timer{position:sticky;top:90px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;display:grid;gap:12px}
+.timer .lab{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.timer .t{font-family:var(--f-mono);font-size:64px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.timer.low .t{color:var(--warn)}
+.timer.end .t{color:var(--bad)}
+.timer .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.ring{height:6px;border-radius:3px;background:rgba(246,239,228,.12);overflow:hidden}
+.ring i{display:block;height:100%;background:var(--pink);transition:width 1s linear}
+.answers{margin-top:26px;display:grid;gap:16px}
+.answers h3{font-size:24px}
+.ans label{display:block;font-size:15px;margin-bottom:6px}
+.ans label b{color:var(--pink);font-family:var(--f-mono);font-size:13px;margin-right:6px}
+.check{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--good);border-radius:12px;padding:20px 22px}
+.check h3{font-size:clamp(24px,2.6vw,32px);margin-bottom:10px}
+.check p{margin:0 0 10px;color:var(--muted);font-size:14px}
+.ck{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;padding:12px 0;border-top:1px solid var(--line);font-size:clamp(17px,1.7vw,20px);cursor:pointer}
+.ck input{width:20px;height:20px;margin-top:4px;accent-color:var(--good)}
+.ck.none{border-top:1px dashed var(--line-2);margin-top:4px;color:var(--muted)}
+.ck.none input{accent-color:var(--bad)}
+.saved{font-family:var(--f-mono);font-size:12px;color:var(--good)}
+
+/* cierre y reporte */
+.lessons{margin:0;padding-left:20px;display:grid;gap:8px;font-size:16.5px}
+.rep{display:grid;gap:22px}
+.rep-head{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.rep-head div{border-top:3px solid var(--pink);padding-top:10px;min-width:0}
+.rep-head b{display:block;font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rep-head span{font-size:13px;color:var(--muted)}
+.rsec{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;min-width:0}
+.rsec h3{font-size:21px;margin-bottom:4px}
+.rsec .meta{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.rq{padding:12px 0;border-top:1px solid var(--line)}
+.rq .q{font-weight:700}
+.rq .a{margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--cream)}
+.rq .a.empty{color:var(--muted);font-style:italic}
+.chk-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;font-size:15px}
+.chk-list li{display:grid;grid-template-columns:22px 1fr;gap:8px}
+.chk-list .y{color:var(--good);font-weight:700}
+.chk-list .n{color:var(--bad);font-weight:700}
+.area-recap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.area-recap span{font-size:13.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line-2)}
+.area-recap span.good{border-color:var(--good)}
+.area-recap span.bad{border-color:var(--bad)}
+.notice{font-size:14px;color:var(--warn)}
+
+/* pie */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(3,35,13,.95);border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px}
+.foot .where{font-size:13px;color:var(--muted);margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.foot .btn{min-width:130px}
+
+@media (max-width:900px){
+  .intro,.two,.qa{grid-template-columns:1fr}
+  .timer{position:static}
+  .chips{display:none}
+  .rep-head{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:560px){
+  .role-grid{grid-template-columns:1fr}
+  .foot .btn{min-width:0;flex:1}
+  .foot .where{display:none}
+  .brand span{display:none}
+  .timer .t{font-size:52px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <div class="hud" id="hud" hidden>
+    <div class="hud-row">
+      <div class="brand"><b>Opella · Sala de crisis</b><span>Accidente fatal en misión</span></div>
+      <div class="chips" id="chips"></div>
+      <div class="elapsed">Tiempo del ejercicio <b id="elapsed">00:00</b></div>
+    </div>
+  </div>
+  <main id="main"></main>
+  <div class="foot" id="foot" hidden>
+    <span class="where" id="where"></span>
+    <button class="btn ghost" id="prev">← Atrás</button>
+    <button class="btn" id="next">Siguiente →</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* =========================================================
+   CONTENIDO
+   ========================================================= */
+const CONTEXTO = "Tener presente que nuestra fuerza de ventas de representantes médicos conduce autos de la empresa a diario para visitar farmacias y profesionales de la salud en todo el territorio.";
+
+const EVENTS = [
+ {id:"e1", n:1, when:"Martes · 2:10 p. m.", text:"Recursos Humanos recibe una llamada de la policía: uno de sus representantes médicos tuvo un accidente de tránsito en una vía rural mientras conducía un auto de la empresa. Un tercero, un motociclista, está gravemente herido. Su empleado está conmocionado, pero físicamente ileso.",
+  min:5,
+  qs:["“¿Cuáles son sus primeras acciones en los próximos quince minutos?”",
+      "“¿Activa el equipo de crisis ahora? ¿Por qué sí o por qué no?”",
+      "“¿Qué elementos de FISA captura de inmediato?”"],
+  chk:["Cuide a su empleado primero: bienestar, apoyo, no lo deje solo con la policía.",
+       "Los hechos aún son escasos: todavía no haga suposiciones sobre la culpa.",
+       "Notifique a Legales y Recursos Humanos de inmediato; alerte a la aseguradora y al administrador de la flota.",
+       "Registre todo; el vehículo de la empresa y el teléfono pueden convertirse en evidencia."]},
+ {id:"e2", n:2, when:"Martes · 3:30 p. m.", text:"La imagen aún se está formando. El motociclista está en cuidados intensivos. La policía retuvo el auto de la empresa y el teléfono de trabajo del empleado. El empleado, angustiado, dice que el motociclista “salió de la nada”; no hubo otros testigos. Un colega comenta que este representante tiene una agenda de visitas exigente y que “siempre va corriendo entre citas”.",
+  min:5,
+  qs:["“Realicen un FISA completo. ¿Qué saben frente a qué asumen?”",
+      "“¿A quién notifican: al grupo, a la aseguradora, a la familia del empleado?”",
+      "“¿Cómo apoyan a su empleado sin interferir con la investigación?”",
+      "“¿Qué deben preservar o documentar ahora?”"],
+  chk:["Separen los hechos de las especulaciones; la responsabilidad aún se desconoce.",
+       "El deber de protección y cuidado hacia su empleado es real, incluso si pudiera tener la culpa.",
+       "Ningún comentario interno sobre la culpa; nada que pueda parecer instrucción a un testigo (coaching).",
+       "Preserven los registros de conducción, el horario y los registros de mantenimiento del vehículo.",
+       "Notifiquen al grupo y a la aseguradora; designen un punto de contacto único para la policía."]},
+ {id:"e3", n:3, when:"Miércoles", text:"El motociclista falleció a causa de sus lesiones. Ahora es un accidente fatal y se abre una investigación penal; el empleado podría enfrentar cargos personales. La familia de la víctima contacta a un periodista local y aparece una nota: “Auto de farmacéutica mata a motociclista: ¿iba con exceso de velocidad para cumplir sus metas?”. Internamente, los empleados están inquietos y algunos preguntan si las cuotas de visitas los empujan a conducir de forma insegura.",
+  min:0, qs:null},
+ {id:"e4", n:4, when:"Jueves", text:"Los investigadores comparten un hallazgo preliminar: los datos del auto de la empresa y del teléfono de trabajo indican que el empleado conducía por encima del límite de velocidad en el momento del accidente y que había estado enviando mensajes a su gerente minutos antes.",
+  min:7,
+  qs:["“¿Cómo cambia su postura el hallazgo sobre el exceso de velocidad y el envío de mensajes?”",
+      "“¿Cuál es su responsabilidad si la presión laboral contribuyó al incidente?”",
+      "“¿Cuáles son los elementos esenciales de su Informe de Situación (SitRep) para el grupo?”",
+      "“¿Cómo manejan ahora la situación con el empleado, la familia y el personal?”"],
+  chk:["Enfrenten los hechos con honestidad; no oculten ni distorsionen los datos de la empresa.",
+       "Reconozcan la posible contribución organizacional: política de conducción, uso del teléfono, cuotas de trabajo.",
+       "Informe de situación (SitRep): hechos / estado del empleado / exposición legal / impacto en el personal / próximos pasos.",
+       "Coherencia y cuidado equitativo hacia el empleado, la familia de la víctima y el resto del personal.",
+       "Una revisión genuina de la seguridad al conducir debe formar parte de la respuesta, no ser una maniobra de distracción."]},
+ {id:"e5", n:5, when:"Viernes", text:"La historia ya está en la prensa regional: “Farmacéutica bajo escrutinio tras choque fatal: preguntas sobre la carga de trabajo de los conductores”. Los representantes de los empleados piden revisar las condiciones de conducción de la fuerza de campo. La familia de la víctima, a través de un abogado, anuncia una demanda civil. Un periodista pide una declaración de la empresa antes del final del día y Group Comms pide una sola línea alineada antes de que alguien responda.",
+  min:8,
+  qs:["“¿Emiten una declaración pública y qué dice?”",
+      "“¿Cómo se comprometen de manera creíble con una revisión de la seguridad al conducir?”",
+      "“¿Cómo equilibran la empatía, la cautela legal y la rendición de cuentas?”",
+      "“¿Cómo cierran el ciclo internamente?”"],
+  chk:["Las condolencias primero; cooperación con las autoridades; ninguna atribución de culpa.",
+       "Un compromiso concreto y sincero para revisar la seguridad al conducir y la carga de trabajo.",
+       "Mantener la precaución legal sin sonar frío o evasivo.",
+       "El mensaje interno reconoce las preocupaciones del personal y la revisión en marcha.",
+       "Una narrativa alineada para la familia, los medios, los empleados y el grupo."]}
+];
+
+const CLOSING_Q = [
+ "“¿Qué fue lo que más les desafió de este ejercicio?”",
+ "“¿Cómo cambió su postura cuando sus propios datos implicaron al empleado?”",
+ "“¿En qué momentos el deber de cuidado y la cautela legal tiraron en direcciones distintas?”",
+ "“¿Qué cambiarían en sus políticas de seguridad al conducir y de la fuerza de campo?”"
+];
+const LESSONS = [
+ "El deber de cuidado aplica incluso cuando su empleado pueda tener la culpa.",
+ "Sus propios datos pueden convertirse en la evidencia decisiva, y la más incómoda.",
+ "La presión organizacional (cuotas, uso del teléfono) puede ser parte de la causa raíz.",
+ "La empatía con la víctima debe ser sincera y temprana.",
+ "La rendición de cuentas y la cautela legal pueden coexistir, con mensajes cuidadosos."
+];
+const FINAL = [
+ {k:"mejorar", label:"Qué mejorar"},
+ {k:"recomendaciones", label:"Recomendaciones"},
+ {k:"observaciones", label:"Observaciones de los líderes de la actividad"},
+ {k:"positivo", label:"Cosas buenas que tenemos"}
+];
+
+const ROLES = [
+  {k:"alert", g:"cell", name:"Alert recipient", es:"Recibe la alerta", need:true, why:"Recibe la primera llamada y dispara la activación del equipo de crisis."},
+  {k:"gm", g:"cell", name:"Crisis leader", es:"Gerencia General", need:true, why:"Decide, prioriza y responde ante Grupo."},
+  {k:"deputy", g:"cell", name:"Crisis cell deputy", es:"Suplente del líder", need:false, why:"Solo entra si el Crisis leader no está disponible."},
+  {k:"comms", g:"cell", name:"Communication correspondent", es:"Comunicaciones", need:true, why:"Habrá prensa, Group Comms y empleados preguntando. Se necesita una sola voz."},
+  {k:"security", g:"cell", name:"Security", es:"Seguridad", need:false, why:"Puede apoyar el enlace con autoridades, pero no gestiona un accidente de tránsito."},
+  {k:"logbook", g:"cell", name:"Logbook", es:"Bitácora", need:false, why:"El registro lo lleva el equipo activado; no requiere un rol adicional en este caso."},
+  {k:"logistics", g:"cell", name:"Logistics facilitator", es:"Logística", need:false, why:"Puede ayudar con traslados, pero no es responsable de gestionar el caso."},
+  {k:"situation", g:"cell", name:"Situation reporter", es:"Reporte de situación", need:false, why:"El reporte a Grupo lo asume el Crisis leader."},
+  {k:"dispatcher", g:"cell", name:"Info cell dispatcher", es:"Despacho de información", need:false, why:"En un equipo de este tamaño la información circula sin un despachador."},
+  {k:"legal", g:"sup", name:"Legal", es:"Legal", need:true, why:"Hay una posible investigación penal contra el empleado y responsabilidad civil de la empresa."},
+  {k:"hr", g:"sup", name:"HR", es:"Recursos Humanos", need:true, why:"Deber de cuidado con el empleado, su familia y la fuerza de ventas."},
+  {k:"finance", g:"sup", name:"Finance", es:"Finanzas", need:false, why:"Puede apoyar si se le consulta, pero no gestiona la crisis."},
+  {k:"it", g:"sup", name:"IT", es:"Tecnología", need:false, why:"Puede apoyar con respaldos de información si se le pide, pero no gestiona la crisis."},
+  {k:"hse", g:"sup", name:"HSE", es:"Salud, seguridad y ambiente", need:true, why:"Es un accidente de trabajo: ARL, seguridad vial y COPASST."},
+  {k:"fleet", g:"sup", name:"Fleet", es:"Flota y facilities", need:true, why:"Vehículo, póliza, aseguradora y mantenimiento."},
+  {k:"supply", g:"sup", name:"Supply", es:"Cadena de suministro", need:false, why:"No hay impacto en la cadena de suministro."},
+  {k:"pv", g:"sup", name:"Pharmacovigilance", es:"Farmacovigilancia", need:false, why:"No hay un producto involucrado."}
+];
+const RN = Object.fromEntries(ROLES.map(r=>[r.k,r.name]));
+
+/* Secuencia del ejercicio */
+const STEPS = [
+ {t:"video", ev:0}, {t:"crisis", ev:0}, {t:"qa", ev:0},
+ {t:"video", ev:1}, {t:"qa", ev:1},
+ {t:"video", ev:2},
+ {t:"video", ev:3}, {t:"qa", ev:3},
+ {t:"video", ev:4}, {t:"qa", ev:4},
+ {t:"closing"}, {t:"final"}, {t:"report"}
+];
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+function fresh(){
+  return {id:null, team:"", started:null, ended:null, step:-1,
+    why:"", roles:[], areasDone:false,
+    qa:{}, closing:["","","",""], final:{mejorar:"",recomendaciones:"",observaciones:"",positivo:""}};
+}
+let S = fresh();
+let PAST = [], DEL_ID = null, DEL_MSG = "";
+const A = k => S.roles.includes(k);
+const rv = r => r.need ? (A(r.k)?"good":"bad") : (A(r.k)?"bad":"good");
+function Q(ev){ return S.qa[ev] || (S.qa[ev] = {left:EVENTS[ev].min*60, used:0, timerDone:false, saved:false, answers:EVENTS[ev].qs.map(()=>""), checks:EVENTS[ev].chk.map(()=>false)}); }
+
+/* =========================================================
+   GUARDADO (db compartida + respaldo local)
+   ========================================================= */
+let DB = null, DL = null, saveT = null;
+function localSessions(){ try{ return JSON.parse(localStorage.getItem("crisis-sessions")||"{}") || {}; }catch(e){ return {}; } }
+function writeLocalSessions(m){ try{ localStorage.setItem("crisis-sessions", JSON.stringify(m)); }catch(e){} }
+function loadLocalPast(){ PAST = Object.values(localSessions()).filter(x=>x && x.started).sort((a,b)=>b.started-a.started); }
+function persist(now){
+  clearTimeout(saveT);
+  const go = ()=>{
+    if (!S.id) return;
+    const data = JSON.parse(JSON.stringify(S));
+    data.updated = Date.now();
+    try{ localStorage.setItem("crisis-current", JSON.stringify(data)); }catch(e){}
+    const m = localSessions(); m[S.id] = data; writeLocalSessions(m);
+    if (!DB){ loadLocalPast(); }
+    if (DB) DB.doc("sesiones/"+S.id).set(data).catch(()=>{});
+  };
+  if (now) go(); else saveT = setTimeout(go, 700);
+}
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };
+const fmtMin = s => { s=Math.round(s||0); const m=Math.floor(s/60), r=s%60; return m ? `${m} min ${r ? r+" s" : ""}`.trim() : `${r} s`; };
+const fmtDate = t => t ? new Date(t).toLocaleString("es-CO",{dateStyle:"medium",timeStyle:"short"}) : "—";
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  const intro = S.step < 0;
+  $("#hud").hidden = intro; $("#foot").hidden = intro;
+  if (intro){ renderIntro(); return; }
+  const st = STEPS[S.step];
+  renderChips(st);
+  let h = "";
+  if (st.t==="video") h = renderVideoStep(st.ev);
+  else if (st.t==="crisis") h = renderCrisis();
+  else if (st.t==="qa") h = renderQA(st.ev);
+  else if (st.t==="closing") h = renderClosing();
+  else if (st.t==="final") h = renderFinal();
+  else if (st.t==="report") h = renderReport();
+  stopAllAudio();
+  $("#main").innerHTML = h;
+  renderFoot();
+  if (st.t==="qa") paintTimer();
+  if (st.t==="video") setupMedia();
+  window.scrollTo({top:0});
+}
+
+function renderChips(st){
+  const cur = st.ev!=null ? st.ev : (st.t==="report" ? 6 : 5);
+  const labels = ["E1","E2","E3","E4","E5","Cierre","Reporte"];
+  $("#chips").innerHTML = labels.map((l,i)=>`<span class="chip ${i===cur?"on":i<cur?"past":""}">${l}</span>`).join("");
+}
+
+function renderIntro(){
+  $("#main").innerHTML = `
+  <section class="intro">
+    <div>
+      <div class="eyebrow">Ensayo de gestión de crisis · Nivel 1</div>
+      <h1>Accidente fatal<br><em>en misión</em></h1>
+      <div class="ctx"><span class="eyebrow">Contexto</span><p>${esc(CONTEXTO)}</p></div>
+      <div class="howto">
+        <div><b class="n">1</b><p style="margin:0"><strong>Activen el equipo de crisis</strong><span>Decidan por qué es una situación de crisis y qué áreas deben estar involucradas.</span></p></div>
+        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada evento, el equipo responde las preguntas con el tiempo corriendo.</span></p></div>
+        <div><b class="n">3</b><p style="margin:0"><strong>Decisiones que se vuelven acciones</strong><span>Comparen sus respuestas con lo que se esperaba y conviertan los aprendizajes en acciones.</span></p></div>
+      </div>
+      <div class="facts">
+        <div><small>Duración</small>~45 minutos</div>
+        <div><small>Escenas</small>5 eventos + cierre</div>
+        <div><small>Marco</small>Ciclo FISA · SitRep</div>
+      </div>
+    </div>
+    <div class="side">
+      <h3>Nueva sesión</h3>
+      <div class="field"><label for="teamName">Nombre del equipo (aparece en el reporte)</label><input type="text" id="teamName" placeholder="Equipo de crisis Colombia" value="${esc(S.team)}"></div>
+      <button class="cta" id="start">Comenzar</button>
+      ${PAST.length ? `<div><div class="rgroup">Reportes guardados</div><div class="past-list">${PAST.slice(0,12).map(p=> DEL_ID===p.id
+        ? `<div class="prow confirm"><span>¿Borrar el intento de <b>${esc(p.team||"Equipo de crisis")}</b> del ${fmtDate(p.started)}? No se puede deshacer.</span><div class="pbtns"><button class="btn danger" data-delok="${esc(p.id)}">Sí, borrar</button><button class="btn ghost" data-delno="1">Cancelar</button></div></div>`
+        : `<div class="prow"><button class="popen" data-open="${esc(p.id)}"><span>${esc(p.team||"Equipo de crisis")}</span><small>${fmtDate(p.started)}${p.ended?"":" · en curso"}</small></button><button class="pdel" data-del="${esc(p.id)}" aria-label="Borrar intento de ${esc(p.team||"Equipo de crisis")}">Borrar</button></div>`).join("")}</div>${DEL_MSG?`<p class="hint" style="margin:8px 0 0">${esc(DEL_MSG)}</p>`:""}</div>` : (DEL_MSG?`<p class="hint">${esc(DEL_MSG)}</p>`:"")}
+    </div>
+  </section>`;
+}
+
+/* ---------- video + audio de fondo (fijos en el código) ----------
+   Para cambiar un video o audio, reemplace el archivo en las carpetas
+   videos/ y audios/ conservando el nombre, o edite estas rutas. */
+const MEDIA = {
+  e1:{video:"videos/evento1.mp4", audio:"audios/evento1.mp3"},
+  e2:{video:"videos/evento2.mp4", audio:"audios/evento2.mp3"},
+  e3:{video:"videos/evento3.mp4", audio:"audios/evento3.mp3"},
+  e4:{video:"videos/evento4.mp4", audio:"audios/evento4.mp3"},
+  e5:{video:"videos/evento5.mp4", audio:"audios/evento5.mp3"}
+};
+function renderVideoStep(ev){
+  const e = EVENTS[ev], m = MEDIA[e.id];
+  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} de 5</div><h2>Evento ${e.n}</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  h += `<div class="vwrap"><video class="vid" id="evVideo" src="${esc(m.video)}" controls loop autoplay muted playsinline preload="auto"></video></div>`;
+  h += `<audio id="evAudio" src="${esc(m.audio)}" preload="auto"></audio>`;
+  h += `<div class="actions"><button class="btn pink" id="soundOn" hidden>Activar audio de fondo</button><button class="btn ghost" id="replayAudio" hidden>Repetir audio</button><span class="hint" id="audioHint"></span></div>`;
+  h += `<p class="evtext"><b>${esc(e.when)}</b>${esc(e.text)}</p>`;
+  return h;
+}
+function stopAllAudio(){ document.querySelectorAll("audio").forEach(a=>{ try{ a.pause(); }catch(e){} }); }
+/* El audio arranca con el video, suena una sola vez y sigue las pausas del video */
+function setupMedia(){
+  const v = $("#evVideo"), a = $("#evAudio"); if (!v || !a) return;
+  let started = false;
+  const hint = $("#audioHint"), btn = $("#soundOn"), again = $("#replayAudio");
+  const startAudio = ()=>{
+    started = true;
+    try{ a.currentTime = 0; }catch(e){}
+    a.play().then(()=>{ btn.hidden = true; hint.textContent = "Audio de fondo sonando"; })
+      .catch(()=>{ started = false; btn.hidden = false; hint.textContent = "El navegador bloqueó el sonido automático."; });
+  };
+  v.addEventListener("playing", ()=>{ if (!started) startAudio(); else if (!a.ended && a.paused) a.play().catch(()=>{}); });
+  v.addEventListener("pause", ()=>{ if (!a.ended) a.pause(); });
+  a.addEventListener("ended", ()=>{ hint.textContent = "Audio de fondo terminado"; again.hidden = false; });
+  btn.addEventListener("click", ()=>{ try{ v.currentTime = 0; }catch(e){} v.play().catch(()=>{}); startAudio(); });
+  again.addEventListener("click", ()=>{ again.hidden = true; try{ v.currentTime = 0; }catch(e){} v.play().catch(()=>{}); startAudio(); });
+  if (!v.paused && v.readyState >= 3) startAudio();
+}
+
+/* ---------- por qué es crisis + áreas ---------- */
+function roleBtn(r){
+  const on = A(r.k), d = S.areasDone;
+  let cls = "role" + (on?" on":"");
+  let extra = "";
+  if (d){
+    const v = rv(r);
+    cls += " rv-"+v + (!on && r.need ? " miss" : "");
+    const lab = r.need ? (on?"Responsable · bien activada":"Responsable · faltó activarla") : (on?"No debía activarse":"Bien: no se activa");
+    extra = `<span class="rwhy"><span class="vd ${v}">${lab}</span>${esc(r.why)}</span>`;
+  }
+  return `<button class="${cls}" data-role="${r.k}" ${d?"disabled":""}><span class="dot"></span><span class="rt"><b>${esc(r.name)}</b><small>${esc(r.es)}</small>${extra}</span></button>`;
+}
+function renderCrisis(){
+  const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
+  const wrong = ROLES.filter(r=>!r.need && A(r.k)).length;
+  return `<div class="head"><div><div class="eyebrow">Evento 1 · Activación</div><h2>¿Es una situación de crisis?</h2></div><div class="when">${esc(EVENTS[0].when)}</div></div>
+  <div class="two">
+    <div class="card">
+      <h3>¿Por qué es una situación de crisis?</h3>
+      <p>Escriban los argumentos del equipo.</p>
+      <textarea id="why" data-bind="why" style="min-height:220px" placeholder="Es una crisis porque…">${esc(S.why)}</textarea>
+    </div>
+    <div class="card">
+      <h3>¿Qué áreas estarían involucradas?</h3>
+      <p>${S.areasDone ? `${essOn} de ${ess.length} áreas responsables activadas${wrong?` · ${wrong} activada${wrong>1?"s":""} sin ser responsable${wrong>1?"s":""}`:""}.` : "Seleccionen solo las áreas responsables de gestionar este caso."}</p>
+      <div class="rgroup">Equipo de crisis</div>
+      <div class="role-grid">${ROLES.filter(r=>r.g==="cell").map(roleBtn).join("")}</div>
+      <div class="rgroup">Áreas de soporte</div>
+      <div class="role-grid">${ROLES.filter(r=>r.g==="sup").map(roleBtn).join("")}</div>
+      <div class="actions">${S.areasDone
+        ? `<button class="btn ghost" id="redoAreas">Volver a seleccionar</button>`
+        : `<button class="btn pink" id="confirmAreas" ${S.roles.length && S.why.trim() ? "" : "disabled"}>Confirmar áreas (${S.roles.length})</button><span class="hint" id="crisisHint">${S.why.trim() ? "" : "Escriban primero por qué es una crisis."}</span>`}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- preguntas con temporizador ---------- */
+const T = {ev:null, iv:null, running:false, ac:null};
+function renderQA(ev){
+  const e = EVENTS[ev], q = Q(ev);
+  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} · Preguntas para el equipo</div><h2>Decisiones</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  h += `<div class="qa"><div><ul class="qlist">${e.qs.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+    <div class="timer" id="timerBox">
+      <span class="lab">Temporizador · ${e.min} minutos</span>
+      <span class="t" id="tval">${fmt(q.left)}</span>
+      <div class="ring"><i id="tbar" style="width:${100*q.left/(e.min*60)}%"></i></div>
+      <div class="row" id="trow"></div>
+    </div></div>`;
+  if (q.timerDone){
+    h += `<div class="answers"><h3>Respuestas del equipo</h3>
+      ${e.qs.map((x,i)=>`<div class="ans"><label for="a-${ev}-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="a-${ev}-${i}" data-ans="${i}" placeholder="Respuesta del equipo…">${esc(q.answers[i])}</textarea></div>`).join("")}
+      <div class="actions">${q.saved ? `<span class="saved">Respuestas guardadas · tiempo usado ${fmt(q.used)}</span><button class="btn ghost" id="editAns">Editar respuestas</button>` : `<button class="btn pink" id="saveAns">Guardar respuestas</button>`}</div>
+    </div>`;
+  }
+  if (q.saved){
+    h += `<div class="check"><h3>¿Tuvimos en cuenta esto?</h3><p>Marquen lo que el equipo sí consideró en sus respuestas.</p>
+      ${e.chk.map((x,i)=>`<label class="ck"><input type="checkbox" data-chk="${i}" ${q.checks[i]?"checked":""}><span>${esc(x)}</span></label>`).join("")}
+      <label class="ck none"><input type="checkbox" data-none="1" ${q.none?"checked":""}><span>No tuvimos en cuenta ninguna de las anteriores</span></label>
+    </div>`;
+  }
+  return h;
+}
+function paintTimer(){
+  const st = STEPS[S.step]; if (!st || st.t!=="qa") return;
+  const ev = st.ev, e = EVENTS[ev], q = Q(ev);
+  const box = $("#timerBox"); if (!box) return;
+  $("#tval").textContent = fmt(q.left);
+  $("#tbar").style.width = (100*q.left/(e.min*60))+"%";
+  box.classList.toggle("low", q.left<=30 && q.left>0);
+  box.classList.toggle("end", q.left<=0);
+  const running = T.running && T.ev===ev;
+  $("#trow").innerHTML = q.timerDone
+    ? `<span class="hint">Tiempo usado: ${fmt(q.used)}</span>`
+    : `<button class="btn pink" id="tstart">${running?"Pausar":(q.left<e.min*60?"Continuar":"Iniciar")}</button>${q.left<e.min*60?`<button class="btn ghost" id="tfinish">Terminar ya</button>`:""}`;
+}
+function beep(){
+  try{ const ac=T.ac; if(!ac) return; [0,0.3,0.6].forEach(d=>{ const o=ac.createOscillator(), g=ac.createGain(); o.frequency.value=880; g.gain.setValueAtTime(0.0001,ac.currentTime+d); g.gain.exponentialRampToValueAtTime(0.25,ac.currentTime+d+0.02); g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+d+0.22); o.connect(g).connect(ac.destination); o.start(ac.currentTime+d); o.stop(ac.currentTime+d+0.25); }); }catch(e){}
+}
+function stopTimer(){ T.running=false; clearInterval(T.iv); T.iv=null; }
+function toggleTimer(){
+  const ev = STEPS[S.step].ev, q = Q(ev);
+  if (!T.ac){ try{ T.ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if (T.running && T.ev===ev){ stopTimer(); persist(); paintTimer(); return; }
+  stopTimer(); T.ev = ev; T.running = true;
+  T.iv = setInterval(()=>{
+    q.left--; q.used++;
+    if (q.left<=0){ q.left=0; finishTimer(ev, true); return; }
+    if (q.used % 10 === 0) persist();
+    paintTimer();
+  }, 1000);
+  paintTimer();
+}
+function finishTimer(ev, natural){
+  stopTimer();
+  const q = Q(ev); q.timerDone = true;
+  if (natural) beep();
+  persist(true);
+  if (STEPS[S.step].t==="qa" && STEPS[S.step].ev===ev){ render(); const f=$(`#a-${ev}-0`); if (f) f.focus(); }
+}
+
+/* ---------- cierre ---------- */
+function renderClosing(){
+  return `<div class="head"><div><div class="eyebrow">Cierre</div><h2>Preguntas de cierre</h2></div></div>
+  <div class="two">
+    <div class="answers" style="margin-top:0">
+      ${CLOSING_Q.map((x,i)=>`<div class="ans"><label for="c-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="c-${i}" data-close="${i}" placeholder="Respuesta del equipo…">${esc(S.closing[i])}</textarea></div>`).join("")}
+    </div>
+    <div class="card"><div class="eyebrow">Lecciones clave</div><h3 style="margin:6px 0 10px">Lo que deja este ejercicio</h3><ul class="lessons">${LESSONS.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+  </div>
+  ${renderSummary()}`;
+}
+function renderSummary(){
+  return `<h3 style="font-size:24px;margin:34px 0 12px">Resumen de las preguntas</h3>
+  <div class="rep">${EVENTS.filter(e=>e.qs).map(e=>{
+    const ev = EVENTS.indexOf(e), q = S.qa[ev];
+    const ok = q ? q.checks.filter(Boolean).length : 0;
+    return `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${q?fmt(q.used):"—"} de ${e.min}:00 · ${q&&q.none?"no tuvimos en cuenta ninguna de las anteriores":`${ok} de ${e.chk.length} puntos tenidos en cuenta`}</div>
+      ${e.qs.map((x,i)=>{const a=q?q.answers[i]:"";return `<div class="rq"><div class="q">${esc(x)}</div><div class="a ${a&&a.trim()?"":"empty"}">${a&&a.trim()?esc(a):"Sin respuesta"}</div></div>`;}).join("")}
+    </div>`;}).join("")}</div>`;
+}
+
+/* ---------- comentarios finales ---------- */
+function renderFinal(){
+  return `<div class="head"><div><div class="eyebrow">Cierre</div><h2>Comentarios finales</h2></div></div>
+  <div class="answers" style="margin-top:0;max-width:900px">
+    ${FINAL.map(f=>`<div class="ans"><label for="f-${f.k}">${esc(f.label)}</label><textarea id="f-${f.k}" data-final="${f.k}" placeholder="Escriban aquí…">${esc(S.final[f.k])}</textarea></div>`).join("")}
+  </div>
+  <div class="actions"><span class="hint">Todo se guarda automáticamente. Al seguir se genera el reporte.</span></div>`;
+}
+
+/* ---------- reporte ---------- */
+function totalSeconds(){ const end = S.ended || Date.now(); return S.started ? (end - S.started)/1000 : 0; }
+function renderReport(){
+  if (!S.ended){ S.ended = Date.now(); persist(true); }
+  const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
+  const qsTime = Object.values(S.qa).reduce((a,q)=>a+(q.used||0),0);
+  let h = `<div class="head"><div><div class="eyebrow">Reporte del ejercicio</div><h2>${esc(S.team || "Equipo de crisis")}</h2></div><div class="when">${fmtDate(S.started)}</div></div>
+  <div class="rep">
+    <div class="rep-head">
+      <div><b>${fmt(totalSeconds())}</b><span>Duración total</span></div>
+      <div><b>${fmt(qsTime)}</b><span>Tiempo en preguntas</span></div>
+      <div><b>${essOn}/${ess.length}</b><span>Áreas responsables activadas</span></div>
+      <div><b>${EVENTS.filter(e=>e.qs).reduce((a,e)=>{const q=S.qa[EVENTS.indexOf(e)];return a+(q?q.checks.filter(Boolean).length:0);},0)}/${EVENTS.filter(e=>e.qs).reduce((a,e)=>a+e.chk.length,0)}</b><span>Puntos tenidos en cuenta</span></div>
+    </div>
+    <div class="rsec"><h3>Activación del equipo de crisis</h3>
+      <div class="rq"><div class="q">¿Por qué es una situación de crisis?</div><div class="a ${S.why.trim()?"":"empty"}">${S.why.trim()?esc(S.why):"Sin respuesta"}</div></div>
+      <div class="rq"><div class="q">Áreas seleccionadas</div>
+        <div class="area-recap">${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<span class="${rv(r)}">${esc(r.name)} · ${A(r.k)?(r.need?"bien activada":"no debía activarse"):"faltó activarla"}</span>`).join("")}</div>
+      </div>
+    </div>`;
+  EVENTS.forEach((e,ev)=>{
+    if (!e.qs) return;
+    const q = S.qa[ev];
+    h += `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${q?fmt(q.used):"—"} de ${e.min}:00</div>
+      ${e.qs.map((x,i)=>{const a=q?q.answers[i]:"";return `<div class="rq"><div class="q">${esc(x)}</div><div class="a ${a&&a.trim()?"":"empty"}">${a&&a.trim()?esc(a):"Sin respuesta"}</div></div>`;}).join("")}
+      <div class="rq"><div class="q">¿Tuvimos en cuenta esto?</div>${q&&q.none?`<div class="a" style="color:var(--bad)">No tuvimos en cuenta ninguna de las anteriores.</div>`:""}<ul class="chk-list">${e.chk.map((x,i)=>{const y=q&&q.checks[i];return `<li><span class="${y?"y":"n"}">${y?"✓":"✗"}</span><span>${esc(x)}</span></li>`;}).join("")}</ul></div>
+    </div>`;
+  });
+  h += `<div class="rsec"><h3>Preguntas de cierre</h3>${CLOSING_Q.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${S.closing[i].trim()?"":"empty"}">${S.closing[i].trim()?esc(S.closing[i]):"Sin respuesta"}</div></div>`).join("")}</div>
+    <div class="rsec"><h3>Comentarios finales</h3>${FINAL.map(f=>`<div class="rq"><div class="q">${esc(f.label)}</div><div class="a ${S.final[f.k].trim()?"":"empty"}">${S.final[f.k].trim()?esc(S.final[f.k]):"Sin comentarios"}</div></div>`).join("")}</div>
+  </div>
+  <div class="actions">
+    <button class="btn pink" id="dlReport">Descargar reporte en PDF</button>
+    <button class="btn ghost" id="newSession">Nueva sesión</button>
+    <span class="hint" id="dlMsg">${DB ? "El reporte queda guardado en el juego y aparece en la pantalla de inicio." : "El reporte queda guardado en este navegador y aparece en la pantalla de inicio."}</span>
+  </div>`;
+  return h;
+}
+function reportHtml(){
+  const css = `body{font-family:Arial,Helvetica,sans-serif;color:#16261a;max-width:860px;margin:32px auto;padding:0 20px;line-height:1.5}h1{color:#03230d;margin-bottom:0}h2{color:#03230d;border-bottom:3px solid #ff74cf;padding-bottom:4px;margin-top:32px}.meta{color:#4d5c50;font-size:14px}.q{font-weight:bold;margin-top:14px}.a{white-space:pre-wrap;margin:4px 0 0}.e{color:#888;font-style:italic}li{margin:4px 0}.y{color:#1d7a43}.n{color:#b3261e}`;
+  const ans = a => a && a.trim() ? `<p class="a">${esc(a)}</p>` : `<p class="a e">Sin respuesta</p>`;
+  let b = `<h1>Reporte · Accidente fatal en misión</h1><p class="meta">${esc(S.team||"Equipo de crisis")} · ${fmtDate(S.started)} · Duración total ${fmt(totalSeconds())}</p>`;
+  b += `<h2>Activación del equipo de crisis</h2><p class="q">¿Por qué es una situación de crisis?</p>${ans(S.why)}<p class="q">Áreas</p><ul>${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<li class="${rv(r)==="good"?"y":"n"}">${esc(r.name)}: ${A(r.k)?(r.need?"bien activada":"no debía activarse"):"faltó activarla"}</li>`).join("")}</ul>`;
+  EVENTS.forEach((e,ev)=>{ if(!e.qs) return; const q=S.qa[ev];
+    b += `<h2>Evento ${e.n}</h2><p class="meta">${esc(e.when)} · tiempo usado ${q?fmt(q.used):"—"} de ${e.min}:00</p>`;
+    e.qs.forEach((x,i)=>{ b += `<p class="q">${esc(x)}</p>${ans(q?q.answers[i]:"")}`; });
+    b += `<p class="q">¿Tuvimos en cuenta esto?</p>${q&&q.none?`<p class="a n">No tuvimos en cuenta ninguna de las anteriores.</p>`:""}<ul>${e.chk.map((x,i)=>{const y=q&&q.checks[i];return `<li class="${y?"y":"n"}">${y?"✓":"✗"} ${esc(x)}</li>`;}).join("")}</ul>`;
+  });
+  b += `<h2>Preguntas de cierre</h2>${CLOSING_Q.map((x,i)=>`<p class="q">${esc(x)}</p>${ans(S.closing[i])}`).join("")}`;
+  b += `<h2>Comentarios finales</h2>${FINAL.map(f=>`<p class="q">${esc(f.label)}</p>${ans(S.final[f.k])}`).join("")}`;
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Reporte ejercicio de crisis</title><style>${css}</style></head><body>${b}</body></html>`;
+}
+
+/* ---------- reporte PDF corporativo ---------- */
+function buildPdf(){
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit:"mm", format:"a4"});
+  const W = 210, M = 18, CW = W - 2*M, BOTTOM = 279;
+  const C = {green:[3,35,13], mid:[10,58,27], pink:[255,116,207], cream:[246,239,228], ink:[22,38,26], gray:[90,104,94], tint:[238,243,238], line:[214,224,215], good:[29,122,67], bad:[179,38,30], white:[255,255,255]};
+  const team = S.team || "Equipo de crisis";
+  const clean = s => String(s==null?"":s).replace(/[“”«»]/g,'"').replace(/[‘’]/g,"'").replace(/[—–]/g,"-").replace(/…/g,"...").replace(/[^\x00-\xFF\n]/g,"");
+  const PT = 0.3528;
+  let y = 0;
+
+  function contHeader(){
+    doc.setFillColor(...C.green); doc.rect(0,0,W,13,"F");
+    doc.setFillColor(...C.pink); doc.rect(0,13,W,0.8,"F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...C.cream);
+    doc.text("Opella  |  Reporte del ejercicio de crisis", M, 8.3);
+    doc.setFont("helvetica","normal"); doc.setTextColor(...C.pink);
+    doc.text(clean(team), W-M, 8.3, {align:"right"});
+    y = 24;
+  }
+  function ensure(h){ if (y + h > BOTTOM){ doc.addPage(); contHeader(); } }
+  function text(str, o={}){
+    const size=o.size||10, lh=(o.lh||1.45)*size*PT, x=o.x||M, w=o.w||CW;
+    doc.setFont("helvetica", o.bold?"bold":(o.italic?"italic":"normal")); doc.setFontSize(size); doc.setTextColor(...(o.color||C.ink));
+    const lines = doc.splitTextToSize(clean(str), w);
+    lines.forEach(l=>{
+      ensure(lh);
+      if (o.bar){ doc.setFillColor(...o.bar); doc.rect(M, y, 0.9, lh, "F"); }
+      doc.text(l, x, y + size*PT*0.9);
+      y += lh;
+    });
+  }
+  let secN = 0;
+  function section(title){
+    ensure(22); y += 5; secN++;
+    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...C.pink);
+    doc.text(String(secN).padStart(2,"0"), M, y+4);
+    doc.setFontSize(15); doc.setTextColor(...C.green);
+    doc.text(clean(title), M+9, y+4.6);
+    y += 8; doc.setDrawColor(...C.pink); doc.setLineWidth(0.6); doc.line(M, y, M+CW, y);
+    y += 6;
+  }
+  function band(left, right){
+    ensure(14);
+    doc.setFillColor(...C.tint); doc.roundedRect(M, y, CW, 10, 1.5, 1.5, "F");
+    doc.setFillColor(...C.green); doc.rect(M, y, 2, 10, "F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...C.green);
+    doc.text(clean(left), M+6, y+6.6);
+    if (right){ doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...C.gray); doc.text(clean(right), M+CW-4, y+6.6, {align:"right"}); }
+    y += 14;
+  }
+  function qa(q, a, n){
+    ensure(16);
+    text((n?n+". ":"")+q, {bold:true, size:10.5, color:C.green});
+    y += 1.2;
+    const has = a && String(a).trim();
+    text(has ? a : "Sin respuesta", {x:M+4, w:CW-4, size:10, color:has?C.ink:C.gray, italic:!has, bar:C.pink});
+    y += 4;
+  }
+  function checkItem(label, yes){
+    const size=10, lh=1.4*size*PT;
+    doc.setFont("helvetica","normal"); doc.setFontSize(size);
+    const lines = doc.splitTextToSize(clean(label), CW-40);
+    ensure(lines.length*lh + 2);
+    const cy = y + 2.2;
+    if (yes){ doc.setFillColor(...C.good); doc.circle(M+2, cy, 1.8, "F"); doc.setDrawColor(...C.white); doc.setLineWidth(0.5); doc.line(M+1.1, cy, M+1.8, cy+0.7); doc.line(M+1.8, cy+0.7, M+3, cy-0.8); }
+    else { doc.setDrawColor(...C.bad); doc.setLineWidth(0.45); doc.circle(M+2, cy, 1.7, "S"); }
+    doc.setFont("helvetica","normal"); doc.setFontSize(size); doc.setTextColor(...C.ink);
+    lines.forEach((l,i)=>doc.text(l, M+7, y + size*PT*0.9 + i*lh));
+    doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...(yes?C.good:C.bad));
+    doc.text(yes?"CONSIDERADO":"NO CONSIDERADO", M+CW, y + size*PT*0.9, {align:"right"});
+    y += lines.length*lh + 2.2;
+  }
+
+  /* portada */
+  doc.setFillColor(...C.green); doc.rect(0,0,W,62,"F");
+  doc.setFillColor(...C.mid); doc.rect(W-62,0,62,62,"F");
+  doc.setFillColor(...C.pink); doc.rect(0,62,W,1.4,"F");
+  doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...C.pink);
+  doc.text("OPELLA  |  EJERCICIO DE GESTIÓN DE CRISIS  |  NIVEL 1", M, 17);
+  doc.setFontSize(28); doc.setTextColor(...C.cream);
+  doc.text("Accidente fatal en misión", M, 33);
+  doc.setFont("helvetica","normal"); doc.setFontSize(12);
+  doc.text("Reporte del ejercicio", M, 42);
+  doc.setFontSize(10); doc.setTextColor(...C.pink);
+  doc.text(clean(team) + "   ·   " + clean(fmtDate(S.started)), M, 52);
+  y = 72;
+
+  /* indicadores */
+  const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
+  const qsTime = Object.values(S.qa).reduce((a,q)=>a+(q.used||0),0);
+  const evs = EVENTS.filter(e=>e.qs);
+  const okPts = evs.reduce((a,e)=>{const q=S.qa[EVENTS.indexOf(e)];return a+(q?q.checks.filter(Boolean).length:0);},0);
+  const allPts = evs.reduce((a,e)=>a+e.chk.length,0);
+  const kpis = [[fmt(totalSeconds()),"Duración total"],[fmt(qsTime),"Tiempo en preguntas"],[essOn+"/"+ess.length,"Áreas responsables activadas"],[okPts+"/"+allPts,"Puntos tenidos en cuenta"]];
+  const tw = (CW - 3*4)/4;
+  kpis.forEach((k,i)=>{
+    const x = M + i*(tw+4);
+    doc.setFillColor(...C.tint); doc.roundedRect(x, y, tw, 24, 2, 2, "F");
+    doc.setFillColor(...C.pink); doc.rect(x, y, tw, 1.2, "F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(17); doc.setTextColor(...C.green);
+    doc.text(clean(k[0]), x+4, y+12);
+    doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...C.gray);
+    doc.text(doc.splitTextToSize(clean(k[1]), tw-8), x+4, y+18);
+  });
+  y += 32;
+
+  /* contexto */
+  doc.setFillColor(...C.tint);
+  doc.setFont("helvetica","normal"); doc.setFontSize(10);
+  const ctxLines = doc.splitTextToSize(clean(CONTEXTO), CW-12);
+  const ch = 10 + ctxLines.length*5;
+  doc.roundedRect(M, y, CW, ch, 2, 2, "F"); doc.setFillColor(...C.pink); doc.rect(M, y, 1.4, ch, "F");
+  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...C.pink); doc.text("CONTEXTO", M+6, y+6);
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...C.ink); doc.text(ctxLines, M+6, y+11.5);
+  y += ch + 4;
+
+  /* activación */
+  section("Activación del equipo de crisis");
+  qa("¿Por qué es una situación de crisis?", S.why);
+  ensure(10);
+  text("Áreas involucradas", {bold:true, size:10.5, color:C.green}); y += 1.5;
+  const areas = ROLES.filter(r=>A(r.k)||r.need);
+  const colW = CW/2;
+  for (let i=0;i<areas.length;i+=2){
+    ensure(7);
+    [areas[i], areas[i+1]].forEach((r,j)=>{
+      if (!r) return;
+      const x = M + j*colW, good = rv(r)==="good";
+      doc.setFillColor(...(good?C.good:C.bad)); doc.circle(x+1.6, y+2.3, 1.3, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(...C.ink); doc.text(clean(r.name), x+5, y+3.3);
+      doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...(good?C.good:C.bad));
+      doc.text(A(r.k)?(r.need?"Bien activada":"No debía activarse"):"Faltó activarla", x+5, y+7);
+    });
+    y += 10;
+  }
+
+  /* eventos */
+  section("Decisiones por evento");
+  EVENTS.forEach((e,ev)=>{
+    if (!e.qs) return;
+    const q = S.qa[ev];
+    band(`Evento ${e.n}  ·  ${e.when}`, `Tiempo usado ${q?fmt(q.used):"--:--"} de ${e.min}:00`);
+    e.qs.forEach((x,i)=>qa(x, q?q.answers[i]:"", i+1));
+    ensure(12);
+    text("¿Tuvimos en cuenta esto?", {bold:true, size:10.5, color:C.green}); y += 1.5;
+    if (q && q.none){ text("No tuvimos en cuenta ninguna de las anteriores.", {size:10, color:C.bad, bold:true}); y += 1; }
+    e.chk.forEach((x,i)=>checkItem(x, !!(q && q.checks[i])));
+    y += 5;
+  });
+
+  /* cierre */
+  section("Preguntas de cierre");
+  CLOSING_Q.forEach((x,i)=>qa(x, S.closing[i], i+1));
+
+  section("Comentarios finales");
+  FINAL.forEach(f=>qa(f.label, S.final[f.k]));
+
+  /* pie de página */
+  const n = doc.getNumberOfPages();
+  for (let i=1;i<=n;i++){
+    doc.setPage(i);
+    doc.setDrawColor(...C.line); doc.setLineWidth(0.3); doc.line(M, 286, W-M, 286);
+    doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...C.gray);
+    doc.text("Opella Colombia  ·  Ejercicio de entrenamiento: escenario ficticio  ·  Uso interno", M, 290.5);
+    doc.setTextColor(...C.green); doc.setFont("helvetica","bold");
+    doc.text(`Página ${i} de ${n}`, W-M, 290.5, {align:"right"});
+  }
+  return doc.output("blob");
+}
+
+/* ---------- navegación ---------- */
+function blocked(){
+  const st = STEPS[S.step];
+  if (st.t==="crisis") return !S.areasDone ? "Escriban por qué es una crisis y confirmen las áreas" : "";
+  if (st.t==="qa") return !Q(st.ev).saved ? "Guarden las respuestas para continuar" : "";
+  return "";
+}
+function renderFoot(){
+  const st = STEPS[S.step], b = blocked();
+  const names = {video:"Video", crisis:"Activación", qa:"Preguntas", closing:"Preguntas de cierre", final:"Comentarios finales", report:"Reporte"};
+  const where = (st.ev!=null ? `Evento ${EVENTS[st.ev].n} · ` : "") + names[st.t];
+  $("#where").textContent = b ? `${where} · ${b}` : where;
+  const last = S.step === STEPS.length-1;
+  $("#next").textContent = st.t==="final" ? "Generar reporte →" : (STEPS[S.step+1] && STEPS[S.step+1].t==="video" ? `Evento ${EVENTS[STEPS[S.step+1].ev].n} →` : "Siguiente →");
+  $("#next").disabled = !!b || last;
+  $("#next").hidden = last;
+}
+function next(){ if (S.step<0 || blocked() || S.step>=STEPS.length-1) return; stopTimer(); S.step++; persist(); render(); }
+function prev(){ stopTimer(); if (S.step>0) S.step--; else S.step=-1; persist(); render(); }
+
+/* =========================================================
+   EVENTOS
+   ========================================================= */
+document.addEventListener("click", async e=>{
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.id==="start"){
+    const team = ($("#teamName").value||"").trim();
+    S = fresh(); S.team = team; S.id = "s"+Date.now()+Math.random().toString(36).slice(2,6); S.started = Date.now(); S.step = 0;
+    persist(true); render(); return;
+  }
+  if (t.dataset.del){ DEL_ID = t.dataset.del; DEL_MSG = ""; renderIntro(); return; }
+  if (t.dataset.delno){ DEL_ID = null; renderIntro(); return; }
+  if (t.dataset.delok){
+    const id = t.dataset.delok;
+    try{
+      if (DB) await DB.doc("sesiones/"+id).delete();
+      try{ const c = JSON.parse(localStorage.getItem("crisis-current")||"null"); if (c && c.id===id) localStorage.removeItem("crisis-current"); }catch(e){}
+      const m = localSessions(); delete m[id]; writeLocalSessions(m);
+      PAST = PAST.filter(p=>p.id!==id); DEL_MSG = "Intento borrado.";
+    }catch(err){ DEL_MSG = "No se pudo borrar el intento. Intente de nuevo."; }
+    DEL_ID = null; renderIntro(); return;
+  }
+  if (t.dataset.open){ const p = PAST.find(x=>x.id===t.dataset.open); if (p){ S = Object.assign(fresh(), JSON.parse(JSON.stringify(p))); if (S.step<0) S.step=0; render(); } return; }
+  if (t.dataset.role){ if (S.areasDone) return; const k=t.dataset.role; S.roles = A(k) ? S.roles.filter(x=>x!==k) : [...S.roles,k]; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (t.id==="confirmAreas"){ if (!S.roles.length || !S.why.trim()) return; S.areasDone = true; persist(true); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (t.id==="redoAreas"){ S.areasDone = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (t.id==="tstart") return toggleTimer();
+  if (t.id==="tfinish"){ const ev = STEPS[S.step].ev; finishTimer(ev, false); return; }
+  if (t.id==="saveAns"){ const q = Q(STEPS[S.step].ev); q.saved = true; persist(true); const y=window.scrollY; render(); window.scrollTo({top:y+260, behavior:"smooth"}); return; }
+  if (t.id==="editAns"){ const q = Q(STEPS[S.step].ev); q.saved = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (t.id==="next") return next();
+  if (t.id==="prev") return prev();
+  if (t.id==="newSession"){ stopTimer(); S = fresh(); try{ localStorage.removeItem("crisis-current"); }catch(e){} render(); return; }
+  if (t.id==="dlReport"){
+    const name = "Reporte-crisis-" + (S.team||"equipo").replace(/[^\wáéíóúñ-]+/gi,"-") + "-" + new Date(S.started||Date.now()).toISOString().slice(0,10) + ".pdf";
+    if (!window.jspdf){ $("#dlMsg").textContent = "No se pudo preparar el PDF. Recargue la página e intente de nuevo."; return; }
+    try{
+      const blob = buildPdf();
+      if (DL) await DL.save({filename:name, data:blob});
+      else { const u = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = u; link.download = name; document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(u), 4000); }
+      $("#dlMsg").textContent = "Reporte descargado.";
+    }
+    catch(err){ $("#dlMsg").textContent = err && err.code==="cancelled" ? "Descarga cancelada." : "No se pudo descargar el reporte."; }
+  }
+});
+document.addEventListener("input", e=>{
+  const el = e.target, d = el.dataset || {};
+  if (d.bind==="why"){
+    S.why = el.value; persist();
+    const b = $("#confirmAreas"); if (b) b.disabled = !(S.roles.length && S.why.trim());
+    const h = $("#crisisHint"); if (h) h.textContent = S.why.trim() ? "" : "Escriban primero por qué es una crisis.";
+    renderFoot(); return;
+  }
+  if (d.ans!==undefined){ Q(STEPS[S.step].ev).answers[+d.ans] = el.value; persist(); return; }
+  if (d.close!==undefined){ S.closing[+d.close] = el.value; persist(); return; }
+  if (d.final!==undefined){ S.final[d.final] = el.value; persist(); return; }
+});
+document.addEventListener("change", e=>{
+  const el = e.target;
+  if (el.dataset && el.dataset.chk!==undefined){
+    const q = Q(STEPS[S.step].ev); q.checks[+el.dataset.chk] = el.checked;
+    if (el.checked && q.none){ q.none = false; const n = document.querySelector('[data-none]'); if (n) n.checked = false; }
+    persist(); return;
+  }
+  if (el.dataset && el.dataset.none!==undefined){
+    const q = Q(STEPS[S.step].ev); q.none = el.checked;
+    if (el.checked){ q.checks = q.checks.map(()=>false); document.querySelectorAll('[data-chk]').forEach(c=>c.checked=false); }
+    persist();
+  }
+});
+document.addEventListener("keydown", e=>{
+  if (e.target.matches("textarea,input")) return;
+  if (S.step<0) return;
+  if (e.key==="ArrowRight") next();
+  else if (e.key==="ArrowLeft") prev();
+});
+setInterval(()=>{ const el=$("#elapsed"); if (el && S.started) el.textContent = fmt(totalSeconds()); }, 1000);
+
+/* =========================================================
+   ARRANQUE
+   ========================================================= */
+const hot = window.claude && window.claude.hot;
+if (hot && hot.snapshot){ try{ hot.snapshot(()=>({S})); }catch(e){} }
+function start(data){
+  if (data && data.S) S = data.S;
+  else { try{ const c = JSON.parse(localStorage.getItem("crisis-current")||"null"); if (c && c.id && !c.ended) S = Object.assign(fresh(), c); }catch(e){} }
+  render();
+}
+if (hot && hot.ready) hot.ready(start); else start(hot && hot.data ? hot.data : {});
+
+loadLocalPast(); if (S.step<0) renderIntro();
+(async ()=>{
+  if (!window.claude || !window.claude.use) return;
+  try{
+    const [db, dl] = await Promise.all([claude.use("db"), claude.use("downloads")]);
+    DB = db; DL = dl;
+    if (DB){
+      DB.collection("sesiones").onSnapshot(snap=>{
+        PAST = snap.docs.map(d=>Object.assign({id:d.id}, d.data())).filter(x=>x.started).sort((a,b)=>b.started-a.started);
+        if (S.step<0) renderIntro();
+      }, ()=>{});
+      if (S.id) persist(true);
+    }
+  }catch(e){}
+})();
+</script>
+
+</body>
+</html>
