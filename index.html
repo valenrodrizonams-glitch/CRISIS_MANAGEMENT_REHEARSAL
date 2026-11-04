@@ -227,7 +227,12 @@ textarea:disabled,input:disabled,select:disabled{opacity:.55;cursor:not-allowed}
 .fisa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:stretch}
 .fcol{display:flex;flex-direction:column;min-width:0}
 .fcol h4{margin:0;background:var(--fisa-head);color:var(--cream);font-family:var(--f-display);font-size:19px;font-weight:800;padding:12px 14px;border-radius:8px 8px 0 0}
-.fcol h4 span{color:var(--pink)}
+.fcol h4 span,.fhead span{color:var(--pink)}
+.fhead{display:flex;align-items:center;gap:6px;width:100%;text-align:left;margin:0;background:var(--fisa-head);color:var(--cream);font-family:var(--f-display);font-size:19px;font-weight:800;padding:12px 14px;border:0;border-radius:8px 8px 0 0}
+.fhead i{margin-left:auto;font-style:normal;font-family:var(--f-body);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--on-pink);background:var(--pink);padding:3px 8px;border-radius:999px}
+.fhead:hover:not(:disabled){outline:2px solid var(--pink);outline-offset:-2px}
+.fhead:disabled{cursor:not-allowed}
+.fhead:disabled i{opacity:.5}
 .fbody{flex:1;border:1px solid var(--line-2);border-top:0;border-radius:0 0 8px 8px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg-2)}
 .fitem{position:relative;text-align:left;width:100%;border:1px solid var(--line);border-radius:8px;background:rgba(246,239,228,.03);padding:10px 10px 10px 30px;font-size:14.5px;line-height:1.35;display:flex;flex-direction:column;gap:4px}
 button.fitem:hover:not(:disabled){border-color:var(--pink)}
@@ -262,6 +267,11 @@ button.fitem:hover:not(:disabled){border-color:var(--pink)}
 .imp .rh svg{width:30px;height:30px;flex:none;fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .imp .cell{background:var(--imp-col);padding:6px;display:flex;flex-direction:column;gap:6px;border:2px solid transparent}
 .imp .cell.isimp{border-color:var(--pink)}
+.imp.ro .cell p{margin:0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.imp.ro .cell{min-height:56px}
+.impflag{align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--pink);color:var(--on-pink);padding:2px 8px;border-radius:999px}
+.rimpev{margin:10px 0 0;font-size:14.5px;white-space:pre-wrap}
+.rimpev .empty,.imp.ro .empty{color:var(--muted);font-style:italic}
 .imp .cell textarea{min-height:78px;font-size:14px;background:var(--bg);padding:8px}
 .impbtn{align-self:flex-start;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--muted)}
 .impbtn.on{background:var(--pink);border-color:var(--pink);color:var(--on-pink);font-weight:700}
@@ -346,7 +356,7 @@ const CONTEXTO = "Tener presente que nuestra fuerza de ventas de representantes 
 
 const EVENTS = [
  {id:"e1", n:1, lead:"Martes · 2:10 p. m.", when:"Martes · 2:10 p. m.", text:"Martes · 2:10 p. m. Se recibe una llamada de la policía: uno de nuestros representantes médicos tuvo un accidente de tránsito en una vía rural mientras conducía un auto de la empresa. Un tercero, un motociclista, está gravemente herido. Su empleado está conmocionado, pero físicamente ileso.",
-  min:5,
+  min:10,
   qs:["“¿Cuáles son sus primeras acciones en los próximos quince minutos?”",
       "“¿Activa el equipo de crisis ahora? ¿Por qué sí o por qué no?”",
       "“¿Qué elementos de FISA captura de inmediato?”"],
@@ -355,7 +365,7 @@ const EVENTS = [
        "Notifique a Legales y Recursos Humanos de inmediato; alerte a la aseguradora y al administrador de la flota.",
        "Registre todo; el vehículo de la empresa y el teléfono pueden convertirse en evidencia."]},
  {id:"e2", n:2, lead:"Evento #2 a las 3:30 p.m.", when:"Martes · 3:30 p. m.", text:"Evento #2 a las 3:30 p.m. El panorama aún se está formando, el motociclista se encuentra en cuidados intensivos. La policía ha retenido el coche de la empresa y el teléfono de trabajo de su empleado como parte de su investigación.\n\nSu empleado, angustiado, afirma que el motociclista \"salió de la nada\". No hubo otros testigos. La policía se muestra cortés pero evasiva en cuanto a la responsabilidad.\n\nUn colega menciona que este representante tiene una agenda de visitas muy exigente y \"siempre va corriendo entre citas\".",
-  min:5,
+  min:10,
   qs:["“Realicen un FISA completo. ¿Qué saben frente a qué asumen?”",
       "“¿A quién notifican: al grupo, a la aseguradora, a la familia del empleado?”",
       "“¿Cómo apoyan a su empleado sin interferir con la investigación?”",
@@ -368,7 +378,7 @@ const EVENTS = [
  {id:"e3", n:3, lead:"Evento 3, continua el Miércoles.", when:"Miércoles", text:"Evento 3, continua el Miércoles. El motociclista ha fallecido a causa de sus heridas.\n\nEsto se ha convertido ahora en un accidente mortal. Se abre una investigación penal. Nuestro empleado podría enfrentarse a cargos personales dependiendo de los hallazgos.\n\nLa familia de la víctima, afligida y enojada, se pone en contacto con un periodista local. Aparece un artículo breve: \"El coche de empresa de un representante farmacéutico mata a un motociclista: ¿iba con exceso de velocidad para cumplir sus objetivos?\"\n\nInternamente, los empleados están inquietos; algunos se preguntan si las cuotas de visitas de la compañía los empujan a conducir de forma insegura.",
   min:0, qs:null},
  {id:"e4", n:4, lead:"Evento #4, el Jueves", when:"Jueves", text:"Evento #4, el Jueves los investigadores comparten un hallazgo preliminar.\n\nLos datos del coche de empresa y del teléfono de trabajo del empleado indican que iba conduciendo por encima del límite de velocidad en el momento del accidente, y había estado enviando mensajes a su gerente pocos minutos antes.",
-  min:7,
+  min:12,
   qs:["“¿Cómo cambia su postura el hallazgo sobre el exceso de velocidad y el envío de mensajes?”",
       "“¿Cuál es su responsabilidad si la presión laboral contribuyó al incidente?”",
       "“¿Cuáles son los elementos esenciales de su Informe de Situación (SitRep) para el grupo?”",
@@ -379,7 +389,7 @@ const EVENTS = [
        "Coherencia y cuidado equitativo hacia el empleado, la familia de la víctima y el resto del personal.",
        "Una revisión genuina de la seguridad al conducir debe formar parte de la respuesta, no ser una maniobra de distracción."]},
  {id:"e5", n:5, lead:"Evento #5, el Viernes.", when:"Viernes", text:"Evento #5, el Viernes. La noticia ya está en la prensa regional.\n\n\"Compañía farmacéutica bajo escrutinio tras un accidente mortal: cuestionamientos sobre la carga de trabajo del conductor.\"\n\nLos representantes piden una revisión de las condiciones de conducción de la fuerza de ventas.\n\nLa familia de la víctima, a través de un abogado, señala una demanda civil.\n\nUn periodista solicita una declaración de la empresa antes de que termine el día.",
-  min:8,
+  min:13,
   qs:["“¿Emiten una declaración pública y qué dice?”",
       "“¿Cómo se comprometen de manera creíble con una revisión de la seguridad al conducir?”",
       "“¿Cómo equilibran la empatía, la cautela legal y la rendición de cuentas?”",
@@ -433,17 +443,14 @@ const ROLES = [
 const RN = Object.fromEntries(ROLES.map(r=>[r.k,r.name]));
 
 /* Secuencia del ejercicio */
-/* Etapas: la etapa 3 junta los eventos 3 y 4 */
-const STAGES = [
- {n:1, ev:0, sub:"Evento 1"},
- {n:2, ev:1, sub:"Evento 2"},
- {n:3, ev:3, sub:"Eventos 3 y 4"},
- {n:4, ev:4, sub:"Evento 5"}
-];
+/* Eventos con decisiones (el evento 3 es solo video; las preguntas del 3 y 4 van en el 4) */
+const STAGES = [{ev:0}, {ev:1}, {ev:3}, {ev:4}];
+const evN = si => EVENTS[STAGES[si].ev].n;
 const STEPS = [
  {t:"video", ev:0, st:0}, {t:"crisis", ev:0, st:0}, {t:"qa", ev:0, st:0},
  {t:"video", ev:1, st:1}, {t:"qa", ev:1, st:1},
- {t:"video", ev:2, st:2}, {t:"video", ev:3, st:2}, {t:"qa", ev:3, st:2},
+ {t:"video", ev:2},
+ {t:"video", ev:3, st:2}, {t:"qa", ev:3, st:2},
  {t:"video", ev:4, st:3}, {t:"qa", ev:4, st:3},
  {t:"closing"}, {t:"final"}, {t:"report"}
 ];
@@ -553,8 +560,8 @@ function render(){
 }
 
 function renderChips(st){
-  const cur = st.st!=null ? st.st : (st.t==="report" ? 5 : 4);
-  const labels = ["Etapa 1","Etapa 2","Etapa 3","Etapa 4","Cierre","Reporte"];
+  const cur = st.ev!=null ? st.ev : (st.t==="report" ? 6 : 5);
+  const labels = ["E1","E2","E3","E4","E5","Cierre","Reporte"];
   $("#chips").innerHTML = labels.map((l,i)=>`<span class="chip ${i===cur?"on":i<cur?"past":""}">${l}</span>`).join("");
 }
 
@@ -567,7 +574,7 @@ function renderIntro(){
       <div class="ctx"><span class="eyebrow">Contexto</span><p>${esc(CONTEXTO)}</p></div>
       <div class="howto">
         <div><b class="n">1</b><p style="margin:0"><strong>Activen el equipo de crisis</strong><span>Decidan por qué es una situación de crisis y qué áreas deben estar involucradas.</span></p></div>
-        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada etapa el equipo responde las preguntas, llena su FISA y define qué hará cada área, con el tiempo corriendo.</span></p></div>
+        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada evento el equipo llena su FISA, define qué hará cada encargado y responde las preguntas, con el tiempo corriendo.</span></p></div>
         <div><b class="n">3</b><p style="margin:0"><strong>Decisiones que se vuelven acciones</strong><span>Comparen sus respuestas con lo que se esperaba y conviertan los aprendizajes en acciones.</span></p></div>
       </div>
     </div>
@@ -580,7 +587,7 @@ function renderIntro(){
         : `<div class="prow"><button class="popen" data-open="${esc(p.id)}"><span>${esc(p.team||"Equipo de crisis")}</span><small>${fmtDate(p.started)}${p.ended?"":" · en curso"}</small></button><button class="pdel" data-del="${esc(p.id)}" aria-label="Borrar intento de ${esc(p.team||"Equipo de crisis")}">Borrar</button></div>`).join("")}</div>${DEL_MSG?`<p class="hint" style="margin:8px 0 0">${esc(DEL_MSG)}</p>`:""}</div>` : (DEL_MSG?`<p class="hint">${esc(DEL_MSG)}</p>`:"")}
       <div class="facts side-facts">
         <div><small>Duración</small>~45 minutos</div>
-        <div><small>Etapas</small>4 etapas + cierre</div>
+        <div><small>Escenas</small>5 eventos + cierre</div>
         <div><small>Marco</small>Ciclo FISA · SitRep</div>
       </div>
     </div>
@@ -599,8 +606,7 @@ const MEDIA = {
 };
 function renderVideoStep(ev){
   const e = EVENTS[ev], m = MEDIA[e.id];
-  const stg = STAGES[STEPS[S.step].st];
-  let h = `<div class="head"><div><div class="eyebrow">Etapa ${stg.n} de 4 · ${esc(stg.sub)}</div><h2>Evento ${e.n}</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} de 5</div><h2>Evento ${e.n}</h2></div><div class="when">${esc(e.when)}</div></div>`;
   h += `<div class="vwrap"><video class="vid" id="evVideo" src="${esc(m.video)}" controls loop autoplay muted playsinline preload="auto"></video></div>`;
   h += `<audio id="evAudio" src="${esc(m.audio)}" preload="auto"></audio>`;
   h += `<div class="actions"><button class="btn pink" id="soundOn" hidden>Activar audio de fondo</button><button class="btn ghost" id="replayAudio" hidden>Repetir audio</button><span class="hint" id="audioHint"></span></div>`;
@@ -643,7 +649,7 @@ function roleBtn(r){
 function renderCrisis(){
   const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
   const wrong = ROLES.filter(r=>!r.need && A(r.k)).length;
-  return `<div class="head"><div><div class="eyebrow">Etapa 1 · Activación</div><h2>¿Es una situación de crisis?</h2></div><div class="when">${esc(EVENTS[0].when)}</div></div>
+  return `<div class="head"><div><div class="eyebrow">Evento 1 · Activación</div><h2>¿Es una situación de crisis?</h2></div><div class="when">${esc(EVENTS[0].when)}</div></div>
   <div class="two">
     <div class="card">
       <h3>¿Por qué es una situación de crisis?</h3>
@@ -666,31 +672,31 @@ function renderCrisis(){
 
 /* ---------- etapa: preguntas + FISA + áreas, con temporizador ---------- */
 const T = {ev:null, iv:null, running:false, ac:null};
-let TAB = "preguntas", TAB_STEP = null;
+let TAB = "fisa", TAB_STEP = null;
 function tabBtn(k, label, count){ return `<button class="tab ${TAB===k?"on":""}" data-tab="${k}" role="tab" aria-selected="${TAB===k}">${label}<small>${count}</small></button>`; }
 function renderQA(ev){
-  const stp = STEPS[S.step], si = stp.st, stg = STAGES[si], e = EVENTS[ev], q = Q(ev);
-  if (TAB_STEP !== S.step){ TAB = "preguntas"; TAB_STEP = S.step; }
+  const stp = STEPS[S.step], si = stp.st, e = EVENTS[ev], q = Q(ev);
+  if (TAB_STEP !== S.step){ TAB = "fisa"; TAB_STEP = S.step; }
   const lock = !q.started || q.saved;
   const ansN = q.answers.filter(has).length, arN = S.roles.filter(k=>has(q.areas[k])).length;
-  let h = `<div class="head"><div><div class="eyebrow">Etapa ${stg.n} de 4 · ${esc(stg.sub)}</div><h2>Decisiones</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} de 5 · Decisiones</div><h2>Decisiones</h2></div><div class="when">${esc(e.when)}</div></div>`;
   h += `<div class="stagebar" id="timerBox">
       <div class="tblock"><span class="lab">Temporizador · ${e.min} minutos</span><span class="t" id="tval"></span></div>
       <div class="ring"><i id="tbar"></i></div>
       <div class="row" id="trow"></div>
     </div>`;
-  if (!q.started) h += `<div class="lockmsg">Inicien el temporizador para empezar a responder. El tiempo corre mientras llenan las preguntas, el FISA y las áreas.</div>`;
-  h += `<div class="tabs" role="tablist">${tabBtn("preguntas","Preguntas",`${ansN}/${e.qs.length}`)}${tabBtn("fisa","FISA",`${fisaCount(q.fisa)}/4`)}${tabBtn("areas","Áreas",`${arN}/${S.roles.length}`)}</div><div class="tabpane">`;
+  if (!q.started) h += `<div class="lockmsg">Inicien el temporizador para empezar a responder. El tiempo corre mientras llenan el FISA, los encargados y las preguntas.</div>`;
+  h += `<div class="tabs" role="tablist">${tabBtn("fisa","1. FISA",`${fisaCount(q.fisa)}/4`)}${tabBtn("areas","2. Encargados",`${arN}/${S.roles.length}`)}${tabBtn("preguntas","3. Preguntas",`${ansN}/${e.qs.length}`)}</div><div class="tabpane">`;
   if (TAB==="preguntas"){
     h += `<div class="answers" style="margin-top:0">${e.qs.map((x,i)=>`<div class="ans"><label for="a-${ev}-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="a-${ev}-${i}" data-ans="${i}" ${lock?"disabled":""} placeholder="${q.started?"Respuesta del equipo…":"Inicien el temporizador para responder"}">${esc(q.answers[i])}</textarea></div>`).join("")}</div>`;
   } else if (TAB==="fisa"){
     h += renderFisaTab(q, si, lock);
   } else {
-    h += `<p class="hint" style="margin:0 0 12px">¿Qué hará cada área en esta etapa?</p><div class="answers" style="margin-top:0">${S.roles.map(k=>{ const r = ROLES.find(x=>x.k===k); return `<div class="ans"><label for="ar-${ev}-${k}"><span class="aname">${esc(r.name)}</span> <span class="hint">${esc(r.es)}</span></label><textarea id="ar-${ev}-${k}" data-area="${k}" ${lock?"disabled":""} placeholder="${q.started?"Acciones de esta área en esta etapa…":"Inicien el temporizador para responder"}">${esc(q.areas[k]||"")}</textarea></div>`; }).join("")}</div>`;
+    h += `<p class="hint" style="margin:0 0 12px">¿Qué hará cada encargado desde su área en este evento?</p><div class="answers" style="margin-top:0">${S.roles.map(k=>{ const r = ROLES.find(x=>x.k===k); return `<div class="ans"><label for="ar-${ev}-${k}"><span class="aname">${esc(r.name)}</span> <span class="hint">${esc(r.es)}</span></label><textarea id="ar-${ev}-${k}" data-area="${k}" ${lock?"disabled":""} placeholder="${q.started?"Acciones de esta área en este evento…":"Inicien el temporizador para responder"}">${esc(q.areas[k]||"")}</textarea></div>`; }).join("")}</div>`;
   }
   h += `</div><div class="actions">${q.saved
-    ? `<span class="saved">Etapa terminada · tiempo usado ${fmt(q.used)}</span><button class="btn ghost" id="reopen">Reabrir etapa</button>`
-    : `<button class="btn pink" id="finishStage" ${q.started?"":"disabled"}>Terminar etapa</button><span class="hint">Al terminar se detiene el tiempo y aparece la retroalimentación.</span>`}</div>`;
+    ? `<span class="saved">Evento terminado · tiempo usado ${fmt(q.used)}</span><button class="btn ghost" id="reopen">Reabrir evento</button>`
+    : `<button class="btn pink" id="finishStage" ${q.started?"":"disabled"}>Terminar evento</button><span class="hint">Al terminar se detiene el tiempo y aparece la retroalimentación.</span>`}</div>`;
   if (q.saved){
     h += `<div class="check" id="checkBox"><h3>¿Tuvimos en cuenta esto?</h3><p>Marquen lo que el equipo sí consideró en sus respuestas.</p>
       ${e.chk.map((x,i)=>`<label class="ck"><input type="checkbox" data-chk="${i}" ${q.checks[i]?"checked":""}><span>${esc(x)}</span></label>`).join("")}
@@ -702,25 +708,28 @@ function renderQA(ev){
 
 /* ---------- FISA ---------- */
 function renderFisaTab(q, si, lock){
-  const pf = prevFisa(si), can = fisaHasContent(pf);
+  const pf = prevFisa(si), can = fisaHasContent(pf), pn = si>0 ? evN(si-1) : null;
   if (si>0 && !q.fisa.mode){
-    return `<div class="chooser"><h3>¿Cómo llevan el FISA en esta etapa?</h3>
-      <p>Cada etapa guarda su propio FISA. Si continúan, se hace una copia del FISA de la etapa ${si} para editarla aquí; el FISA de la etapa ${si} queda igual.</p>
-      <div class="actions"><button class="btn pink" data-fmode="copy" ${lock||!can?"disabled":""}>Continuar con el FISA de la etapa ${si}</button><button class="btn ghost" data-fmode="new" ${lock?"disabled":""}>Empezar un FISA nuevo</button>${can?`<button class="btn ghost" data-mopen="prev">Ver FISA de la etapa ${si}</button>`:""}</div>
-      ${!can?`<p class="hint" style="margin-top:10px">La etapa ${si} no tiene FISA para continuar.</p>`:""}${!q.started?`<p class="hint" style="margin-top:10px">Inicien el temporizador para elegir.</p>`:""}</div>`;
+    return `<div class="chooser"><h3>¿Cómo llevan el FISA en este evento?</h3>
+      <p>Cada evento guarda su propio FISA. Si continúan, se hace una copia del FISA del evento ${pn} para editarla aquí; el FISA del evento ${pn} queda igual.</p>
+      <div class="actions"><button class="btn pink" data-fmode="copy" ${lock||!can?"disabled":""}>Continuar con el FISA del evento ${pn}</button><button class="btn ghost" data-fmode="new" ${lock?"disabled":""}>Empezar un FISA nuevo</button>${can?`<button class="btn ghost" data-mopen="prev">Ver FISA del evento ${pn}</button>`:""}</div>
+      ${!can?`<p class="hint" style="margin-top:10px">El evento ${pn} no tiene FISA para continuar.</p>`:""}${!q.started?`<p class="hint" style="margin-top:10px">Inicien el temporizador para elegir.</p>`:""}</div>`;
   }
-  let h = "";
-  if (si>0) h += `<div class="fmode"><span class="hint">${q.fisa.mode==="copy"?`Continuación del FISA de la etapa ${si}. Los cambios solo quedan en esta etapa.`:"FISA nuevo para esta etapa."}</span>${can?`<button class="btn ghost sm" data-mopen="prev">Ver FISA de la etapa ${si}</button>`:""}</div>`;
-  return h + fisaBoard(q.fisa, si+1, lock ? "lock" : "edit");
+  let h = `<p class="hint" style="margin:0 0 10px">Toquen el título de cada punto para llenarlo.</p>`;
+  if (si>0) h += `<div class="fmode"><span class="hint">${q.fisa.mode==="copy"?`Continuación del FISA del evento ${pn}. Los cambios solo quedan en este evento.`:"FISA nuevo para este evento."}</span>${can?`<button class="btn ghost sm" data-mopen="prev">Ver FISA del evento ${pn}</button>`:""}</div>`;
+  return h + fisaBoard(q.fisa, evN(si), lock ? "lock" : "edit");
 }
 function fisaBoard(f, n, mode){
   const ro = mode==="ro", dis = mode==="lock";
   const item = (kind, key, html, done, preview) => ro
     ? `<div class="fitem ro ${done?"done":""}"><span>${html}</span>${has(preview)?`<small class="full">${esc(preview)}</small>`:""}</div>`
-    : `<button class="fitem ${done?"done":""}" data-mopen="${kind}" data-key="${key}" ${dis?"disabled":""}><span>${html}</span>${has(preview)?`<small>${esc(clip(preview,110))}</small>`:""}</button>`;
+    : `<button class="fitem ${done?"done":""}" data-mopen="${kind}" ${dis?"disabled":""}><span>${html}</span>${has(preview)?`<small>${esc(clip(preview,110))}</small>`:""}</button>`;
   const sel = selImpacts(f);
   const partes = f.partes.filter(p=>has(p.nombre)), plan = f.plan.filter(p=>has(p.accion));
-  const col = (n2, title, body) => `<div class="fcol"><h4><span>${n2}.</span> ${title}</h4><div class="fbody">${body}</div></div>`;
+  const kinds = ["hechos","impactos","partes","plan"];
+  const col = (n2, title, body) => ro
+    ? `<div class="fcol"><h4><span>${n2}.</span> ${title}</h4><div class="fbody">${body}</div></div>`
+    : `<div class="fcol"><button class="fhead" data-mopen="${kinds[n2-1]}" ${dis?"disabled":""}><span>${n2}.</span> ${title}<i aria-hidden="true">Llenar</i></button><div class="fbody">${body}</div></div>`;
   const c1 = FISA_H.map(x=>item("hechos", x.k, `${x.pre} <b>${x.b}</b>`, has(f.hechos[x.k]), f.hechos[x.k])).join("");
   const c2 = item("impactos","", `<b>Identificación de todos</b> los impactos (inmediatos, futuros)`, sel.length>0, "")
     + item("impactos","", `<b>Evaluación</b> de problemas`, has(f.impactos.evaluacion), f.impactos.evaluacion)
@@ -732,7 +741,7 @@ function fisaBoard(f, n, mode){
   const c4 = item("plan","", `Lista de acciones relativas <b>a implementar</b>`, plan.length>0, "")
     + item("plan","", `Una <b>persona identificada</b> a cargo de cada acción`, plan.length>0 && plan.every(p=>has(p.persona)), "")
     + (plan.length ? `<ul class="fsel">${plan.map(p=>`<li><b>${esc(ro?p.accion:clip(p.accion,90))}</b><span class="who">${has(p.persona)?esc(p.persona):"Sin responsable"}${p.area?` · ${esc(RN[p.area]||p.area)}`:""}</span></li>`).join("")}</ul>` : "");
-  return `<div class="fisa"><div class="fisa-top"><h3>FISA · Etapa ${n}</h3><span class="hint">4 puntos del método</span></div>
+  return `<div class="fisa"><div class="fisa-top"><h3>FISA · Evento ${n}</h3><span class="hint">4 puntos del método</span></div>
     <div class="fisa-banner">Para ser actualizado continuamente</div>
     <div class="fisa-grid">${col(1,"Hechos",c1)}${col(2,"Impactos",c2)}${col(3,"Partes interesadas",c3)}${col(4,"Plan de acción",c4)}</div></div>`;
 }
@@ -749,9 +758,8 @@ function renderModal(focusSel){
   const dis = ro ? "disabled" : "";
   let title = "", body = "";
   if (MOD.kind==="hechos"){
-    const it = FISA_H.find(x=>x.k===MOD.key);
-    title = `1. Hechos · ${it.pre} ${it.b}`;
-    body = `<p class="mhint">${esc(it.hint)}</p><textarea id="mh" data-mh="${it.k}" style="min-height:240px" ${dis} placeholder="Escriban aquí…">${esc(f.hechos[it.k])}</textarea>`;
+    title = "1. Hechos";
+    body = `<div class="answers" style="margin-top:0">${FISA_H.map((it,i)=>`<div class="ans"><label for="mh-${it.k}"><b>${i+1}</b>${it.pre} ${it.b}</label><p class="mhint" style="margin:0 0 6px">${esc(it.hint)}</p><textarea id="mh-${it.k}" data-mh="${it.k}" ${dis} placeholder="Escriban aquí…">${esc(f.hechos[it.k])}</textarea></div>`).join("")}</div>`;
   } else if (MOD.kind==="impactos"){
     title = "2. Impactos";
     body = `<p class="mhint">Escriban los impactos en cada celda y marquen como <b>importante</b> los que deben quedar en el FISA.</p>
@@ -781,14 +789,14 @@ function renderModal(focusSel){
         ${ro?"<span></span>":`<button class="rdel" data-madel="${i}" aria-label="Quitar acción">Quitar</button>`}</div>`).join("")}</div>
       ${ro?"":`<button class="btn ghost" data-maadd="1" style="margin-top:12px">+ Agregar acción</button>`}`;
   } else if (MOD.kind==="prev"){
-    title = `FISA de la etapa ${MOD.st} (solo lectura)`;
-    body = fisaBoard(prevFisa(MOD.st), MOD.st, "ro");
+    title = `FISA del evento ${evN(MOD.st-1)} (solo lectura)`;
+    body = fisaBoard(prevFisa(MOD.st), evN(MOD.st-1), "ro");
   }
-  m.innerHTML = `<div class="mbox ${MOD.kind==="impactos"||MOD.kind==="prev"?"wide":""}" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mhead"><h3 id="mtitle">${esc(title)}</h3><button class="btn" id="mclose">Listo</button></div>${ro?`<p class="hint" style="margin:-6px 0 12px">Solo lectura: ${q.saved?"la etapa está terminada.":"inicien el temporizador para editar."}</p>`:""}${body}</div>`;
+  m.innerHTML = `<div class="mbox ${MOD.kind==="impactos"||MOD.kind==="prev"?"wide":""}" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mhead"><h3 id="mtitle">${esc(title)}</h3><button class="btn" id="mclose">Listo</button></div>${ro?`<p class="hint" style="margin:-6px 0 12px">Solo lectura: ${q.saved?"el evento está terminado.":"inicien el temporizador para editar."}</p>`:""}${body}</div>`;
   m.hidden = false;
   const box = m.querySelector(".mbox"); box.scrollTop = keep;
   if (focusSel){ const el = m.querySelector(focusSel); if (el) el.focus(); }
-  else if (MOD.kind==="hechos" && !ro){ const el = $("#mh"); if (el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
+  else if (MOD.kind==="hechos" && !ro && !keep){ const el = FISA_H.map(x=>$("#mh-"+x.k)).find(x=>x && !x.value.trim()) || $("#mh-"+FISA_H[0].k); if (el) el.focus(); }
 }
 
 /* ---------- temporizador ---------- */
@@ -851,10 +859,10 @@ function renderClosing(){
   ${renderSummary()}`;
 }
 function renderSummary(){
-  return `<h3 style="font-size:24px;margin:34px 0 12px">Resumen de las etapas</h3>
+  return `<h3 style="font-size:24px;margin:34px 0 12px">Resumen de las preguntas</h3>
   <div class="rep">${STAGES.map(stg=>{
     const e = EVENTS[stg.ev], q = Q(stg.ev), ok = q.checks.filter(Boolean).length;
-    return `<div class="rsec"><h3>Etapa ${stg.n} · ${esc(stg.sub)}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00 · ${q.none?"no tuvimos en cuenta ninguna de las anteriores":`${ok} de ${e.chk.length} puntos tenidos en cuenta`}</div>
+    return `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00 · ${q.none?"no tuvimos en cuenta ninguna de las anteriores":`${ok} de ${e.chk.length} puntos tenidos en cuenta`}</div>
       ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
     </div>`;}).join("")}</div>`;
 }
@@ -879,7 +887,7 @@ function renderReport(){
   <div class="rep">
     <div class="rep-head">
       <div><b>${fmt(totalSeconds())}</b><span>Duración total</span></div>
-      <div><b>${fmt(qsTime)}</b><span>Tiempo en etapas</span></div>
+      <div><b>${fmt(qsTime)}</b><span>Tiempo en decisiones</span></div>
       <div><b>${essOn}/${ess.length}</b><span>Áreas responsables activadas</span></div>
       <div><b>${okPts}/${allPts}</b><span>Puntos tenidos en cuenta</span></div>
     </div>
@@ -889,15 +897,17 @@ function renderReport(){
         <div class="area-recap">${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<span class="${rv(r)}">${esc(r.name)} · ${A(r.k)?(r.need?"bien activada":"no debía activarse"):"faltó activarla"}</span>`).join("")}</div>
       </div>
     </div>`;
-  STAGES.forEach(stg=>{
+  STAGES.forEach((stg,si)=>{
     const e = EVENTS[stg.ev], q = Q(stg.ev);
-    h += `<div class="rsec"><h3>Etapa ${stg.n} · ${esc(stg.sub)}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00</div>
-      <h4 class="rsub">Preguntas</h4>
-      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
-      <h4 class="rsub">FISA${q.fisa.mode==="copy"?" · continuación de la etapa anterior":""}</h4>
-      ${fisaReport(q.fisa)}
-      <h4 class="rsub">¿Qué hará cada área?</h4>
+    h += `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00</div>
+      <h4 class="rsub">1. FISA${q.fisa.mode==="copy"?` · continuación del evento ${si>0?evN(si-1):""}`:""}</h4>
+      ${fisaBoard(q.fisa, e.n, "ro")}
+      <h4 class="rsub">Análisis de impactos</h4>
+      ${impactGrid(q.fisa)}
+      <h4 class="rsub">2. Encargados · ¿qué hará cada área?</h4>
       ${S.roles.map(k=>`<div class="rq"><div class="q">${esc(RN[k])}</div><div class="a ${has(q.areas[k])?"":"empty"}">${has(q.areas[k])?esc(q.areas[k]):"Sin respuesta"}</div></div>`).join("")}
+      <h4 class="rsub">3. Preguntas</h4>
+      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
       <h4 class="rsub">¿Tuvimos en cuenta esto?</h4>
       <div class="rq">${q.none?`<div class="a" style="color:var(--bad)">No tuvimos en cuenta ninguna de las anteriores.</div>`:""}<ul class="chk-list">${e.chk.map((x,i)=>{const y=q.checks[i];return `<li><span class="${y?"y":"n"}">${y?"✓":"✗"}</span><span>${esc(x)}</span></li>`;}).join("")}</ul></div>
     </div>`;
@@ -911,6 +921,14 @@ function renderReport(){
     <span class="hint" id="dlMsg">${DB ? "El reporte queda guardado en el juego y aparece en la pantalla de inicio." : "El reporte queda guardado en este navegador y aparece en la pantalla de inicio."}</span>
   </div>`;
   return h;
+}
+function impactGrid(f){
+  return `<div class="impwrap"><div class="imp ro">
+    <div class="ih first">Impacto</div>${IMP_COLS.map((c,i)=>`<div class="ih c${i}">${c.label}</div>`).join("")}
+    ${IMP_ROWS.map(r=>`<div class="rh"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[r.k]}</svg><span>${r.label}</span></div>${IMP_COLS.map((c,i)=>{ const x = f.impactos.cells[r.k+"|"+c.k] || {text:"", imp:false};
+      return `<div class="cell c${i} ${x.imp&&has(x.text)?"isimp":""}">${x.imp&&has(x.text)?`<span class="impflag">Importante</span>`:""}<p>${has(x.text)?esc(x.text):'<span class="empty">—</span>'}</p></div>`; }).join("")}`).join("")}
+  </div></div>
+  <p class="rimpev"><b>Evaluación de problemas:</b> ${has(f.impactos.evaluacion)?esc(f.impactos.evaluacion):'<span class="empty">Sin información</span>'}</p>`;
 }
 function fisaReport(f){
   const val = t => has(t) ? esc(t) : `<span class="empty">Sin información</span>`;
@@ -1016,22 +1034,81 @@ function buildPdf(){
     });
     y += 4;
   }
+  /* FISA como tablero de 4 columnas; el contenido fluye entre páginas */
   function pdfFisa(f){
-    minor("1. Hechos");
-    FISA_H.forEach(x=>qa(`${x.pre} ${x.b}`, f.hechos[x.k]));
-    minor("2. Impactos");
-    const sel = selImpacts(f);
-    if (sel.length) table(["Impacto","Horizonte","Descripción"], sel.map(x=>[x.row, x.col, x.text]), [0.22,0.16,0.62]);
-    else { text("Sin impactos seleccionados", {italic:true, color:C.gray}); y += 2; }
+    const ws = [0.25,0.25,0.25,0.25], pad = 2.2, size = 8.6, lh = 1.32*size*PT;
+    const xs = ws.map((w,i)=>M + ws.slice(0,i).reduce((a,b)=>a+b,0)*CW);
+    const heads = ["1. Hechos","2. Impactos","3. Partes interesadas","4. Plan de acción"];
+    const sel = selImpacts(f), partes = f.partes.filter(p=>has(p.nombre)), plan = f.plan.filter(p=>has(p.accion));
+    const lines = (parts)=>{ const out=[]; parts.forEach(([b,t])=>{ if (b){ doc.setFont("helvetica","bold"); doc.setFontSize(size); doc.splitTextToSize(clean(b), ws[0]*CW-2*pad).forEach(l=>out.push({b:true,t:l})); } if (t!=null){ doc.setFont("helvetica","normal"); doc.setFontSize(size); doc.splitTextToSize(clean(has(t)?t:"-"), ws[0]*CW-2*pad).forEach(l=>out.push({b:false,t:l})); } out.push({gap:true}); }); return out; };
+    const cols = [
+      lines(FISA_H.map(x=>[`${x.pre} ${x.b}`, f.hechos[x.k]])),
+      lines([...(sel.length ? sel.map(x=>[`${x.row} · ${x.col}`, x.text]) : [["Impactos importantes", "Sin impactos seleccionados"]]), ["Evaluación de problemas", f.impactos.evaluacion]]),
+      lines(partes.length ? partes.map(p=>[p.nombre, `${p.clase?CLASES.find(c=>c.k===p.clase).label:"Sin clasificar"} · a cargo: ${p.resp?(RN[p.resp]||p.resp):"sin asignar"}`]) : [["Partes interesadas","Sin partes interesadas"]]),
+      lines(plan.length ? plan.map(p=>[p.accion, `${has(p.persona)?p.persona:"Sin responsable"}${p.area?" · "+(RN[p.area]||p.area):""}`]) : [["Acciones","Sin acciones"]])
+    ];
+    const head = ()=>{
+      ensure(30);
+      doc.setFillColor(...C.green); doc.rect(M, y, CW, 6.5, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(...C.pink);
+      doc.text("PARA SER ACTUALIZADO CONTINUAMENTE", M+CW/2, y+4.3, {align:"center"}); y += 6.5;
+      doc.setFillColor(...C.mid); doc.rect(M, y, CW, 8, "F");
+      doc.setFontSize(9); doc.setTextColor(...C.cream);
+      heads.forEach((h2,i)=>doc.text(h2, xs[i]+pad, y+5.3)); y += 8;
+    };
+    head();
+    const idx = [0,0,0,0];
+    while (idx.some((v,i)=>v<cols[i].length)){
+      const top = y, room = BOTTOM - y - pad;
+      let maxH = 0;
+      cols.forEach((c,i)=>{
+        let yy = top + pad;
+        while (idx[i] < c.length){
+          const L = c[idx[i]], step = L.gap ? 1.6 : lh;
+          if (yy + step - top > room) break;
+          if (!L.gap){ doc.setFont("helvetica", L.b?"bold":"normal"); doc.setFontSize(size); doc.setTextColor(...(L.b?C.green:C.ink)); doc.text(L.t, xs[i]+pad, yy + size*PT*0.9); }
+          yy += step; idx[i]++;
+        }
+        maxH = Math.max(maxH, yy - top);
+      });
+      const hgt = maxH + pad;
+      doc.setDrawColor(...C.line); doc.setLineWidth(0.25); doc.rect(M, top, CW, hgt, "S");
+      xs.slice(1).forEach(x=>doc.line(x, top, x, top+hgt));
+      y = top + hgt;
+      if (idx.some((v,i)=>v<cols[i].length)){ doc.addPage(); contHeader(); head(); }
+    }
+    y += 5;
+  }
+  /* análisis de impactos: Impacto × Inmediato / Futuro / Potencial */
+  function pdfImpacts(f){
+    const ws = [0.19,0.27,0.27,0.27], pad = 2, size = 8.6, lh = 1.32*size*PT;
+    const xs = ws.map((w,i)=>M + ws.slice(0,i).reduce((a,b)=>a+b,0)*CW);
+    const head = ()=>{ ensure(20); doc.setFillColor(...C.green); doc.rect(M, y, CW, 7, "F"); doc.setFont("helvetica","bold"); doc.setFontSize(8.5); doc.setTextColor(...C.cream);
+      ["Impacto", ...IMP_COLS.map(c=>c.label)].forEach((h2,i)=>doc.text(h2, xs[i]+pad, y+4.7)); y += 7; };
+    head();
+    IMP_ROWS.forEach(r=>{
+      doc.setFont("helvetica","normal"); doc.setFontSize(size);
+      const cells = IMP_COLS.map(c=>f.impactos.cells[r.k+"|"+c.k] || {text:"", imp:false});
+      const txt = cells.map(c=>doc.splitTextToSize(clean(has(c.text)?c.text:"-"), ws[1]*CW-2*pad));
+      const lab = doc.splitTextToSize(clean(r.label), ws[0]*CW-2*pad);
+      const extra = cells.some(c=>c.imp&&has(c.text)) ? 4 : 0;
+      const hgt = Math.max(lab.length, ...txt.map(t=>t.length))*lh + 2*pad + extra;
+      if (y + hgt > BOTTOM){ doc.addPage(); contHeader(); head(); }
+      doc.setFillColor(...C.tint); doc.rect(M, y, ws[0]*CW, hgt, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(size); doc.setTextColor(...C.green);
+      lab.forEach((l,j)=>doc.text(l, xs[0]+pad, y+pad+size*PT*0.9+j*lh));
+      cells.forEach((c,i)=>{
+        const x = xs[i+1], imp = c.imp && has(c.text);
+        if (imp){ doc.setFillColor(255,232,246); doc.rect(x, y, ws[i+1]*CW, hgt, "F"); doc.setDrawColor(...C.pink); doc.setLineWidth(0.6); doc.rect(x+0.3, y+0.3, ws[i+1]*CW-0.6, hgt-0.6, "S");
+          doc.setFont("helvetica","bold"); doc.setFontSize(6.5); doc.setTextColor(194,24,126); doc.text("IMPORTANTE", x+pad, y+pad+2); }
+        doc.setFont("helvetica","normal"); doc.setFontSize(size); doc.setTextColor(...(has(c.text)?C.ink:C.gray));
+        txt[i].forEach((l,j)=>doc.text(l, x+pad, y+pad+(imp?4:0)+size*PT*0.9+j*lh));
+      });
+      doc.setDrawColor(...C.line); doc.setLineWidth(0.2); doc.rect(M, y, CW, hgt, "S"); xs.slice(1).forEach(x=>doc.line(x, y, x, y+hgt));
+      y += hgt;
+    });
+    y += 3;
     qa("Evaluación de problemas", f.impactos.evaluacion);
-    minor("3. Partes interesadas");
-    const partes = f.partes.filter(p=>has(p.nombre));
-    if (partes.length) table(["Parte interesada","Clasificación","A cargo"], partes.map(p=>[p.nombre, p.clase?CLASES.find(c=>c.k===p.clase).label:"Sin clasificar", p.resp?(RN[p.resp]||p.resp):"Sin asignar"]), [0.42,0.2,0.38]);
-    else { text("Sin partes interesadas", {italic:true, color:C.gray}); y += 3; }
-    minor("4. Plan de acción");
-    const plan = f.plan.filter(p=>has(p.accion));
-    if (plan.length) table(["Acción","Persona a cargo","Área"], plan.map(p=>[p.accion, p.persona, p.area?(RN[p.area]||p.area):""]), [0.52,0.24,0.24]);
-    else { text("Sin acciones", {italic:true, color:C.gray}); y += 3; }
   }
 
   /* portada */
@@ -1053,7 +1130,7 @@ function buildPdf(){
   const qsTime = STAGES.reduce((a,stg)=>a+(Q(stg.ev).used||0),0);
   const okPts = STAGES.reduce((a,stg)=>a+Q(stg.ev).checks.filter(Boolean).length,0);
   const allPts = STAGES.reduce((a,stg)=>a+EVENTS[stg.ev].chk.length,0);
-  const kpis = [[fmt(totalSeconds()),"Duración total"],[fmt(qsTime),"Tiempo en etapas"],[essOn+"/"+ess.length,"Áreas responsables activadas"],[okPts+"/"+allPts,"Puntos tenidos en cuenta"]];
+  const kpis = [[fmt(totalSeconds()),"Duración total"],[fmt(qsTime),"Tiempo en decisiones"],[essOn+"/"+ess.length,"Áreas responsables activadas"],[okPts+"/"+allPts,"Puntos tenidos en cuenta"]];
   const tw = (CW - 3*4)/4;
   kpis.forEach((k,i)=>{
     const x = M + i*(tw+4);
@@ -1096,17 +1173,19 @@ function buildPdf(){
     y += 10;
   }
 
-  /* etapas */
-  section("Decisiones por etapa");
-  STAGES.forEach(stg=>{
+  /* eventos con decisiones */
+  section("Decisiones por evento");
+  STAGES.forEach((stg,si)=>{
     const e = EVENTS[stg.ev], q = Q(stg.ev);
-    band(`Etapa ${stg.n}  ·  ${stg.sub}`, `Tiempo usado ${fmt(q.used)} de ${e.min}:00`);
-    sub("Preguntas");
-    e.qs.forEach((x,i)=>qa(x, q.answers[i], i+1));
-    sub("FISA" + (q.fisa.mode==="copy" ? " · continuación de la etapa anterior" : ""));
+    band(`Evento ${e.n}  ·  ${e.when}`, `Tiempo usado ${fmt(q.used)} de ${e.min}:00`);
+    sub("1. FISA" + (q.fisa.mode==="copy" ? ` · continuación del evento ${si>0?evN(si-1):""}` : ""));
     pdfFisa(q.fisa);
-    sub("¿Qué hará cada área?");
+    sub("Análisis de impactos");
+    pdfImpacts(q.fisa);
+    sub("2. Encargados · ¿qué hará cada área?");
     S.roles.forEach(k=>qa(RN[k], q.areas[k]));
+    sub("3. Preguntas");
+    e.qs.forEach((x,i)=>qa(x, q.answers[i], i+1));
     sub("¿Tuvimos en cuenta esto?");
     if (q.none){ text("No tuvimos en cuenta ninguna de las anteriores.", {size:10, color:C.bad, bold:true}); y += 1; }
     e.chk.forEach((x,i)=>checkItem(x, !!q.checks[i]));
@@ -1137,17 +1216,17 @@ function buildPdf(){
 function blocked(){
   const st = STEPS[S.step];
   if (st.t==="crisis") return !S.areasDone ? "Escriban por qué es una crisis y confirmen las áreas" : "";
-  if (st.t==="qa") return !Q(st.ev).saved ? "Terminen la etapa para continuar" : "";
+  if (st.t==="qa") return !Q(st.ev).saved ? "Terminen el evento para continuar" : "";
   return "";
 }
 function renderFoot(){
   const st = STEPS[S.step], b = blocked();
   const names = {crisis:"Activación", qa:"Decisiones", closing:"Preguntas de cierre", final:"Comentarios finales", report:"Reporte"};
-  const where = st.st!=null ? `Etapa ${st.st+1} · ` + (st.t==="video" ? `Evento ${EVENTS[st.ev].n}` : names[st.t]) : names[st.t];
+  const where = st.ev!=null ? `Evento ${EVENTS[st.ev].n} · ` + (st.t==="video" ? "Video" : names[st.t]) : names[st.t];
   $("#where").textContent = b ? `${where} · ${b}` : where;
   const last = S.step === STEPS.length-1;
   const nx = STEPS[S.step+1];
-  $("#next").textContent = st.t==="final" ? "Generar reporte →" : (nx && nx.t==="video" ? (nx.st!==st.st ? `Etapa ${nx.st+1} →` : `Evento ${EVENTS[nx.ev].n} →`) : "Siguiente →");
+  $("#next").textContent = st.t==="final" ? "Generar reporte →" : (nx && nx.t==="video" ? `Evento ${EVENTS[nx.ev].n} →` : "Siguiente →");
   $("#next").disabled = !!b || last;
   $("#next").hidden = last;
 }

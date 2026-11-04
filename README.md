@@ -6,15 +6,15 @@ Escenario ficticio de entrenamiento basado en el *Tabletop Crisis Exercise · Fa
 ## Qué hace
 
 1. **Contexto** y botón *Comenzar*.
-2. **4 etapas** (la etapa 3 junta los eventos 3 y 4). Cada etapa empieza con su video y audio.
-3. **Etapa 1:** ¿por qué es una situación de crisis? y selección de áreas responsables.
-4. **En cada etapa**, desde que se inicia el temporizador (5, 5, 7 y 8 minutos):
-   - **Preguntas** de la etapa.
-   - **FISA** propio de la etapa (Hechos, Impactos, Partes interesadas, Plan de acción). Cada punto se llena en una ventana; en Impactos se llena la tabla Humano / Actividades / Legal / Imagen y reputación / Entorno × Inmediato / Futuro / Potencial y se marcan los más importantes. Desde la etapa 2 se puede continuar con una copia del FISA anterior (el original no cambia) o empezar uno nuevo.
-   - **Áreas:** qué hará cada área activada.
-   - Al terminar la etapa: lista *¿Tuvimos en cuenta esto?*.
+2. **5 eventos**, cada uno con su video (en bucle) y audio de fondo. El evento 3 es solo video; las preguntas de los eventos 3 y 4 van en el evento 4.
+3. **Evento 1:** ¿por qué es una situación de crisis? y selección de áreas responsables.
+4. **En los eventos 1, 2, 4 y 5**, desde que se inicia el temporizador (10, 10, 12 y 13 minutos), en este orden:
+   1. **FISA** propio del evento (Hechos, Impactos, Partes interesadas, Plan de acción). Se toca el título de cada punto y se abre una ventana con todos sus campos. En Impactos se llena la tabla Humano / Actividades / Legal / Imagen y reputación / Entorno × Inmediato / Futuro / Potencial y se marcan los más importantes. Desde el evento 2 se puede continuar con una copia del FISA anterior (el original no cambia) o empezar uno nuevo.
+   2. **Encargados:** qué hará cada área activada.
+   3. **Preguntas** del evento.
+   - Al terminar: lista *¿Tuvimos en cuenta esto?*.
 5. **Cierre:** preguntas de cierre, resumen y comentarios finales.
-6. **Reporte** en pantalla y descargable en PDF con los colores corporativos.
+6. **Reporte** en pantalla y en PDF con los colores corporativos: tablero FISA y tabla de análisis de impactos por evento, encargados, preguntas y retroalimentación.
 
 Las sesiones y respuestas se guardan en el navegador (localStorage) y aparecen en la pantalla de inicio, donde se pueden abrir o borrar.
 
