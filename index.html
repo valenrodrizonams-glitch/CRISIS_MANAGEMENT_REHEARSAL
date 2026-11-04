@@ -248,7 +248,9 @@ button.fitem:hover:not(:disabled){border-color:var(--pink)}
 .fnoact{margin:4px 0 0;padding-top:8px;border-top:1px dashed var(--line-2);font-size:12.5px;color:var(--warn)}
 .fnoact b{color:var(--warn)}
 .fnoact.ok{color:var(--good)}
-.lateadd{margin-top:18px;padding:14px;border:1px dashed var(--line-2);border-radius:10px}
+.lateadd{margin-top:18px;padding:10px 14px;border:1px dashed var(--line-2);border-radius:10px}
+.lateadd summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--muted)}
+.lateadd summary:hover,.lateadd[open] summary{color:var(--pink)}
 .lrow{display:flex;gap:8px;flex-wrap:wrap}
 .lrow select{flex:1;min-width:200px}
 .fempty{margin:0;font-size:12.5px;color:var(--muted)}
@@ -301,6 +303,13 @@ select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--lin
 .fis-rep ul{margin:0 0 6px;padding-left:18px;font-size:14.5px;display:grid;gap:4px;overflow-wrap:anywhere}
 .fis-rep .empty{color:var(--muted);font-style:italic}
 
+.langpick{display:grid;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.langbtns{display:flex;gap:6px;flex-wrap:wrap}
+.langbtn{flex:1;min-width:90px;padding:9px 12px;border-radius:8px;border:1px solid var(--line-2);background:transparent;color:var(--cream);font-weight:700;font-size:14px}
+.langbtn:hover{border-color:var(--pink)}
+.langbtn.on{background:var(--pink);border-color:var(--pink);color:var(--on-pink)}
+.langbadge{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--cream);border:1px solid var(--line-2);border-radius:4px;padding:1px 6px;text-transform:none}
+.plang{font-family:var(--f-mono);font-size:10.5px;color:var(--pink);margin-left:4px}
 /* pie */
 .foot{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(3,35,13,.95);border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px}
 .foot .where{font-size:13px;color:var(--muted);margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -338,9 +347,9 @@ select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--lin
 <div class="app">
   <div class="hud" id="hud" hidden>
     <div class="hud-row">
-      <div class="brand"><b>Opella · Sala de crisis</b><span>Accidente fatal en misión</span></div>
+      <div class="brand"><b id="brandTitle">Opella · Sala de crisis</b><span id="brandSub">Accidente fatal en misión</span><span class="langbadge" id="langBadge"></span></div>
       <div class="chips" id="chips"></div>
-      <div class="elapsed">Tiempo del ejercicio <b id="elapsed">00:00</b></div>
+      <div class="elapsed"><span id="elapsedLab">Tiempo del ejercicio</span> <b id="elapsed">00:00</b></div>
     </div>
   </div>
   <main id="main"></main>
@@ -356,97 +365,564 @@ select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--lin
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 /* =========================================================
-   CONTENIDO
+   IDIOMAS: español (es), inglés (en), portugués (pt)
+   Carpetas de medios: videos/ES, videos/EN, videos/PO (y lo mismo en audios/)
    ========================================================= */
-const CONTEXTO = "Tener presente que nuestra fuerza de ventas de representantes médicos conduce autos de la empresa a diario para visitar farmacias y profesionales de la salud en todo el territorio.";
+const LANGS = [{k:"es", label:"Español", short:"ES"}, {k:"en", label:"English", short:"EN"}, {k:"pt", label:"Português", short:"PT"}];
+const MEDIA_FOLDER = {es:"ES", en:"EN", pt:"PO"};
+const LOCALE = {es:"es-CO", en:"en-US", pt:"pt-BR"};
 
-const EVENTS = [
- {id:"e1", n:1, lead:"Martes · 2:10 p. m.", when:"Martes · 2:10 p. m.", text:"Martes · 2:10 p. m. Se recibe una llamada de la policía: uno de nuestros representantes médicos tuvo un accidente de tránsito en una vía rural mientras conducía un auto de la empresa. Un tercero, un motociclista, está gravemente herido. Su empleado está conmocionado, pero físicamente ileso.",
-  min:10,
-  qs:["“¿Cuáles son sus primeras acciones en los próximos quince minutos?”",
-      "“¿Activa el equipo de crisis ahora? ¿Por qué sí o por qué no?”",
-      "“¿Qué elementos de FISA captura de inmediato?”"],
-  chk:["Cuide a su empleado primero: bienestar, apoyo, no lo deje solo con la policía.",
-       "Los hechos aún son escasos: todavía no haga suposiciones sobre la culpa.",
-       "Notifique a Legales y Recursos Humanos de inmediato; alerte a la aseguradora y al administrador de la flota.",
-       "Registre todo; el vehículo de la empresa y el teléfono pueden convertirse en evidencia."]},
- {id:"e2", n:2, lead:"Evento #2 a las 3:30 p.m.", when:"Martes · 3:30 p. m.", text:"Evento #2 a las 3:30 p.m. El panorama aún se está formando, el motociclista se encuentra en cuidados intensivos. La policía ha retenido el coche de la empresa y el teléfono de trabajo de su empleado como parte de su investigación.\n\nSu empleado, angustiado, afirma que el motociclista \"salió de la nada\". No hubo otros testigos. La policía se muestra cortés pero evasiva en cuanto a la responsabilidad.\n\nUn colega menciona que este representante tiene una agenda de visitas muy exigente y \"siempre va corriendo entre citas\".",
-  min:10,
-  qs:["“Realicen un FISA completo. ¿Qué saben frente a qué asumen?”",
-      "“¿A quién notifican: al grupo, a la aseguradora, a la familia del empleado?”",
-      "“¿Cómo apoyan a su empleado sin interferir con la investigación?”",
-      "“¿Qué deben preservar o documentar ahora?”"],
-  chk:["Separen los hechos de las especulaciones; la responsabilidad aún se desconoce.",
-       "El deber de protección y cuidado hacia su empleado es real, incluso si pudiera tener la culpa.",
-       "Ningún comentario interno sobre la culpa; nada que pueda parecer instrucción a un testigo (coaching).",
-       "Preserven los registros de conducción, el horario y los registros de mantenimiento del vehículo.",
-       "Notifiquen al grupo y a la aseguradora; designen un punto de contacto único para la policía."]},
- {id:"e3", n:3, lead:"Evento 3, continua el Miércoles.", when:"Miércoles", text:"Evento 3, continua el Miércoles. El motociclista ha fallecido a causa de sus heridas.\n\nEsto se ha convertido ahora en un accidente mortal. Se abre una investigación penal. Nuestro empleado podría enfrentarse a cargos personales dependiendo de los hallazgos.\n\nLa familia de la víctima, afligida y enojada, se pone en contacto con un periodista local. Aparece un artículo breve: \"El coche de empresa de un representante farmacéutico mata a un motociclista: ¿iba con exceso de velocidad para cumplir sus objetivos?\"\n\nInternamente, los empleados están inquietos; algunos se preguntan si las cuotas de visitas de la compañía los empujan a conducir de forma insegura.",
-  min:0, qs:null},
- {id:"e4", n:4, lead:"Evento #4, el Jueves", when:"Jueves", text:"Evento #4, el Jueves los investigadores comparten un hallazgo preliminar.\n\nLos datos del coche de empresa y del teléfono de trabajo del empleado indican que iba conduciendo por encima del límite de velocidad en el momento del accidente, y había estado enviando mensajes a su gerente pocos minutos antes.",
-  min:12,
-  qs:["“¿Cómo cambia su postura el hallazgo sobre el exceso de velocidad y el envío de mensajes?”",
-      "“¿Cuál es su responsabilidad si la presión laboral contribuyó al incidente?”",
-      "“¿Cuáles son los elementos esenciales de su Informe de Situación (SitRep) para el grupo?”",
-      "“¿Cómo manejan ahora la situación con el empleado, la familia y el personal?”"],
-  chk:["Enfrenten los hechos con honestidad; no oculten ni distorsionen los datos de la empresa.",
-       "Reconozcan la posible contribución organizacional: política de conducción, uso del teléfono, cuotas de trabajo.",
-       "Informe de situación (SitRep): hechos / estado del empleado / exposición legal / impacto en el personal / próximos pasos.",
-       "Coherencia y cuidado equitativo hacia el empleado, la familia de la víctima y el resto del personal.",
-       "Una revisión genuina de la seguridad al conducir debe formar parte de la respuesta, no ser una maniobra de distracción."]},
- {id:"e5", n:5, lead:"Evento #5, el Viernes.", when:"Viernes", text:"Evento #5, el Viernes. La noticia ya está en la prensa regional.\n\n\"Compañía farmacéutica bajo escrutinio tras un accidente mortal: cuestionamientos sobre la carga de trabajo del conductor.\"\n\nLos representantes piden una revisión de las condiciones de conducción de la fuerza de ventas.\n\nLa familia de la víctima, a través de un abogado, señala una demanda civil.\n\nUn periodista solicita una declaración de la empresa antes de que termine el día.",
-  min:13,
-  qs:["“¿Emiten una declaración pública y qué dice?”",
-      "“¿Cómo se comprometen de manera creíble con una revisión de la seguridad al conducir?”",
-      "“¿Cómo equilibran la empatía, la cautela legal y la rendición de cuentas?”",
-      "“¿Cómo cierran el ciclo internamente?”"],
-  chk:["Las condolencias primero; cooperación con las autoridades; ninguna atribución de culpa.",
-       "Un compromiso concreto y sincero para revisar la seguridad al conducir y la carga de trabajo.",
-       "Mantener la precaución legal sin sonar frío o evasivo.",
-       "El mensaje interno reconoce las preocupaciones del personal y la revisión en marcha.",
-       "Una narrativa alineada para la familia, los medios, los empleados y el grupo."]}
-];
+const CONTENT = {
+ es:{
+  context:"Tener presente que nuestra fuerza de ventas de representantes médicos conduce autos de la empresa a diario para visitar farmacias y profesionales de la salud en todo el territorio.",
+  events:[
+   {lead:"Martes · 2:10 p. m.", when:"Martes · 2:10 p. m.", text:"Martes · 2:10 p. m. Se recibe una llamada de la policía: uno de nuestros representantes médicos tuvo un accidente de tránsito en una vía rural mientras conducía un auto de la empresa. Un tercero, un motociclista, está gravemente herido. Su empleado está conmocionado, pero físicamente ileso.",
+    qs:["“¿Cuáles son sus primeras acciones en los próximos quince minutos?”",
+        "“¿Activa el equipo de crisis ahora? ¿Por qué sí o por qué no?”",
+        "“¿Qué elementos de FISA captura de inmediato?”"],
+    chk:["Cuide a su empleado primero: bienestar, apoyo, no lo deje solo con la policía.",
+         "Los hechos aún son escasos: todavía no haga suposiciones sobre la culpa.",
+         "Notifique a Legales y Recursos Humanos de inmediato; alerte a la aseguradora y al administrador de la flota.",
+         "Registre todo; el vehículo de la empresa y el teléfono pueden convertirse en evidencia."]},
+   {lead:"Evento #2 a las 3:30 p.m.", when:"Martes · 3:30 p. m.", text:"Evento #2 a las 3:30 p.m. El panorama aún se está formando, el motociclista se encuentra en cuidados intensivos. La policía ha retenido el coche de la empresa y el teléfono de trabajo de su empleado como parte de su investigación.\n\nSu empleado, angustiado, afirma que el motociclista \"salió de la nada\". No hubo otros testigos. La policía se muestra cortés pero evasiva en cuanto a la responsabilidad.\n\nUn colega menciona que este representante tiene una agenda de visitas muy exigente y \"siempre va corriendo entre citas\".",
+    qs:["“Realicen un FISA completo. ¿Qué saben frente a qué asumen?”",
+        "“¿A quién notifican: al grupo, a la aseguradora, a la familia del empleado?”",
+        "“¿Cómo apoyan a su empleado sin interferir con la investigación?”",
+        "“¿Qué deben preservar o documentar ahora?”"],
+    chk:["Separen los hechos de las especulaciones; la responsabilidad aún se desconoce.",
+         "El deber de protección y cuidado hacia su empleado es real, incluso si pudiera tener la culpa.",
+         "Ningún comentario interno sobre la culpa; nada que pueda parecer instrucción a un testigo (coaching).",
+         "Preserven los registros de conducción, el horario y los registros de mantenimiento del vehículo.",
+         "Notifiquen al grupo y a la aseguradora; designen un punto de contacto único para la policía."]},
+   {lead:"Evento 3, continua el Miércoles.", when:"Miércoles", text:"Evento 3, continua el Miércoles. El motociclista ha fallecido a causa de sus heridas.\n\nEsto se ha convertido ahora en un accidente mortal. Se abre una investigación penal. Nuestro empleado podría enfrentarse a cargos personales dependiendo de los hallazgos.\n\nLa familia de la víctima, afligida y enojada, se pone en contacto con un periodista local. Aparece un artículo breve: \"El coche de empresa de un representante farmacéutico mata a un motociclista: ¿iba con exceso de velocidad para cumplir sus objetivos?\"\n\nInternamente, los empleados están inquietos; algunos se preguntan si las cuotas de visitas de la compañía los empujan a conducir de forma insegura.",
+    qs:null, chk:[]},
+   {lead:"Evento #4, el Jueves", when:"Jueves", text:"Evento #4, el Jueves los investigadores comparten un hallazgo preliminar.\n\nLos datos del coche de empresa y del teléfono de trabajo del empleado indican que iba conduciendo por encima del límite de velocidad en el momento del accidente, y había estado enviando mensajes a su gerente pocos minutos antes.",
+    qs:["“¿Cómo cambia su postura el hallazgo sobre el exceso de velocidad y el envío de mensajes?”",
+        "“¿Cuál es su responsabilidad si la presión laboral contribuyó al incidente?”",
+        "“¿Cuáles son los elementos esenciales de su Informe de Situación (SitRep) para el grupo?”",
+        "“¿Cómo manejan ahora la situación con el empleado, la familia y el personal?”"],
+    chk:["Enfrenten los hechos con honestidad; no oculten ni distorsionen los datos de la empresa.",
+         "Reconozcan la posible contribución organizacional: política de conducción, uso del teléfono, cuotas de trabajo.",
+         "Informe de situación (SitRep): hechos / estado del empleado / exposición legal / impacto en el personal / próximos pasos.",
+         "Coherencia y cuidado equitativo hacia el empleado, la familia de la víctima y el resto del personal.",
+         "Una revisión genuina de la seguridad al conducir debe formar parte de la respuesta, no ser una maniobra de distracción."]},
+   {lead:"Evento #5, el Viernes.", when:"Viernes", text:"Evento #5, el Viernes. La noticia ya está en la prensa regional.\n\n\"Compañía farmacéutica bajo escrutinio tras un accidente mortal: cuestionamientos sobre la carga de trabajo del conductor.\"\n\nLos representantes piden una revisión de las condiciones de conducción de la fuerza de ventas.\n\nLa familia de la víctima, a través de un abogado, señala una demanda civil.\n\nUn periodista solicita una declaración de la empresa antes de que termine el día.",
+    qs:["“¿Emiten una declaración pública y qué dice?”",
+        "“¿Cómo se comprometen de manera creíble con una revisión de la seguridad al conducir?”",
+        "“¿Cómo equilibran la empatía, la cautela legal y la rendición de cuentas?”",
+        "“¿Cómo cierran el ciclo internamente?”"],
+    chk:["Las condolencias primero; cooperación con las autoridades; ninguna atribución de culpa.",
+         "Un compromiso concreto y sincero para revisar la seguridad al conducir y la carga de trabajo.",
+         "Mantener la precaución legal sin sonar frío o evasivo.",
+         "El mensaje interno reconoce las preocupaciones del personal y la revisión en marcha.",
+         "Una narrativa alineada para la familia, los medios, los empleados y el grupo."]}
+  ],
+  closing:["“¿Qué fue lo que más les desafió de este ejercicio?”",
+           "“¿Cómo cambió su postura cuando sus propios datos implicaron al empleado?”",
+           "“¿En qué momentos el deber de cuidado y la cautela legal tiraron en direcciones distintas?”",
+           "“¿Qué cambiarían en sus políticas de seguridad al conducir y de la fuerza de campo?”"],
+  lessons:["El deber de cuidado aplica incluso cuando su empleado pueda tener la culpa.",
+           "Sus propios datos pueden convertirse en la evidencia decisiva, y la más incómoda.",
+           "La presión organizacional (cuotas, uso del teléfono) puede ser parte de la causa raíz.",
+           "La empatía con la víctima debe ser sincera y temprana.",
+           "La rendición de cuentas y la cautela legal pueden coexistir, con mensajes cuidadosos."],
+  final:{mejorar:"Qué mejorar", recomendaciones:"Recomendaciones", observaciones:"Observaciones de los líderes de la actividad", positivo:"Cosas buenas que tenemos"},
+  roles:{
+   alert:["Recibe la alerta","Recibe la primera llamada y dispara la activación del equipo de crisis."],
+   gm:["Gerencia General","Decide, prioriza y responde ante Grupo."],
+   deputy:["Suplente del líder","Solo entra si el Crisis leader no está disponible."],
+   comms:["Comunicaciones","Habrá prensa, Group Comms y empleados preguntando. Se necesita una sola voz."],
+   security:["Seguridad","Puede apoyar el enlace con autoridades, pero no gestiona un accidente de tránsito."],
+   logbook:["Bitácora","El registro lo lleva el equipo activado; no requiere un rol adicional en este caso."],
+   logistics:["Logística","Puede ayudar con traslados, pero no es responsable de gestionar el caso."],
+   situation:["Reporte de situación","El reporte a Grupo lo asume el Crisis leader."],
+   dispatcher:["Despacho de información","En un equipo de este tamaño la información circula sin un despachador."],
+   legal:["Legal","Hay una posible investigación penal contra el empleado y responsabilidad civil de la empresa."],
+   hr:["Recursos Humanos","Deber de cuidado con el empleado, su familia y la fuerza de ventas."],
+   finance:["Finanzas","Puede apoyar si se le consulta, pero no gestiona la crisis."],
+   it:["Tecnología","Puede apoyar con respaldos de información si se le pide, pero no gestiona la crisis."],
+   hse:["Salud, seguridad y ambiente","Es un accidente de trabajo: ARL, seguridad vial y COPASST."],
+   fleet:["Flota y facilities","Vehículo, póliza, aseguradora y mantenimiento."],
+   supply:["Cadena de suministro","No hay impacto en la cadena de suministro."],
+   pv:["Farmacovigilancia","No hay un producto involucrado."]
+  },
+  fisa:{
+   evaluacion:["Evaluación de la","situación","¿Qué está pasando? Describan la situación con lo que saben en este momento."],
+   recopilacion:["Recopilación de","información","¿Qué información tienen, de qué fuentes viene y qué falta confirmar?"],
+   compartir:["Compartir toda la","información","¿Con quién comparten la información, por qué canal y cada cuánto?"],
+   perimetro:["Definición del perímetro de","gestión de crisis","¿Qué cubre la gestión de esta crisis y qué queda por fuera?"]
+  },
+  impRows:{humano:"Humano", actividades:"Actividades", legal:"Legal", imagen:"Imagen y reputación", entorno:"Entorno"},
+  impCols:{inmediato:"Inmediato", futuro:"Futuro", potencial:"Potencial"},
+  clases:{aliada:"Aliada", neutral:"Neutral", hostil:"Hostil"},
+  sugs:["Empleado","Familia del empleado","Familia de la víctima","Policía de Tránsito","Fiscalía","Aseguradora","Medios de comunicación","Grupo","Fuerza de ventas","COPASST","Abogado de la familia"]
+ },
 
-const CLOSING_Q = [
- "“¿Qué fue lo que más les desafió de este ejercicio?”",
- "“¿Cómo cambió su postura cuando sus propios datos implicaron al empleado?”",
- "“¿En qué momentos el deber de cuidado y la cautela legal tiraron en direcciones distintas?”",
- "“¿Qué cambiarían en sus políticas de seguridad al conducir y de la fuerza de campo?”"
-];
-const LESSONS = [
- "El deber de cuidado aplica incluso cuando su empleado pueda tener la culpa.",
- "Sus propios datos pueden convertirse en la evidencia decisiva, y la más incómoda.",
- "La presión organizacional (cuotas, uso del teléfono) puede ser parte de la causa raíz.",
- "La empatía con la víctima debe ser sincera y temprana.",
- "La rendición de cuentas y la cautela legal pueden coexistir, con mensajes cuidadosos."
-];
-const FINAL = [
- {k:"mejorar", label:"Qué mejorar"},
- {k:"recomendaciones", label:"Recomendaciones"},
- {k:"observaciones", label:"Observaciones de los líderes de la actividad"},
- {k:"positivo", label:"Cosas buenas que tenemos"}
-];
+ en:{
+  context:"Keep in mind that our field force of medical representatives drives company cars every day to visit pharmacies and healthcare professionals across the territory.",
+  events:[
+   {lead:"Tuesday · 2:10 p.m.", when:"Tuesday · 2:10 p.m.", text:"Tuesday · 2:10 p.m. A call comes in from the police: one of our medical representatives has been involved in a road accident on a rural road while driving a company car. A third party – a motorcyclist – is seriously injured. Your employee is shaken but physically unhurt.",
+    qs:["“What are your first actions in the next fifteen minutes?”",
+        "“Do you activate the crisis team now? Why or why not?”",
+        "“What FISA elements do you capture immediately?”"],
+    chk:["Care for your employee first: welfare, support, do not leave them alone with police.",
+         "Facts still thin – no assumptions about fault yet.",
+         "Notify Legal and HR immediately; alert insurer and fleet manager.",
+         "Log everything; the company car and phone may become evidence."]},
+   {lead:"Event #2 at 3:30 p.m.", when:"Tuesday · 3:30 p.m.", text:"Event #2 at 3:30 p.m. The picture is still forming; the motorcyclist is in intensive care. Police have retained the company car and your employee’s work phone as part of their investigation.\n\nYour employee, distressed, says the motorcyclist \"came out of nowhere\". There were no other witnesses. The police are courteous but non-committal on responsibility.\n\nA colleague mentions that this representative has a demanding visit schedule and \"is always rushing between appointments\".",
+    qs:["“Perform a full FISA. What do you know vs. assume?”",
+        "“Who do you notify: group, insurer, the employee’s family?”",
+        "“How do you support your employee without interfering with the inquiry?”",
+        "“What must you preserve or document now?”"],
+    chk:["Separate facts from speculation; responsibility is unknown.",
+         "Duty of care to your employee is real, even if they may be at fault.",
+         "No internal comment on fault; nothing that could look like coaching a witness.",
+         "Preserve driving records, schedule, vehicle maintenance logs.",
+         "Group and insurer notified; a single point of contact for police."]},
+   {lead:"Event 3, continuing on Wednesday.", when:"Wednesday", text:"Event 3, continuing on Wednesday. The motorcyclist has died from their injuries.\n\nThis is now a fatal accident. A criminal investigation is opened. Our employee may face personal charges depending on the findings.\n\nThe victim’s family, grieving and angry, contacts a local journalist. A short piece appears: \"Pharma rep’s company car kills motorcyclist – was he speeding to hit his targets?\"\n\nInternally, employees are unsettled; some ask whether the company’s visit quotas push them to drive unsafely.",
+    qs:null, chk:[]},
+   {lead:"Event #4, on Thursday", when:"Thursday", text:"Event #4, on Thursday investigators share a preliminary finding.\n\nData from the company car and the employee’s work phone indicates he was driving above the speed limit at the time of the accident, and had been messaging his manager minutes before.",
+    qs:["“How does the speeding and messaging finding change your posture?”",
+        "“What is your responsibility if work pressure contributed?”",
+        "“What are the essential elements of your Situation Report to group?”",
+        "“How do you handle the employee, the family, and staff now?”"],
+    chk:["Face the facts honestly; do not hide or spin the company data.",
+         "Recognise possible organisational contribution – driving policy, phone use, quotas.",
+         "SitRep: facts / employee status / legal exposure / people impact / next steps.",
+         "Consistency and care across the employee, the victim’s family, and the workforce.",
+         "A genuine review of driving safety becomes part of the response, not a deflection."]},
+   {lead:"Event #5, Friday.", when:"Friday", text:"Event #5, Friday. The story is now in the regional press.\n\n\"Pharma company under scrutiny after fatal crash – questions over driver workload.\"\n\nRepresentatives ask for a review of field-force driving conditions.\n\nThe victim’s family, through a lawyer, signals a civil claim.\n\nA journalist requests a company statement by end of day.",
+    qs:["“Do you issue a public statement, and what does it say?”",
+        "“How do you commit to a driving-safety review credibly?”",
+        "“How do you balance empathy, legal caution and accountability?”",
+        "“How do you close the loop internally?”"],
+    chk:["Condolences first; cooperation with authorities; no fault attribution.",
+         "A concrete, sincere commitment to review driving safety and workload.",
+         "Legal caution preserved without sounding cold or evasive.",
+         "Internal message acknowledges staff concerns and the review underway.",
+         "One aligned narrative across family, media, employees and group."]}
+  ],
+  closing:["“What did you find most challenging in this exercise?”",
+           "“How did your posture change when your own data implicated the employee?”",
+           "“Where did duty of care and legal caution pull in different directions?”",
+           "“What would you change in your driving-safety and field-force policies?”"],
+  lessons:["Duty of care applies even when your employee may be at fault.",
+           "Your own data can become the decisive – and uncomfortable – evidence.",
+           "Organisational pressure (quotas, phone use) can be part of root cause.",
+           "Empathy for the third-party victim must be sincere and early.",
+           "Accountability and legal caution can coexist – with careful messaging."],
+  final:{mejorar:"What to improve", recomendaciones:"Recommendations", observaciones:"Observations from the activity leaders", positivo:"Strengths we have"},
+  roles:{
+   alert:["Receives the alert","Takes the first call and triggers the crisis team activation."],
+   gm:["General Management","Decides, prioritizes and answers to Group."],
+   deputy:["Leader's deputy","Only steps in if the Crisis leader is unavailable."],
+   comms:["Communications","Press, Group Comms and employees will be asking. One single voice is needed."],
+   security:["Security","Can support liaison with the authorities, but does not manage a road accident."],
+   logbook:["Logbook","The activated team keeps the log; no extra role is needed in this case."],
+   logistics:["Logistics","Can help with transport, but is not responsible for managing the case."],
+   situation:["Situation report","The Crisis leader takes on reporting to Group."],
+   dispatcher:["Information dispatch","In a team of this size, information flows without a dispatcher."],
+   legal:["Legal","There is a possible criminal investigation of the employee and civil liability for the company."],
+   hr:["Human Resources","Duty of care to the employee, their family and the sales force."],
+   finance:["Finance","Can support if consulted, but does not manage the crisis."],
+   it:["Technology","Can help back up information if asked, but does not manage the crisis."],
+   hse:["Health, safety and environment","It is a work accident: occupational risk insurer (ARL), road safety and the health & safety committee (COPASST)."],
+   fleet:["Fleet and facilities","Vehicle, policy, insurer and maintenance."],
+   supply:["Supply chain","There is no impact on the supply chain."],
+   pv:["Pharmacovigilance","No product is involved."]
+  },
+  fisa:{
+   evaluacion:["Assessment of the","situation","What is happening? Describe the situation with what you know right now."],
+   recopilacion:["Gathering of","information","What information do you have, where does it come from and what still needs to be confirmed?"],
+   compartir:["Sharing all","information","Who do you share the information with, through which channel and how often?"],
+   perimetro:["Defining the scope of","crisis management","What does managing this crisis cover, and what is left out?"]
+  },
+  impRows:{humano:"Human", actividades:"Activities", legal:"Legal", imagen:"Image and reputation", entorno:"Environment"},
+  impCols:{inmediato:"Immediate", futuro:"Future", potencial:"Potential"},
+  clases:{aliada:"Ally", neutral:"Neutral", hostil:"Hostile"},
+  sugs:["Employee","Employee's family","Victim's family","Traffic police","Prosecutor's office","Insurer","Media","Group","Sales force","Health & safety committee (COPASST)","Family's lawyer"]
+ },
 
-const ROLES = [
-  {k:"alert", g:"cell", name:"Alert recipient", es:"Recibe la alerta", need:true, why:"Recibe la primera llamada y dispara la activación del equipo de crisis."},
-  {k:"gm", g:"cell", name:"Crisis leader", es:"Gerencia General", need:true, why:"Decide, prioriza y responde ante Grupo."},
-  {k:"deputy", g:"cell", name:"Crisis cell deputy", es:"Suplente del líder", need:false, why:"Solo entra si el Crisis leader no está disponible."},
-  {k:"comms", g:"cell", name:"Communication correspondent", es:"Comunicaciones", need:true, why:"Habrá prensa, Group Comms y empleados preguntando. Se necesita una sola voz."},
-  {k:"security", g:"cell", name:"Security", es:"Seguridad", need:false, why:"Puede apoyar el enlace con autoridades, pero no gestiona un accidente de tránsito."},
-  {k:"logbook", g:"cell", name:"Logbook", es:"Bitácora", need:false, why:"El registro lo lleva el equipo activado; no requiere un rol adicional en este caso."},
-  {k:"logistics", g:"cell", name:"Logistics facilitator", es:"Logística", need:false, why:"Puede ayudar con traslados, pero no es responsable de gestionar el caso."},
-  {k:"situation", g:"cell", name:"Situation reporter", es:"Reporte de situación", need:false, why:"El reporte a Grupo lo asume el Crisis leader."},
-  {k:"dispatcher", g:"cell", name:"Info cell dispatcher", es:"Despacho de información", need:false, why:"En un equipo de este tamaño la información circula sin un despachador."},
-  {k:"legal", g:"sup", name:"Legal", es:"Legal", need:true, why:"Hay una posible investigación penal contra el empleado y responsabilidad civil de la empresa."},
-  {k:"hr", g:"sup", name:"HR", es:"Recursos Humanos", need:true, why:"Deber de cuidado con el empleado, su familia y la fuerza de ventas."},
-  {k:"finance", g:"sup", name:"Finance", es:"Finanzas", need:false, why:"Puede apoyar si se le consulta, pero no gestiona la crisis."},
-  {k:"it", g:"sup", name:"IT", es:"Tecnología", need:false, why:"Puede apoyar con respaldos de información si se le pide, pero no gestiona la crisis."},
-  {k:"hse", g:"sup", name:"HSE", es:"Salud, seguridad y ambiente", need:true, why:"Es un accidente de trabajo: ARL, seguridad vial y COPASST."},
-  {k:"fleet", g:"sup", name:"Fleet", es:"Flota y facilities", need:true, why:"Vehículo, póliza, aseguradora y mantenimiento."},
-  {k:"supply", g:"sup", name:"Supply", es:"Cadena de suministro", need:false, why:"No hay impacto en la cadena de suministro."},
-  {k:"pv", g:"sup", name:"Pharmacovigilance", es:"Farmacovigilancia", need:false, why:"No hay un producto involucrado."}
+ pt:{
+  context:"Tenham em mente que a nossa força de vendas de representantes médicos dirige carros da empresa diariamente para visitar farmácias e profissionais de saúde em todo o território.",
+  events:[
+   {lead:"Terça-feira · 14h10", when:"Terça-feira · 14h10", text:"Terça-feira · 14h10. Recebe-se uma ligação da polícia: um dos nossos representantes médicos sofreu um acidente de trânsito em uma estrada rural enquanto dirigia um carro da empresa. Um terceiro, um motociclista, está gravemente ferido. O seu colaborador está abalado, mas fisicamente ileso.",
+    qs:["“Quais são as suas primeiras ações nos próximos quinze minutos?”",
+        "“Vocês ativam a equipe de crise agora? Por que sim ou por que não?”",
+        "“Quais elementos do FISA vocês registram imediatamente?”"],
+    chk:["Cuide primeiro do seu colaborador: bem-estar, apoio, não o deixe sozinho com a polícia.",
+         "Os fatos ainda são escassos: não faça suposições sobre a culpa.",
+         "Notifique o Jurídico e os Recursos Humanos imediatamente; alerte a seguradora e o gestor da frota.",
+         "Registre tudo; o veículo da empresa e o telefone podem se tornar provas."]},
+   {lead:"Evento #2 às 15h30.", when:"Terça-feira · 15h30", text:"Evento #2 às 15h30. O cenário ainda está se formando; o motociclista está na UTI. A polícia reteve o carro da empresa e o telefone de trabalho do seu colaborador como parte da investigação.\n\nO seu colaborador, angustiado, afirma que o motociclista \"apareceu do nada\". Não houve outras testemunhas. A polícia se mostra cortês, mas evasiva quanto à responsabilidade.\n\nUm colega comenta que este representante tem uma agenda de visitas muito exigente e \"está sempre correndo de um compromisso para outro\".",
+    qs:["“Façam um FISA completo. O que vocês sabem e o que estão supondo?”",
+        "“Quem vocês notificam: o grupo, a seguradora, a família do colaborador?”",
+        "“Como vocês apoiam o seu colaborador sem interferir na investigação?”",
+        "“O que vocês devem preservar ou documentar agora?”"],
+    chk:["Separem os fatos das especulações; a responsabilidade ainda é desconhecida.",
+         "O dever de proteção e cuidado com o seu colaborador é real, mesmo que ele possa ter culpa.",
+         "Nenhum comentário interno sobre culpa; nada que possa parecer instrução a uma testemunha (coaching).",
+         "Preservem os registros de condução, a agenda e os registros de manutenção do veículo.",
+         "Notifiquem o grupo e a seguradora; designem um ponto de contato único com a polícia."]},
+   {lead:"Evento 3, continua na quarta-feira.", when:"Quarta-feira", text:"Evento 3, continua na quarta-feira. O motociclista faleceu em decorrência dos ferimentos.\n\nAgora isto se tornou um acidente fatal. É aberta uma investigação criminal. O nosso colaborador pode enfrentar acusações pessoais, dependendo das conclusões.\n\nA família da vítima, enlutada e revoltada, entra em contato com um jornalista local. Sai uma nota curta: \"Carro de empresa de representante farmacêutico mata motociclista: ele corria para bater metas?\"\n\nInternamente, os funcionários estão inquietos; alguns se perguntam se as cotas de visitas da empresa os levam a dirigir de forma insegura.",
+    qs:null, chk:[]},
+   {lead:"Evento #4, na quinta-feira", when:"Quinta-feira", text:"Evento #4, na quinta-feira os investigadores compartilham uma constatação preliminar.\n\nOs dados do carro da empresa e do telefone de trabalho do colaborador indicam que ele dirigia acima do limite de velocidade no momento do acidente e que vinha trocando mensagens com o seu gerente poucos minutos antes.",
+    qs:["“Como a constatação sobre o excesso de velocidade e a troca de mensagens muda a postura de vocês?”",
+        "“Qual é a responsabilidade de vocês se a pressão do trabalho contribuiu para o incidente?”",
+        "“Quais são os elementos essenciais do seu Relatório de Situação (SitRep) para o grupo?”",
+        "“Como vocês lidam agora com o colaborador, a família e o pessoal?”"],
+    chk:["Enfrentem os fatos com honestidade; não escondam nem distorçam os dados da empresa.",
+         "Reconheçam a possível contribuição organizacional: política de condução, uso do telefone, cotas de trabalho.",
+         "Relatório de situação (SitRep): fatos / estado do colaborador / exposição jurídica / impacto nas pessoas / próximos passos.",
+         "Coerência e cuidado equilibrado com o colaborador, a família da vítima e o restante do pessoal.",
+         "Uma revisão genuína da segurança ao dirigir deve fazer parte da resposta, e não ser uma manobra de distração."]},
+   {lead:"Evento #5, sexta-feira.", when:"Sexta-feira", text:"Evento #5, sexta-feira. A notícia já está na imprensa regional.\n\n\"Empresa farmacêutica sob escrutínio após acidente fatal: questionamentos sobre a carga de trabalho do motorista.\"\n\nOs representantes pedem uma revisão das condições de condução da força de vendas.\n\nA família da vítima, por meio de um advogado, sinaliza uma ação civil.\n\nUm jornalista solicita uma declaração da empresa até o fim do dia.",
+    qs:["“Vocês emitem uma declaração pública? O que ela diz?”",
+        "“Como vocês se comprometem de forma crível com uma revisão da segurança ao dirigir?”",
+        "“Como vocês equilibram empatia, cautela jurídica e responsabilização?”",
+        "“Como vocês fecham o ciclo internamente?”"],
+    chk:["Condolências em primeiro lugar; cooperação com as autoridades; nenhuma atribuição de culpa.",
+         "Um compromisso concreto e sincero de revisar a segurança ao dirigir e a carga de trabalho.",
+         "Manter a cautela jurídica sem soar frio ou evasivo.",
+         "A mensagem interna reconhece as preocupações do pessoal e a revisão em andamento.",
+         "Uma narrativa alinhada para a família, a mídia, os funcionários e o grupo."]}
+  ],
+  closing:["“O que foi mais desafiador para vocês neste exercício?”",
+           "“Como a postura de vocês mudou quando os seus próprios dados implicaram o colaborador?”",
+           "“Em que momentos o dever de cuidado e a cautela jurídica puxaram em direções diferentes?”",
+           "“O que vocês mudariam nas políticas de segurança ao dirigir e da força de campo?”"],
+  lessons:["O dever de cuidado se aplica mesmo quando o seu colaborador pode ter culpa.",
+           "Os seus próprios dados podem se tornar a prova decisiva, e a mais incômoda.",
+           "A pressão organizacional (cotas, uso do telefone) pode fazer parte da causa raiz.",
+           "A empatia com a vítima deve ser sincera e precoce.",
+           "A responsabilização e a cautela jurídica podem coexistir, com mensagens cuidadosas."],
+  final:{mejorar:"O que melhorar", recomendaciones:"Recomendações", observaciones:"Observações dos líderes da atividade", positivo:"Pontos fortes que temos"},
+  roles:{
+   alert:["Recebe o alerta","Recebe a primeira ligação e aciona a ativação da equipe de crise."],
+   gm:["Diretoria Geral","Decide, prioriza e responde ao Grupo."],
+   deputy:["Suplente do líder","Só entra se o Crisis leader não estiver disponível."],
+   comms:["Comunicação","Haverá imprensa, Group Comms e funcionários perguntando. É preciso uma só voz."],
+   security:["Segurança","Pode apoiar a interlocução com as autoridades, mas não gerencia um acidente de trânsito."],
+   logbook:["Diário de bordo","O registro é feito pela equipe ativada; neste caso não é preciso um papel adicional."],
+   logistics:["Logística","Pode ajudar com deslocamentos, mas não é responsável por gerenciar o caso."],
+   situation:["Relatório de situação","O relatório ao Grupo fica com o Crisis leader."],
+   dispatcher:["Despacho de informações","Em uma equipe deste tamanho, a informação circula sem um despachante."],
+   legal:["Jurídico","Há uma possível investigação criminal contra o colaborador e responsabilidade civil da empresa."],
+   hr:["Recursos Humanos","Dever de cuidado com o colaborador, a sua família e a força de vendas."],
+   finance:["Finanças","Pode apoiar se for consultada, mas não gerencia a crise."],
+   it:["Tecnologia","Pode apoiar com cópias de segurança das informações se for solicitada, mas não gerencia a crise."],
+   hse:["Saúde, segurança e meio ambiente","É um acidente de trabalho: seguradora de riscos ocupacionais (ARL), segurança viária e comitê de segurança (COPASST)."],
+   fleet:["Frota e facilities","Veículo, apólice, seguradora e manutenção."],
+   supply:["Cadeia de suprimentos","Não há impacto na cadeia de suprimentos."],
+   pv:["Farmacovigilância","Não há nenhum produto envolvido."]
+  },
+  fisa:{
+   evaluacion:["Avaliação da","situação","O que está acontecendo? Descrevam a situação com o que sabem neste momento."],
+   recopilacion:["Coleta de","informações","Que informações vocês têm, de que fontes vêm e o que falta confirmar?"],
+   compartir:["Compartilhamento de todas as","informações","Com quem vocês compartilham as informações, por qual canal e com que frequência?"],
+   perimetro:["Definição do perímetro da","gestão de crise","O que a gestão desta crise abrange e o que fica de fora?"]
+  },
+  impRows:{humano:"Humano", actividades:"Atividades", legal:"Jurídico", imagen:"Imagem e reputação", entorno:"Entorno"},
+  impCols:{inmediato:"Imediato", futuro:"Futuro", potencial:"Potencial"},
+  clases:{aliada:"Aliada", neutral:"Neutra", hostil:"Hostil"},
+  sugs:["Colaborador","Família do colaborador","Família da vítima","Polícia de trânsito","Ministério Público","Seguradora","Meios de comunicação","Grupo","Força de vendas","COPASST","Advogado da família"]
+ }
+};
+
+const UI = {
+ es:{
+  level:"Ensayo de gestión de crisis · Nivel 1", title1:"Accidente fatal", title2:"en misión",
+  brandTitle:"Opella · Sala de crisis", brandSub:"Accidente fatal en misión",
+  context:"Contexto",
+  how1t:"Activen el equipo de crisis", how1d:"Decidan por qué es una situación de crisis y qué áreas deben estar involucradas.",
+  how2t:"Decisiones", how2d:"En cada evento el equipo llena su FISA (con el plan de acción por área) y responde las preguntas, con el tiempo corriendo.",
+  how3t:"Decisiones que se vuelven acciones", how3d:"Comparen sus respuestas con lo que se esperaba y conviertan los aprendizajes en acciones.",
+  newSession:"Nueva sesión", langLabel:"Idioma", langNote:"El idioma se elige antes de comenzar y se usa en todo el ejercicio y en el reporte.",
+  teamLabel:"Nombre del equipo (aparece en el reporte)", teamPh:"Equipo de crisis Colombia", start:"Comenzar",
+  saved:"Reportes guardados", inProgress:" · en curso", del:"Borrar", delAria:n=>`Borrar intento de ${n}`,
+  delConfirm:(n,d)=>`¿Borrar el intento de <b>${n}</b> del ${d}? No se puede deshacer.`, delYes:"Sí, borrar", cancel:"Cancelar",
+  deleted:"Intento borrado.", delFail:"No se pudo borrar el intento. Intente de nuevo.", teamDefault:"Equipo de crisis",
+  fDur:"Duración", fDurV:"~45 minutos", fScenes:"Escenas", fScenesV:"5 eventos + cierre", fFrame:"Marco", fFrameV:"Ciclo FISA · SitRep",
+  elapsed:"Tiempo del ejercicio", back:"← Atrás", next:"Siguiente →", genReport:"Generar reporte →", evArrow:n=>`Evento ${n} →`,
+  chipClose:"Cierre", chipReport:"Reporte",
+  eventOf:n=>`Evento ${n} de 5`, event:n=>`Evento ${n}`,
+  soundOn:"Activar audio de fondo", replay:"Repetir audio", soundBlocked:"El navegador bloqueó el sonido automático.",
+  actEyebrow:"Evento 1 · Activación", isCrisis:"¿Es una situación de crisis?", whyCrisis:"¿Por qué es una situación de crisis?",
+  whyHelp:"Escriban los argumentos del equipo.", whyPh:"Es una crisis porque…",
+  areasQ:"¿Qué áreas estarían involucradas?", areasHelp:"Seleccionen solo las áreas responsables de gestionar este caso.",
+  areasResult:(on,tot,w)=>`${on} de ${tot} áreas responsables activadas${w?` · ${w} activada${w>1?"s":""} sin ser responsable${w>1?"s":""}`:""}.`,
+  cellGroup:"Equipo de crisis", supGroup:"Áreas de soporte", redo:"Volver a seleccionar", confirmAreas:n=>`Confirmar áreas (${n})`,
+  writeWhyFirst:"Escriban primero por qué es una crisis.",
+  rOk:"Responsable · bien activada", rMiss:"Responsable · faltó activarla", rWrong:"No debía activarse", rFine:"Bien: no se activa",
+  decisions:"Decisiones", eyebrowDec:n=>`Evento ${n} de 5 · Decisiones`, timerLab:m=>`Temporizador · ${m} minutos`,
+  lockMsg:"Inicien el temporizador para empezar a responder. El tiempo corre mientras llenan el FISA y las preguntas.",
+  tabFisa:"1. FISA", tabQs:"2. Preguntas", ansPh:"Respuesta del equipo…", startToAnswer:"Inicien el temporizador para responder",
+  evDone:u=>`Evento terminado · tiempo usado ${u}`, reopen:"Reabrir evento", finish:"Terminar evento",
+  finishHint:"Al terminar se detiene el tiempo y aparece la retroalimentación.",
+  checkTitle:"¿Tuvimos en cuenta esto?", checkHelp:"Marquen lo que el equipo sí consideró en sus respuestas.", noneOpt:"No tuvimos en cuenta ninguna de las anteriores",
+  pause:"Pausar", resume:"Continuar", startT:"Iniciar", timeUsed:u=>`Tiempo usado: ${u}`, timeUp:"Tiempo cumplido. El reloj sigue sumando.",
+  fisaChooseT:"¿Cómo llevan el FISA en este evento?",
+  fisaChooseD:n=>`Cada evento guarda su propio FISA. Si continúan, se hace una copia del FISA del evento ${n} para editarla aquí; el FISA del evento ${n} queda igual.`,
+  fisaCont:n=>`Continuar con el FISA del evento ${n}`, fisaNew:"Empezar un FISA nuevo", fisaSee:n=>`Ver FISA del evento ${n}`,
+  fisaNoPrev:n=>`El evento ${n} no tiene FISA para continuar.`, startToChoose:"Inicien el temporizador para elegir.",
+  tapTitle:"Toquen el título de cada punto para llenarlo.",
+  fisaIsCopy:n=>`Continuación del FISA del evento ${n}. Los cambios solo quedan en este evento.`, fisaIsNew:"FISA nuevo para este evento.",
+  fill:"Llenar", fisaTitle:n=>`FISA · Evento ${n}`, fourPts:"4 puntos del método", banner:"Para ser actualizado continuamente",
+  colH:["Hechos","Impactos","Partes interesadas","Plan de acción"],
+  impItem1:`<b>Identificación de todos</b> los impactos (inmediatos, futuros)`, impItem2:`<b>Evaluación</b> de problemas`,
+  impEmpty:"Marquen en la tabla los impactos más importantes para que queden aquí.",
+  parItem1:`<b>Identificación</b> de las partes interesadas`, parItem2:`<b>Distribución</b> entre los miembros del equipo de crisis`,
+  parItem3:`<b>Clasificación</b> de las partes interesadas: aliadas, neutrales, hostiles`,
+  inCharge:"A cargo", inChargeOf:x=>`A cargo: ${x}`,
+  planItem1:`Lista de acciones relativas <b>a implementar</b>`, planItem2:`Una <b>persona identificada</b> a cargo de cada acción`,
+  noOwner:"Sin responsable", noActionL:"Sin acción en este evento:", allHaveAction:"Todas las áreas involucradas tienen acciones.",
+  done:"Listo", readOnly:x=>`Solo lectura: ${x}`, roDone:"el evento está terminado.", roStart:"inicien el temporizador para editar.",
+  writeHere:"Escriban aquí…",
+  impHelp:`Escriban los impactos en cada celda y marquen como <b>importante</b> los que deben quedar en el FISA.`,
+  impact:"Impacto", important:"Importante", markImp:"Marcar importante",
+  probEval:"Evaluación de problemas", probPh:"¿Qué problemas generan estos impactos y cuáles son los más graves?",
+  parHelp:"Identifiquen las partes interesadas, clasifíquenlas y asignen el miembro del equipo de crisis a cargo de cada una.",
+  quickAdd:"Agregar rápido:", stakeholder:"Parte interesada", classification:"Clasificación", classPh:"Clasificación…", inChargePh:"A cargo…",
+  memberAria:"Miembro del equipo a cargo",
+  remove:"Quitar", removeAria:x=>`Quitar ${x}`, row:"fila", addStake:"+ Agregar parte interesada",
+  planHelp:"Listen las acciones a implementar, con una persona identificada a cargo y el área responsable de cada una.",
+  action:"Acción", person:"Persona a cargo", area:"Área", actionPh:"Acción a implementar", personPh:"Nombre de la persona", areaPh:"Área…",
+  removeAction:"Quitar acción", addAction:"+ Agregar acción", prevTitle:n=>`FISA del evento ${n} (solo lectura)`,
+  lateSum:"¿Necesitan involucrar otra área? Agregar área",
+  lateHelp:"Agreguen un área que no se activó al inicio. Quedará disponible en Partes interesadas y en Plan de acción.",
+  lateSel:"Área para agregar", choose:"Elegir área…", addArea:"+ Agregar área", allInvolved:"Ya están involucradas todas las áreas.",
+  lateList:"Agregadas después del inicio:", lateListRo:"Áreas agregadas después del inicio:", evShort:n=>`evento ${n}`,
+  closing:"Cierre", closingQs:"Preguntas de cierre", lessonsL:"Lecciones clave", lessonsT:"Lo que deja este ejercicio",
+  summary:"Resumen de las preguntas", metaUsed:(u,m)=>`tiempo usado ${u} de ${m}:00`,
+  noneConsidered:"no tuvimos en cuenta ninguna de las anteriores", ptsConsidered:(a,b)=>`${a} de ${b} puntos tenidos en cuenta`,
+  noAnswer:"Sin respuesta", finalT:"Comentarios finales", autosave:"Todo se guarda automáticamente. Al seguir se genera el reporte.",
+  repEyebrow:"Reporte del ejercicio", kTotal:"Duración total", kDec:"Tiempo en decisiones", kAreas:"Áreas responsables activadas", kPts:"Puntos tenidos en cuenta",
+  actTitle:"Activación del equipo de crisis", areasSel:"Áreas seleccionadas", aOk:"bien activada", aWrong:"no debía activarse", aMiss:"faltó activarla",
+  lateDuring:"Áreas agregadas durante el ejercicio", fisaCopyOf:n=>` · continuación del evento ${n}`, impAnalysis:"Análisis de impactos",
+  noInfo:"Sin información", noComments:"Sin comentarios", dlPdf:"Descargar reporte en PDF",
+  savedDb:"El reporte queda guardado en el juego y aparece en la pantalla de inicio.", savedLocal:"El reporte queda guardado en este navegador y aparece en la pantalla de inicio.",
+  pdfFail:"No se pudo preparar el PDF. Recargue la página e intente de nuevo.", dlOk:"Reporte descargado.", dlCancel:"Descarga cancelada.", dlFail:"No se pudo descargar el reporte.",
+  fileBase:"Reporte-crisis",
+  nActivation:"Activación", nDec:"Decisiones", nVideo:"Video", nReport:"Reporte",
+  blkCrisis:"Escriban por qué es una crisis y confirmen las áreas", blkQa:"Terminen el evento para continuar",
+  pdfHeader:"Opella  |  Reporte del ejercicio de crisis", pdfKicker:"OPELLA  |  EJERCICIO DE GESTIÓN DE CRISIS  |  NIVEL 1",
+  pdfTitle:"Accidente fatal en misión", pdfSub:"Reporte del ejercicio", ctxUp:"CONTEXTO", areasInv:"Áreas involucradas",
+  aOkC:"Bien activada", aWrongC:"No debía activarse", aMissC:"Faltó activarla", decByEvent:"Decisiones por evento",
+  timeUsedOf:(u,m)=>`Tiempo usado ${u} de ${m}:00`, considered:"CONSIDERADO", notConsidered:"NO CONSIDERADO", impUp:"IMPORTANTE",
+  impsImportant:"Impactos importantes", noImpSel:"Sin impactos seleccionados", noStake:"Sin partes interesadas", unclassified:"Sin clasificar",
+  unassigned:"sin asignar", actions:"Acciones", noActions:"Sin acciones", noActionHdr:"Sin acción en este evento", noneAllHave:"Ninguna: todas las áreas tienen acciones",
+  footer:"Opella Colombia  ·  Ejercicio de entrenamiento: escenario ficticio  ·  Uso interno", page:(i,n)=>`Página ${i} de ${n}`
+ },
+ en:{
+  level:"Crisis management rehearsal · Level 1", title1:"Fatal road accident", title2:"on duty",
+  brandTitle:"Opella · Crisis room", brandSub:"Fatal road accident on duty",
+  context:"Context",
+  how1t:"Activate the crisis team", how1d:"Decide why this is a crisis situation and which areas must be involved.",
+  how2t:"Decisions", how2d:"In each event the team fills in its FISA (with an action plan by area) and answers the questions, against the clock.",
+  how3t:"Decisions that become actions", how3d:"Compare your answers with what was expected and turn the lessons learned into actions.",
+  newSession:"New session", langLabel:"Language", langNote:"Choose the language before starting; it is used for the whole exercise and the report.",
+  teamLabel:"Team name (shown in the report)", teamPh:"Colombia crisis team", start:"Start",
+  saved:"Saved reports", inProgress:" · in progress", del:"Delete", delAria:n=>`Delete attempt by ${n}`,
+  delConfirm:(n,d)=>`Delete the attempt by <b>${n}</b> from ${d}? This cannot be undone.`, delYes:"Yes, delete", cancel:"Cancel",
+  deleted:"Attempt deleted.", delFail:"The attempt could not be deleted. Please try again.", teamDefault:"Crisis team",
+  fDur:"Duration", fDurV:"~45 minutes", fScenes:"Scenes", fScenesV:"5 events + closing", fFrame:"Framework", fFrameV:"FISA cycle · SitRep",
+  elapsed:"Exercise time", back:"← Back", next:"Next →", genReport:"Generate report →", evArrow:n=>`Event ${n} →`,
+  chipClose:"Closing", chipReport:"Report",
+  eventOf:n=>`Event ${n} of 5`, event:n=>`Event ${n}`,
+  soundOn:"Turn on background audio", replay:"Replay audio", soundBlocked:"The browser blocked automatic sound.",
+  actEyebrow:"Event 1 · Activation", isCrisis:"Is this a crisis situation?", whyCrisis:"Why is this a crisis situation?",
+  whyHelp:"Write down the team's reasoning.", whyPh:"This is a crisis because…",
+  areasQ:"Which areas should be involved?", areasHelp:"Select only the areas responsible for managing this case.",
+  areasResult:(on,tot,w)=>`${on} of ${tot} responsible areas activated${w?` · ${w} activated without being responsible`:""}.`,
+  cellGroup:"Crisis team", supGroup:"Support areas", redo:"Select again", confirmAreas:n=>`Confirm areas (${n})`,
+  writeWhyFirst:"First write why this is a crisis.",
+  rOk:"Responsible · correctly activated", rMiss:"Responsible · not activated", rWrong:"Should not have been activated", rFine:"Correct: not activated",
+  decisions:"Decisions", eyebrowDec:n=>`Event ${n} of 5 · Decisions`, timerLab:m=>`Timer · ${m} minutes`,
+  lockMsg:"Start the timer to begin answering. Time runs while you fill in the FISA and the questions.",
+  tabFisa:"1. FISA", tabQs:"2. Questions", ansPh:"Team's answer…", startToAnswer:"Start the timer to answer",
+  evDone:u=>`Event finished · time used ${u}`, reopen:"Reopen event", finish:"Finish event",
+  finishHint:"Finishing stops the clock and shows the feedback.",
+  checkTitle:"Did we take this into account?", checkHelp:"Tick what the team did take into account in its answers.", noneOpt:"We took none of the above into account",
+  pause:"Pause", resume:"Resume", startT:"Start", timeUsed:u=>`Time used: ${u}`, timeUp:"Time's up. The clock keeps counting.",
+  fisaChooseT:"How will you handle the FISA in this event?",
+  fisaChooseD:n=>`Each event keeps its own FISA. If you continue, a copy of the event ${n} FISA is made for you to edit here; the event ${n} FISA stays unchanged.`,
+  fisaCont:n=>`Continue with the event ${n} FISA`, fisaNew:"Start a new FISA", fisaSee:n=>`View event ${n} FISA`,
+  fisaNoPrev:n=>`Event ${n} has no FISA to continue from.`, startToChoose:"Start the timer to choose.",
+  tapTitle:"Tap each heading to fill it in.",
+  fisaIsCopy:n=>`Continuation of the event ${n} FISA. Changes stay in this event only.`, fisaIsNew:"New FISA for this event.",
+  fill:"Fill in", fisaTitle:n=>`FISA · Event ${n}`, fourPts:"The method's 4 points", banner:"To be updated continuously",
+  colH:["Facts","Impacts","Stakeholders","Action plan"],
+  impItem1:`<b>Identification of all</b> impacts (immediate, future)`, impItem2:`<b>Assessment</b> of issues`,
+  impEmpty:"Mark the most important impacts in the table so they appear here.",
+  parItem1:`<b>Identification</b> of stakeholders`, parItem2:`<b>Distribution</b> among crisis team members`,
+  parItem3:`<b>Classification</b> of stakeholders: allies, neutral, hostile`,
+  inCharge:"In charge", inChargeOf:x=>`In charge: ${x}`,
+  planItem1:`List of actions <b>to implement</b>`, planItem2:`A <b>named person</b> in charge of each action`,
+  noOwner:"No one in charge", noActionL:"No action in this event:", allHaveAction:"All involved areas have actions.",
+  done:"Done", readOnly:x=>`Read only: ${x}`, roDone:"the event is finished.", roStart:"start the timer to edit.",
+  writeHere:"Write here…",
+  impHelp:`Describe the impacts in each cell and mark as <b>important</b> those that must go into the FISA.`,
+  impact:"Impact", important:"Important", markImp:"Mark as important",
+  probEval:"Assessment of issues", probPh:"What issues do these impacts create, and which are the most serious?",
+  parHelp:"Identify the stakeholders, classify them and assign the crisis team member in charge of each one.",
+  quickAdd:"Quick add:", stakeholder:"Stakeholder", classification:"Classification", classPh:"Classification…", inChargePh:"In charge…",
+  memberAria:"Team member in charge",
+  remove:"Remove", removeAria:x=>`Remove ${x}`, row:"row", addStake:"+ Add stakeholder",
+  planHelp:"List the actions to implement, each with a named person in charge and the responsible area.",
+  action:"Action", person:"Person in charge", area:"Area", actionPh:"Action to implement", personPh:"Person's name", areaPh:"Area…",
+  removeAction:"Remove action", addAction:"+ Add action", prevTitle:n=>`Event ${n} FISA (read only)`,
+  lateSum:"Need to involve another area? Add area",
+  lateHelp:"Add an area that was not activated at the start. It will be available in Stakeholders and in the Action plan.",
+  lateSel:"Area to add", choose:"Choose area…", addArea:"+ Add area", allInvolved:"All areas are already involved.",
+  lateList:"Added after the start:", lateListRo:"Areas added after the start:", evShort:n=>`event ${n}`,
+  closing:"Closing", closingQs:"Closing questions", lessonsL:"Key lessons", lessonsT:"What this exercise leaves us with",
+  summary:"Summary of the questions", metaUsed:(u,m)=>`time used ${u} of ${m}:00`,
+  noneConsidered:"we took none of the above into account", ptsConsidered:(a,b)=>`${a} of ${b} points taken into account`,
+  noAnswer:"No answer", finalT:"Final comments", autosave:"Everything is saved automatically. Continue to generate the report.",
+  repEyebrow:"Exercise report", kTotal:"Total duration", kDec:"Time on decisions", kAreas:"Responsible areas activated", kPts:"Points taken into account",
+  actTitle:"Crisis team activation", areasSel:"Selected areas", aOk:"correctly activated", aWrong:"should not have been activated", aMiss:"not activated",
+  lateDuring:"Areas added during the exercise", fisaCopyOf:n=>` · continued from event ${n}`, impAnalysis:"Impact analysis",
+  noInfo:"No information", noComments:"No comments", dlPdf:"Download PDF report",
+  savedDb:"The report is saved in the game and appears on the start screen.", savedLocal:"The report is saved in this browser and appears on the start screen.",
+  pdfFail:"The PDF could not be prepared. Reload the page and try again.", dlOk:"Report downloaded.", dlCancel:"Download cancelled.", dlFail:"The report could not be downloaded.",
+  fileBase:"Crisis-report",
+  nActivation:"Activation", nDec:"Decisions", nVideo:"Video", nReport:"Report",
+  blkCrisis:"Write why it is a crisis and confirm the areas", blkQa:"Finish the event to continue",
+  pdfHeader:"Opella  |  Crisis exercise report", pdfKicker:"OPELLA  |  CRISIS MANAGEMENT EXERCISE  |  LEVEL 1",
+  pdfTitle:"Fatal road accident on duty", pdfSub:"Exercise report", ctxUp:"CONTEXT", areasInv:"Areas involved",
+  aOkC:"Correctly activated", aWrongC:"Should not have been activated", aMissC:"Not activated", decByEvent:"Decisions by event",
+  timeUsedOf:(u,m)=>`Time used ${u} of ${m}:00`, considered:"TAKEN INTO ACCOUNT", notConsidered:"NOT TAKEN INTO ACCOUNT", impUp:"IMPORTANT",
+  impsImportant:"Important impacts", noImpSel:"No impacts selected", noStake:"No stakeholders", unclassified:"Unclassified",
+  unassigned:"unassigned", actions:"Actions", noActions:"No actions", noActionHdr:"No action in this event", noneAllHave:"None: all areas have actions",
+  footer:"Opella Colombia  ·  Training exercise: fictitious scenario  ·  Internal use", page:(i,n)=>`Page ${i} of ${n}`
+ },
+ pt:{
+  level:"Ensaio de gestão de crise · Nível 1", title1:"Acidente fatal", title2:"em missão",
+  brandTitle:"Opella · Sala de crise", brandSub:"Acidente fatal em missão",
+  context:"Contexto",
+  how1t:"Ativem a equipe de crise", how1d:"Decidam por que esta é uma situação de crise e quais áreas devem estar envolvidas.",
+  how2t:"Decisões", how2d:"Em cada evento a equipe preenche o seu FISA (com o plano de ação por área) e responde às perguntas, com o tempo correndo.",
+  how3t:"Decisões que se tornam ações", how3d:"Comparem as suas respostas com o que era esperado e transformem os aprendizados em ações.",
+  newSession:"Nova sessão", langLabel:"Idioma", langNote:"O idioma é escolhido antes de começar e é usado em todo o exercício e no relatório.",
+  teamLabel:"Nome da equipe (aparece no relatório)", teamPh:"Equipe de crise Colômbia", start:"Começar",
+  saved:"Relatórios salvos", inProgress:" · em andamento", del:"Excluir", delAria:n=>`Excluir tentativa de ${n}`,
+  delConfirm:(n,d)=>`Excluir a tentativa de <b>${n}</b> de ${d}? Não é possível desfazer.`, delYes:"Sim, excluir", cancel:"Cancelar",
+  deleted:"Tentativa excluída.", delFail:"Não foi possível excluir a tentativa. Tente novamente.", teamDefault:"Equipe de crise",
+  fDur:"Duração", fDurV:"~45 minutos", fScenes:"Cenas", fScenesV:"5 eventos + encerramento", fFrame:"Metodologia", fFrameV:"Ciclo FISA · SitRep",
+  elapsed:"Tempo do exercício", back:"← Voltar", next:"Próximo →", genReport:"Gerar relatório →", evArrow:n=>`Evento ${n} →`,
+  chipClose:"Encerramento", chipReport:"Relatório",
+  eventOf:n=>`Evento ${n} de 5`, event:n=>`Evento ${n}`,
+  soundOn:"Ativar áudio de fundo", replay:"Repetir áudio", soundBlocked:"O navegador bloqueou o som automático.",
+  actEyebrow:"Evento 1 · Ativação", isCrisis:"É uma situação de crise?", whyCrisis:"Por que é uma situação de crise?",
+  whyHelp:"Escrevam os argumentos da equipe.", whyPh:"É uma crise porque…",
+  areasQ:"Quais áreas estariam envolvidas?", areasHelp:"Selecionem apenas as áreas responsáveis por gerenciar este caso.",
+  areasResult:(on,tot,w)=>`${on} de ${tot} áreas responsáveis ativadas${w?` · ${w} ativada${w>1?"s":""} sem ser responsáve${w>1?"is":"l"}`:""}.`,
+  cellGroup:"Equipe de crise", supGroup:"Áreas de apoio", redo:"Selecionar novamente", confirmAreas:n=>`Confirmar áreas (${n})`,
+  writeWhyFirst:"Escrevam primeiro por que é uma crise.",
+  rOk:"Responsável · ativada corretamente", rMiss:"Responsável · faltou ativá-la", rWrong:"Não deveria ser ativada", rFine:"Correto: não é ativada",
+  decisions:"Decisões", eyebrowDec:n=>`Evento ${n} de 5 · Decisões`, timerLab:m=>`Cronômetro · ${m} minutos`,
+  lockMsg:"Iniciem o cronômetro para começar a responder. O tempo corre enquanto preenchem o FISA e as perguntas.",
+  tabFisa:"1. FISA", tabQs:"2. Perguntas", ansPh:"Resposta da equipe…", startToAnswer:"Iniciem o cronômetro para responder",
+  evDone:u=>`Evento concluído · tempo usado ${u}`, reopen:"Reabrir evento", finish:"Concluir evento",
+  finishHint:"Ao concluir, o tempo para e aparece o feedback.",
+  checkTitle:"Levamos isto em conta?", checkHelp:"Marquem o que a equipe levou em conta nas suas respostas.", noneOpt:"Não levamos em conta nenhuma das anteriores",
+  pause:"Pausar", resume:"Continuar", startT:"Iniciar", timeUsed:u=>`Tempo usado: ${u}`, timeUp:"Tempo esgotado. O relógio continua contando.",
+  fisaChooseT:"Como vão conduzir o FISA neste evento?",
+  fisaChooseD:n=>`Cada evento guarda o seu próprio FISA. Se continuarem, é feita uma cópia do FISA do evento ${n} para editar aqui; o FISA do evento ${n} permanece igual.`,
+  fisaCont:n=>`Continuar com o FISA do evento ${n}`, fisaNew:"Começar um FISA novo", fisaSee:n=>`Ver FISA do evento ${n}`,
+  fisaNoPrev:n=>`O evento ${n} não tem FISA para continuar.`, startToChoose:"Iniciem o cronômetro para escolher.",
+  tapTitle:"Toquem no título de cada ponto para preenchê-lo.",
+  fisaIsCopy:n=>`Continuação do FISA do evento ${n}. As alterações ficam apenas neste evento.`, fisaIsNew:"FISA novo para este evento.",
+  fill:"Preencher", fisaTitle:n=>`FISA · Evento ${n}`, fourPts:"4 pontos do método", banner:"Para ser atualizado continuamente",
+  colH:["Fatos","Impactos","Partes interessadas","Plano de ação"],
+  impItem1:`<b>Identificação de todos</b> os impactos (imediatos, futuros)`, impItem2:`<b>Avaliação</b> de problemas`,
+  impEmpty:"Marquem na tabela os impactos mais importantes para que apareçam aqui.",
+  parItem1:`<b>Identificação</b> das partes interessadas`, parItem2:`<b>Distribuição</b> entre os membros da equipe de crise`,
+  parItem3:`<b>Classificação</b> das partes interessadas: aliadas, neutras, hostis`,
+  inCharge:"Responsável", inChargeOf:x=>`Responsável: ${x}`,
+  planItem1:`Lista de ações <b>a implementar</b>`, planItem2:`Uma <b>pessoa identificada</b> responsável por cada ação`,
+  noOwner:"Sem responsável", noActionL:"Sem ação neste evento:", allHaveAction:"Todas as áreas envolvidas têm ações.",
+  done:"Pronto", readOnly:x=>`Somente leitura: ${x}`, roDone:"o evento está concluído.", roStart:"iniciem o cronômetro para editar.",
+  writeHere:"Escrevam aqui…",
+  impHelp:`Escrevam os impactos em cada célula e marquem como <b>importante</b> os que devem ficar no FISA.`,
+  impact:"Impacto", important:"Importante", markImp:"Marcar como importante",
+  probEval:"Avaliação de problemas", probPh:"Que problemas esses impactos geram e quais são os mais graves?",
+  parHelp:"Identifiquem as partes interessadas, classifiquem-nas e atribuam o membro da equipe de crise responsável por cada uma.",
+  quickAdd:"Adicionar rápido:", stakeholder:"Parte interessada", classification:"Classificação", classPh:"Classificação…", inChargePh:"Responsável…",
+  memberAria:"Membro da equipe responsável",
+  remove:"Remover", removeAria:x=>`Remover ${x}`, row:"linha", addStake:"+ Adicionar parte interessada",
+  planHelp:"Listem as ações a implementar, com uma pessoa identificada responsável e a área responsável por cada uma.",
+  action:"Ação", person:"Pessoa responsável", area:"Área", actionPh:"Ação a implementar", personPh:"Nome da pessoa", areaPh:"Área…",
+  removeAction:"Remover ação", addAction:"+ Adicionar ação", prevTitle:n=>`FISA do evento ${n} (somente leitura)`,
+  lateSum:"Precisam envolver outra área? Adicionar área",
+  lateHelp:"Adicionem uma área que não foi ativada no início. Ela ficará disponível em Partes interessadas e no Plano de ação.",
+  lateSel:"Área para adicionar", choose:"Escolher área…", addArea:"+ Adicionar área", allInvolved:"Todas as áreas já estão envolvidas.",
+  lateList:"Adicionadas depois do início:", lateListRo:"Áreas adicionadas depois do início:", evShort:n=>`evento ${n}`,
+  closing:"Encerramento", closingQs:"Perguntas de encerramento", lessonsL:"Lições-chave", lessonsT:"O que este exercício deixa",
+  summary:"Resumo das perguntas", metaUsed:(u,m)=>`tempo usado ${u} de ${m}:00`,
+  noneConsidered:"não levamos em conta nenhuma das anteriores", ptsConsidered:(a,b)=>`${a} de ${b} pontos levados em conta`,
+  noAnswer:"Sem resposta", finalT:"Comentários finais", autosave:"Tudo é salvo automaticamente. Ao continuar, o relatório é gerado.",
+  repEyebrow:"Relatório do exercício", kTotal:"Duração total", kDec:"Tempo em decisões", kAreas:"Áreas responsáveis ativadas", kPts:"Pontos levados em conta",
+  actTitle:"Ativação da equipe de crise", areasSel:"Áreas selecionadas", aOk:"ativada corretamente", aWrong:"não deveria ser ativada", aMiss:"faltou ativá-la",
+  lateDuring:"Áreas adicionadas durante o exercício", fisaCopyOf:n=>` · continuação do evento ${n}`, impAnalysis:"Análise de impactos",
+  noInfo:"Sem informação", noComments:"Sem comentários", dlPdf:"Baixar relatório em PDF",
+  savedDb:"O relatório fica salvo no jogo e aparece na tela inicial.", savedLocal:"O relatório fica salvo neste navegador e aparece na tela inicial.",
+  pdfFail:"Não foi possível preparar o PDF. Recarregue a página e tente novamente.", dlOk:"Relatório baixado.", dlCancel:"Download cancelado.", dlFail:"Não foi possível baixar o relatório.",
+  fileBase:"Relatorio-crise",
+  nActivation:"Ativação", nDec:"Decisões", nVideo:"Vídeo", nReport:"Relatório",
+  blkCrisis:"Escrevam por que é uma crise e confirmem as áreas", blkQa:"Concluam o evento para continuar",
+  pdfHeader:"Opella  |  Relatório do exercício de crise", pdfKicker:"OPELLA  |  EXERCÍCIO DE GESTÃO DE CRISE  |  NÍVEL 1",
+  pdfTitle:"Acidente fatal em missão", pdfSub:"Relatório do exercício", ctxUp:"CONTEXTO", areasInv:"Áreas envolvidas",
+  aOkC:"Ativada corretamente", aWrongC:"Não deveria ser ativada", aMissC:"Faltou ativá-la", decByEvent:"Decisões por evento",
+  timeUsedOf:(u,m)=>`Tempo usado ${u} de ${m}:00`, considered:"LEVADO EM CONTA", notConsidered:"NÃO LEVADO EM CONTA", impUp:"IMPORTANTE",
+  impsImportant:"Impactos importantes", noImpSel:"Nenhum impacto selecionado", noStake:"Sem partes interessadas", unclassified:"Sem classificação",
+  unassigned:"não atribuído", actions:"Ações", noActions:"Sem ações", noActionHdr:"Sem ação neste evento", noneAllHave:"Nenhuma: todas as áreas têm ações",
+  footer:"Opella Colombia  ·  Exercício de treinamento: cenário fictício  ·  Uso interno", page:(i,n)=>`Página ${i} de ${n}`
+ }
+};
+
+let LANG = "es";
+function t(k, ...a){ const v = (UI[LANG] && UI[LANG][k] != null) ? UI[LANG][k] : UI.es[k]; return typeof v === "function" ? v(...a) : v; }
+
+/* =========================================================
+   CONTENIDO (estructura fija; los textos salen del idioma elegido)
+   ========================================================= */
+const EVENT_BASE = [{id:"e1", n:1, min:10}, {id:"e2", n:2, min:10}, {id:"e3", n:3, min:0}, {id:"e4", n:4, min:12}, {id:"e5", n:5, min:13}];
+const ROLE_BASE = [
+  {k:"alert", g:"cell", name:"Alert recipient", need:true}, {k:"gm", g:"cell", name:"Crisis leader", need:true},
+  {k:"deputy", g:"cell", name:"Crisis cell deputy", need:false}, {k:"comms", g:"cell", name:"Communication correspondent", need:true},
+  {k:"security", g:"cell", name:"Security", need:false}, {k:"logbook", g:"cell", name:"Logbook", need:false},
+  {k:"logistics", g:"cell", name:"Logistics facilitator", need:false}, {k:"situation", g:"cell", name:"Situation reporter", need:false},
+  {k:"dispatcher", g:"cell", name:"Info cell dispatcher", need:false},
+  {k:"legal", g:"sup", name:"Legal", need:true}, {k:"hr", g:"sup", name:"HR", need:true}, {k:"finance", g:"sup", name:"Finance", need:false},
+  {k:"it", g:"sup", name:"IT", need:false}, {k:"hse", g:"sup", name:"HSE", need:true}, {k:"fleet", g:"sup", name:"Fleet", need:true},
+  {k:"supply", g:"sup", name:"Supply", need:false}, {k:"pv", g:"sup", name:"Pharmacovigilance", need:false}
 ];
-const RN = Object.fromEntries(ROLES.map(r=>[r.k,r.name]));
+const FISA_KEYS = ["evaluacion","recopilacion","compartir","perimetro"];
+const IMP_ROW_KEYS = ["humano","actividades","legal","imagen","entorno"];
+const IMP_COL_KEYS = ["inmediato","futuro","potencial"];
+const CLASE_KEYS = ["aliada","neutral","hostil"];
+const FINAL_KEYS = ["mejorar","recomendaciones","observaciones","positivo"];
+let CONTEXTO, EVENTS, CLOSING_Q, LESSONS, FINAL, ROLES, FISA_H, IMP_ROWS, IMP_COLS, CLASES, PARTES_SUG;
+function applyLang(l){
+  LANG = CONTENT[l] ? l : "es";
+  const c = CONTENT[LANG];
+  CONTEXTO = c.context;
+  EVENTS = EVENT_BASE.map((b,i)=>Object.assign({}, b, c.events[i]));
+  CLOSING_Q = c.closing; LESSONS = c.lessons;
+  FINAL = FINAL_KEYS.map(k=>({k, label:c.final[k]}));
+  ROLES = ROLE_BASE.map(r=>Object.assign({}, r, {es:c.roles[r.k][0], why:c.roles[r.k][1]}));
+  FISA_H = FISA_KEYS.map(k=>({k, pre:c.fisa[k][0], b:c.fisa[k][1], hint:c.fisa[k][2]}));
+  IMP_ROWS = IMP_ROW_KEYS.map(k=>({k, label:c.impRows[k]}));
+  IMP_COLS = IMP_COL_KEYS.map(k=>({k, label:c.impCols[k]}));
+  CLASES = CLASE_KEYS.map(k=>({k, label:c.clases[k]}));
+  PARTES_SUG = c.sugs;
+  try{ document.documentElement.lang = LANG==="pt" ? "pt-BR" : LANG; }catch(e){}
+}
+let PRE_LANG = "es";
+try{ const sv = localStorage.getItem("crisis-lang"); if (sv && CONTENT[sv]) PRE_LANG = sv; }catch(e){}
+applyLang(PRE_LANG);
+const RN = Object.fromEntries(ROLE_BASE.map(r=>[r.k,r.name]));
 
 /* Secuencia del ejercicio */
 /* Eventos con decisiones (el evento 3 es solo video; las preguntas del 3 y 4 van en el 4) */
@@ -461,13 +937,6 @@ const STEPS = [
  {t:"closing"}, {t:"final"}, {t:"report"}
 ];
 
-/* FISA: 4 puntos del método */
-const FISA_H = [
- {k:"evaluacion", pre:"Evaluación de la", b:"situación", hint:"¿Qué está pasando? Describan la situación con lo que saben en este momento."},
- {k:"recopilacion", pre:"Recopilación de", b:"información", hint:"¿Qué información tienen, de qué fuentes viene y qué falta confirmar?"},
- {k:"compartir", pre:"Compartir toda la", b:"información", hint:"¿Con quién comparten la información, por qué canal y cada cuánto?"},
- {k:"perimetro", pre:"Definición del perímetro de", b:"gestión de crisis", hint:"¿Qué cubre la gestión de esta crisis y qué queda por fuera?"}
-];
 const ICONS = {
  humano:'<circle cx="8" cy="6" r="2.4"/><circle cx="16" cy="6" r="2.4"/><path d="M4.5 21v-6.5a3.5 3.5 0 0 1 7 0V21M12.5 21v-6.5a3.5 3.5 0 0 1 7 0V21"/>',
  actividades:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 14.5h7M8.5 18h4"/>',
@@ -475,19 +944,11 @@ const ICONS = {
  imagen:'<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8.5 7l1.6-2.5h3.8L15.5 7"/>',
  entorno:'<circle cx="12" cy="9" r="6"/><path d="M12 15v6M9 21h6"/>'
 };
-const IMP_ROWS = [
- {k:"humano", label:"Humano"}, {k:"actividades", label:"Actividades"}, {k:"legal", label:"Legal"},
- {k:"imagen", label:"Imagen y reputación"}, {k:"entorno", label:"Entorno"}
-];
-const IMP_COLS = [{k:"inmediato", label:"Inmediato"}, {k:"futuro", label:"Futuro"}, {k:"potencial", label:"Potencial"}];
-const CLASES = [{k:"aliada", label:"Aliada"}, {k:"neutral", label:"Neutral"}, {k:"hostil", label:"Hostil"}];
-const PARTES_SUG = ["Empleado","Familia del empleado","Familia de la víctima","Policía de Tránsito","Fiscalía","Aseguradora","Medios de comunicación","Grupo","Fuerza de ventas","COPASST","Abogado de la familia"];
-
 /* =========================================================
    ESTADO
    ========================================================= */
 function fresh(){
-  return {id:null, team:"", started:null, ended:null, step:-1,
+  return {id:null, lang:LANG, team:"", started:null, ended:null, step:-1,
     why:"", roles:[], areasDone:false, lateAreas:[],
     qa:{}, closing:["","","",""], final:{mejorar:"",recomendaciones:"",observaciones:"",positivo:""}};
 }
@@ -542,12 +1003,18 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };
 const fmtMin = s => { s=Math.round(s||0); const m=Math.floor(s/60), r=s%60; return m ? `${m} min ${r ? r+" s" : ""}`.trim() : `${r} s`; };
-const fmtDate = t => t ? new Date(t).toLocaleString("es-CO",{dateStyle:"medium",timeStyle:"short"}) : "—";
+const fmtDate = d => d ? new Date(d).toLocaleString(LOCALE[LANG]||"es-CO",{dateStyle:"medium",timeStyle:"short"}) : "—";
 
 /* =========================================================
    RENDER
    ========================================================= */
+function paintShell(){
+  $("#brandTitle").textContent = t("brandTitle"); $("#brandSub").textContent = t("brandSub");
+  $("#elapsedLab").textContent = t("elapsed"); $("#prev").textContent = t("back");
+  const lb = LANGS.find(x=>x.k===LANG); $("#langBadge").textContent = lb ? lb.short : "";
+}
 function render(){
+  paintShell();
   const intro = S.step < 0;
   $("#hud").hidden = intro; $("#foot").hidden = intro;
   if (intro){ $("#footTimer").hidden = true; renderIntro(); return; }
@@ -570,34 +1037,37 @@ function render(){
 
 function renderChips(st){
   const cur = st.ev!=null ? st.ev : (st.t==="report" ? 6 : 5);
-  const labels = ["E1","E2","E3","E4","E5","Cierre","Reporte"];
+  const labels = ["E1","E2","E3","E4","E5",t("chipClose"),t("chipReport")];
   $("#chips").innerHTML = labels.map((l,i)=>`<span class="chip ${i===cur?"on":i<cur?"past":""}">${l}</span>`).join("");
 }
 
 function renderIntro(){
+  paintShell();
+  const team = p => esc(p.team || t("teamDefault"));
   $("#main").innerHTML = `
   <section class="intro">
     <div>
-      <div class="eyebrow">Ensayo de gestión de crisis · Nivel 1</div>
-      <h1>Accidente fatal<br><em>en misión</em></h1>
-      <div class="ctx"><span class="eyebrow">Contexto</span><p>${esc(CONTEXTO)}</p></div>
+      <div class="eyebrow">${t("level")}</div>
+      <h1>${t("title1")}<br><em>${t("title2")}</em></h1>
+      <div class="ctx"><span class="eyebrow">${t("context")}</span><p>${esc(CONTEXTO)}</p></div>
       <div class="howto">
-        <div><b class="n">1</b><p style="margin:0"><strong>Activen el equipo de crisis</strong><span>Decidan por qué es una situación de crisis y qué áreas deben estar involucradas.</span></p></div>
-        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada evento el equipo llena su FISA (con el plan de acción por área) y responde las preguntas, con el tiempo corriendo.</span></p></div>
-        <div><b class="n">3</b><p style="margin:0"><strong>Decisiones que se vuelven acciones</strong><span>Comparen sus respuestas con lo que se esperaba y conviertan los aprendizajes en acciones.</span></p></div>
+        <div><b class="n">1</b><p style="margin:0"><strong>${t("how1t")}</strong><span>${t("how1d")}</span></p></div>
+        <div><b class="n">2</b><p style="margin:0"><strong>${t("how2t")}</strong><span>${t("how2d")}</span></p></div>
+        <div><b class="n">3</b><p style="margin:0"><strong>${t("how3t")}</strong><span>${t("how3d")}</span></p></div>
       </div>
     </div>
     <div class="side">
-      <h3>Nueva sesión</h3>
-      <div class="field"><label for="teamName">Nombre del equipo (aparece en el reporte)</label><input type="text" id="teamName" placeholder="Equipo de crisis Colombia" value="${esc(S.team)}"></div>
-      <button class="cta" id="start">Comenzar</button>
-      ${PAST.length ? `<div><div class="rgroup">Reportes guardados</div><div class="past-list">${PAST.slice(0,12).map(p=> DEL_ID===p.id
-        ? `<div class="prow confirm"><span>¿Borrar el intento de <b>${esc(p.team||"Equipo de crisis")}</b> del ${fmtDate(p.started)}? No se puede deshacer.</span><div class="pbtns"><button class="btn danger" data-delok="${esc(p.id)}">Sí, borrar</button><button class="btn ghost" data-delno="1">Cancelar</button></div></div>`
-        : `<div class="prow"><button class="popen" data-open="${esc(p.id)}"><span>${esc(p.team||"Equipo de crisis")}</span><small>${fmtDate(p.started)}${p.ended?"":" · en curso"}</small></button><button class="pdel" data-del="${esc(p.id)}" aria-label="Borrar intento de ${esc(p.team||"Equipo de crisis")}">Borrar</button></div>`).join("")}</div>${DEL_MSG?`<p class="hint" style="margin:8px 0 0">${esc(DEL_MSG)}</p>`:""}</div>` : (DEL_MSG?`<p class="hint">${esc(DEL_MSG)}</p>`:"")}
+      <div class="langpick"><span class="rgroup" style="margin:0">${t("langLabel")}</span><div class="langbtns" role="radiogroup" aria-label="${t("langLabel")}">${LANGS.map(l=>`<button class="langbtn ${LANG===l.k?"on":""}" data-lang="${l.k}" role="radio" aria-checked="${LANG===l.k}">${l.label}</button>`).join("")}</div><p class="hint" style="margin:6px 0 0;font-size:13px">${t("langNote")}</p></div>
+      <h3>${t("newSession")}</h3>
+      <div class="field"><label for="teamName">${t("teamLabel")}</label><input type="text" id="teamName" placeholder="${t("teamPh")}" value="${esc(S.team)}"></div>
+      <button class="cta" id="start">${t("start")}</button>
+      ${PAST.length ? `<div><div class="rgroup">${t("saved")}</div><div class="past-list">${PAST.slice(0,12).map(p=> DEL_ID===p.id
+        ? `<div class="prow confirm"><span>${t("delConfirm", team(p), fmtDate(p.started))}</span><div class="pbtns"><button class="btn danger" data-delok="${esc(p.id)}">${t("delYes")}</button><button class="btn ghost" data-delno="1">${t("cancel")}</button></div></div>`
+        : `<div class="prow"><button class="popen" data-open="${esc(p.id)}"><span>${team(p)} <small class="plang">${(LANGS.find(l=>l.k===(p.lang||"es"))||LANGS[0]).short}</small></span><small>${fmtDate(p.started)}${p.ended?"":t("inProgress")}</small></button><button class="pdel" data-del="${esc(p.id)}" aria-label="${t("delAria", team(p))}">${t("del")}</button></div>`).join("")}</div>${DEL_MSG?`<p class="hint" style="margin:8px 0 0">${esc(DEL_MSG)}</p>`:""}</div>` : (DEL_MSG?`<p class="hint">${esc(DEL_MSG)}</p>`:"")}
       <div class="facts side-facts">
-        <div><small>Duración</small>~45 minutos</div>
-        <div><small>Escenas</small>5 eventos + cierre</div>
-        <div><small>Marco</small>Ciclo FISA · SitRep</div>
+        <div><small>${t("fDur")}</small>${t("fDurV")}</div>
+        <div><small>${t("fScenes")}</small>${t("fScenesV")}</div>
+        <div><small>${t("fFrame")}</small>${t("fFrameV")}</div>
       </div>
     </div>
   </section>`;
@@ -606,19 +1076,15 @@ function renderIntro(){
 /* ---------- video + audio de fondo (fijos en el código) ----------
    Para cambiar un video o audio, reemplace el archivo en las carpetas
    videos/ y audios/ conservando el nombre, o edite estas rutas. */
-const MEDIA = {
-  e1:{video:"videos/evento1.mp4", audio:"audios/evento1.mp3"},
-  e2:{video:"videos/evento2.mp4", audio:"audios/evento2.mp3"},
-  e3:{video:"videos/evento3.mp4", audio:"audios/evento3.mp3"},
-  e4:{video:"videos/evento4.mp4", audio:"audios/evento4.mp3"},
-  e5:{video:"videos/evento5.mp4", audio:"audios/evento5.mp3"}
-};
+/* Carpetas por idioma: videos/ES|EN|PO y audios/ES|EN|PO. Si falta el archivo del idioma, se usa el de ES. */
+const mediaPath = (kind, id, folder) => `${kind}/${folder}/${id.replace("e","evento")}.${kind==="videos"?"mp4":"mp3"}`;
+function mediaFor(id){ const f = MEDIA_FOLDER[LANG] || "ES"; return {video:mediaPath("videos", id, f), audio:mediaPath("audios", id, f), vES:mediaPath("videos", id, "ES"), aES:mediaPath("audios", id, "ES")}; }
 function renderVideoStep(ev){
-  const e = EVENTS[ev], m = MEDIA[e.id];
-  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} de 5</div><h2>Evento ${e.n}</h2></div><div class="when">${esc(e.when)}</div></div>`;
-  h += `<div class="vwrap"><video class="vid" id="evVideo" src="${esc(m.video)}" controls loop autoplay muted playsinline preload="auto"></video></div>`;
-  h += `<audio id="evAudio" src="${esc(m.audio)}" preload="auto"></audio>`;
-  h += `<div class="actions"><button class="btn pink" id="soundOn" hidden>Activar audio de fondo</button><button class="btn ghost" id="replayAudio" hidden>Repetir audio</button><span class="hint" id="audioHint"></span></div>`;
+  const e = EVENTS[ev], m = mediaFor(e.id);
+  let h = `<div class="head"><div><div class="eyebrow">${t("eventOf", e.n)}</div><h2>${t("event", e.n)}</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  h += `<div class="vwrap"><video class="vid" id="evVideo" src="${esc(m.video)}" data-fallback="${esc(m.vES)}" controls loop autoplay muted playsinline preload="auto"></video></div>`;
+  h += `<audio id="evAudio" src="${esc(m.audio)}" data-fallback="${esc(m.aES)}" preload="auto"></audio>`;
+  h += `<div class="actions"><button class="btn pink" id="soundOn" hidden>${t("soundOn")}</button><button class="btn ghost" id="replayAudio" hidden>${t("replay")}</button><span class="hint" id="audioHint"></span></div>`;
   h += `<div class="evtext">${e.text.split(/\n\n+/).map((x,i)=> i===0 && e.lead && x.startsWith(e.lead) ? `<p><b>${esc(e.lead)}</b>${esc(x.slice(e.lead.length))}</p>` : `<p>${esc(x)}</p>`).join("")}</div>`;
   return h;
 }
@@ -628,11 +1094,13 @@ function setupMedia(){
   const v = $("#evVideo"), a = $("#evAudio"); if (!v || !a) return;
   let started = false;
   const hint = $("#audioHint"), btn = $("#soundOn"), again = $("#replayAudio");
+  const fallback = el => { const fb = el.dataset.fallback; if (fb && !el.dataset.usedFb && !el.src.endsWith(fb)){ el.dataset.usedFb = "1"; el.src = fb; if (el===v) v.play().catch(()=>{}); } };
+  v.addEventListener("error", ()=>fallback(v)); a.addEventListener("error", ()=>{ fallback(a); if (started){ started = false; } });
   const startAudio = ()=>{
     started = true;
     try{ a.currentTime = 0; }catch(e){}
     a.play().then(()=>{ btn.hidden = true; })
-      .catch(()=>{ started = false; btn.hidden = false; hint.textContent = "El navegador bloqueó el sonido automático."; });
+      .catch(()=>{ started = false; btn.hidden = false; hint.textContent = t("soundBlocked"); });
   };
   v.addEventListener("playing", ()=>{ if (!started) startAudio(); else if (!a.ended && a.paused) a.play().catch(()=>{}); });
   v.addEventListener("pause", ()=>{ if (!a.ended) a.pause(); });
@@ -650,7 +1118,7 @@ function roleBtn(r){
   if (d){
     const v = rv(r);
     cls += " rv-"+v + (!on && r.need ? " miss" : "");
-    const lab = r.need ? (on?"Responsable · bien activada":"Responsable · faltó activarla") : (on?"No debía activarse":"Bien: no se activa");
+    const lab = r.need ? (on?t("rOk"):t("rMiss")) : (on?t("rWrong"):t("rFine"));
     extra = `<span class="rwhy"><span class="vd ${v}">${lab}</span>${esc(r.why)}</span>`;
   }
   return `<button class="${cls}" data-role="${r.k}" ${d?"disabled":""}><span class="dot"></span><span class="rt"><b>${esc(r.name)}</b><small>${esc(r.es)}</small>${extra}</span></button>`;
@@ -658,23 +1126,23 @@ function roleBtn(r){
 function renderCrisis(){
   const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
   const wrong = ROLES.filter(r=>!r.need && A(r.k)).length;
-  return `<div class="head"><div><div class="eyebrow">Evento 1 · Activación</div><h2>¿Es una situación de crisis?</h2></div><div class="when">${esc(EVENTS[0].when)}</div></div>
+  return `<div class="head"><div><div class="eyebrow">${t("actEyebrow")}</div><h2>${t("isCrisis")}</h2></div><div class="when">${esc(EVENTS[0].when)}</div></div>
   <div class="two">
     <div class="card">
-      <h3>¿Por qué es una situación de crisis?</h3>
-      <p>Escriban los argumentos del equipo.</p>
-      <textarea id="why" data-bind="why" style="min-height:220px" placeholder="Es una crisis porque…">${esc(S.why)}</textarea>
+      <h3>${t("whyCrisis")}</h3>
+      <p>${t("whyHelp")}</p>
+      <textarea id="why" data-bind="why" style="min-height:220px" placeholder="${t("whyPh")}">${esc(S.why)}</textarea>
     </div>
     <div class="card">
-      <h3>¿Qué áreas estarían involucradas?</h3>
-      <p>${S.areasDone ? `${essOn} de ${ess.length} áreas responsables activadas${wrong?` · ${wrong} activada${wrong>1?"s":""} sin ser responsable${wrong>1?"s":""}`:""}.` : "Seleccionen solo las áreas responsables de gestionar este caso."}</p>
-      <div class="rgroup">Equipo de crisis</div>
+      <h3>${t("areasQ")}</h3>
+      <p>${S.areasDone ? t("areasResult", essOn, ess.length, wrong) : t("areasHelp")}</p>
+      <div class="rgroup">${t("cellGroup")}</div>
       <div class="role-grid">${ROLES.filter(r=>r.g==="cell").map(roleBtn).join("")}</div>
-      <div class="rgroup">Áreas de soporte</div>
+      <div class="rgroup">${t("supGroup")}</div>
       <div class="role-grid">${ROLES.filter(r=>r.g==="sup").map(roleBtn).join("")}</div>
       <div class="actions">${S.areasDone
-        ? `<button class="btn ghost" id="redoAreas">Volver a seleccionar</button>`
-        : `<button class="btn pink" id="confirmAreas" ${S.roles.length && S.why.trim() ? "" : "disabled"}>Confirmar áreas (${S.roles.length})</button><span class="hint" id="crisisHint">${S.why.trim() ? "" : "Escriban primero por qué es una crisis."}</span>`}</div>
+        ? `<button class="btn ghost" id="redoAreas">${t("redo")}</button>`
+        : `<button class="btn pink" id="confirmAreas" ${S.roles.length && S.why.trim() ? "" : "disabled"}>${t("confirmAreas", S.roles.length)}</button><span class="hint" id="crisisHint">${S.why.trim() ? "" : t("writeWhyFirst")}</span>`}</div>
     </div>
   </div>`;
 }
@@ -688,26 +1156,26 @@ function renderQA(ev){
   if (TAB_STEP !== S.step){ TAB = "fisa"; TAB_STEP = S.step; }
   const lock = !q.started || q.saved;
   const ansN = q.answers.filter(has).length;
-  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} de 5 · Decisiones</div><h2>Decisiones</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  let h = `<div class="head"><div><div class="eyebrow">${t("eyebrowDec", e.n)}</div><h2>${t("decisions")}</h2></div><div class="when">${esc(e.when)}</div></div>`;
   h += `<div class="stagebar" id="timerBox">
-      <div class="tblock"><span class="lab">Temporizador · ${e.min} minutos</span><span class="t" id="tval"></span></div>
+      <div class="tblock"><span class="lab">${t("timerLab", e.min)}</span><span class="t" id="tval"></span></div>
       <div class="ring"><i id="tbar"></i></div>
       <div class="row" id="trow"></div>
     </div>`;
-  if (!q.started) h += `<div class="lockmsg">Inicien el temporizador para empezar a responder. El tiempo corre mientras llenan el FISA y las preguntas.</div>`;
-  h += `<div class="tabs" role="tablist">${tabBtn("fisa","1. FISA",`${fisaCount(q.fisa)}/4`)}${tabBtn("preguntas","2. Preguntas",`${ansN}/${e.qs.length}`)}</div><div class="tabpane">`;
+  if (!q.started) h += `<div class="lockmsg">${t("lockMsg")}</div>`;
+  h += `<div class="tabs" role="tablist">${tabBtn("fisa",t("tabFisa"),`${fisaCount(q.fisa)}/4`)}${tabBtn("preguntas",t("tabQs"),`${ansN}/${e.qs.length}`)}</div><div class="tabpane">`;
   if (TAB==="preguntas"){
-    h += `<div class="answers" style="margin-top:0">${e.qs.map((x,i)=>`<div class="ans"><label for="a-${ev}-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="a-${ev}-${i}" data-ans="${i}" ${lock?"disabled":""} placeholder="${q.started?"Respuesta del equipo…":"Inicien el temporizador para responder"}">${esc(q.answers[i])}</textarea></div>`).join("")}</div>`;
+    h += `<div class="answers" style="margin-top:0">${e.qs.map((x,i)=>`<div class="ans"><label for="a-${ev}-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="a-${ev}-${i}" data-ans="${i}" ${lock?"disabled":""} placeholder="${q.started?t("ansPh"):t("startToAnswer")}">${esc(q.answers[i])}</textarea></div>`).join("")}</div>`;
   } else if (TAB==="fisa"){
     h += renderFisaTab(q, si, lock);
   }
   h += `</div><div class="actions">${q.saved
-    ? `<span class="saved">Evento terminado · tiempo usado ${fmt(q.used)}</span><button class="btn ghost" id="reopen">Reabrir evento</button>`
-    : `<button class="btn pink" id="finishStage" ${q.started?"":"disabled"}>Terminar evento</button><span class="hint">Al terminar se detiene el tiempo y aparece la retroalimentación.</span>`}</div>`;
+    ? `<span class="saved">${t("evDone", fmt(q.used))}</span><button class="btn ghost" id="reopen">${t("reopen")}</button>`
+    : `<button class="btn pink" id="finishStage" ${q.started?"":"disabled"}>${t("finish")}</button><span class="hint">${t("finishHint")}</span>`}</div>`;
   if (q.saved){
-    h += `<div class="check" id="checkBox"><h3>¿Tuvimos en cuenta esto?</h3><p>Marquen lo que el equipo sí consideró en sus respuestas.</p>
+    h += `<div class="check" id="checkBox"><h3>${t("checkTitle")}</h3><p>${t("checkHelp")}</p>
       ${e.chk.map((x,i)=>`<label class="ck"><input type="checkbox" data-chk="${i}" ${q.checks[i]?"checked":""}><span>${esc(x)}</span></label>`).join("")}
-      <label class="ck none"><input type="checkbox" data-none="1" ${q.none?"checked":""}><span>No tuvimos en cuenta ninguna de las anteriores</span></label>
+      <label class="ck none"><input type="checkbox" data-none="1" ${q.none?"checked":""}><span>${t("noneOpt")}</span></label>
     </div>`;
   }
   return h;
@@ -717,13 +1185,13 @@ function renderQA(ev){
 function renderFisaTab(q, si, lock){
   const pf = prevFisa(si), can = fisaHasContent(pf), pn = si>0 ? evN(si-1) : null;
   if (si>0 && !q.fisa.mode){
-    return `<div class="chooser"><h3>¿Cómo llevan el FISA en este evento?</h3>
-      <p>Cada evento guarda su propio FISA. Si continúan, se hace una copia del FISA del evento ${pn} para editarla aquí; el FISA del evento ${pn} queda igual.</p>
-      <div class="actions"><button class="btn pink" data-fmode="copy" ${lock||!can?"disabled":""}>Continuar con el FISA del evento ${pn}</button><button class="btn ghost" data-fmode="new" ${lock?"disabled":""}>Empezar un FISA nuevo</button>${can?`<button class="btn ghost" data-mopen="prev">Ver FISA del evento ${pn}</button>`:""}</div>
-      ${!can?`<p class="hint" style="margin-top:10px">El evento ${pn} no tiene FISA para continuar.</p>`:""}${!q.started?`<p class="hint" style="margin-top:10px">Inicien el temporizador para elegir.</p>`:""}</div>`;
+    return `<div class="chooser"><h3>${t("fisaChooseT")}</h3>
+      <p>${t("fisaChooseD", pn)}</p>
+      <div class="actions"><button class="btn pink" data-fmode="copy" ${lock||!can?"disabled":""}>${t("fisaCont", pn)}</button><button class="btn ghost" data-fmode="new" ${lock?"disabled":""}>${t("fisaNew")}</button>${can?`<button class="btn ghost" data-mopen="prev">${t("fisaSee", pn)}</button>`:""}</div>
+      ${!can?`<p class="hint" style="margin-top:10px">${t("fisaNoPrev", pn)}</p>`:""}${!q.started?`<p class="hint" style="margin-top:10px">${t("startToChoose")}</p>`:""}</div>`;
   }
-  let h = `<p class="hint" style="margin:0 0 10px">Toquen el título de cada punto para llenarlo.</p>`;
-  if (si>0) h += `<div class="fmode"><span class="hint">${q.fisa.mode==="copy"?`Continuación del FISA del evento ${pn}. Los cambios solo quedan en este evento.`:"FISA nuevo para este evento."}</span>${can?`<button class="btn ghost sm" data-mopen="prev">Ver FISA del evento ${pn}</button>`:""}</div>`;
+  let h = `<p class="hint" style="margin:0 0 10px">${t("tapTitle")}</p>`;
+  if (si>0) h += `<div class="fmode"><span class="hint">${q.fisa.mode==="copy"?t("fisaIsCopy", pn):t("fisaIsNew")}</span>${can?`<button class="btn ghost sm" data-mopen="prev">${t("fisaSee", pn)}</button>`:""}</div>`;
   return h + fisaBoard(q.fisa, evN(si), lock ? "lock" : "edit");
 }
 function fisaBoard(f, n, mode){
@@ -736,29 +1204,41 @@ function fisaBoard(f, n, mode){
   const kinds = ["hechos","impactos","partes","plan"];
   const col = (n2, title, body) => ro
     ? `<div class="fcol"><h4><span>${n2}.</span> ${title}</h4><div class="fbody">${body}</div></div>`
-    : `<div class="fcol"><button class="fhead" data-mopen="${kinds[n2-1]}" ${dis?"disabled":""}><span>${n2}.</span> ${title}<i aria-hidden="true">Llenar</i></button><div class="fbody">${body}</div></div>`;
+    : `<div class="fcol"><button class="fhead" data-mopen="${kinds[n2-1]}" ${dis?"disabled":""}><span>${n2}.</span> ${title}<i aria-hidden="true">${t("fill")}</i></button><div class="fbody">${body}</div></div>`;
   const c1 = FISA_H.map(x=>item("hechos", x.k, `${x.pre} <b>${x.b}</b>`, has(f.hechos[x.k]), f.hechos[x.k])).join("");
-  const c2 = item("impactos","", `<b>Identificación de todos</b> los impactos (inmediatos, futuros)`, sel.length>0, "")
-    + item("impactos","", `<b>Evaluación</b> de problemas`, has(f.impactos.evaluacion), f.impactos.evaluacion)
-    + (sel.length ? `<ul class="fsel">${sel.map(x=>`<li><b>${esc(x.row)} · ${esc(x.col)}</b>${esc(ro?x.text:clip(x.text,90))}</li>`).join("")}</ul>` : `<p class="fempty">Marquen en la tabla los impactos más importantes para que queden aquí.</p>`);
-  const c3 = item("partes","", `<b>Identificación</b> de las partes interesadas`, partes.length>0, "")
-    + item("partes","", `<b>Distribución</b> entre los miembros del equipo de crisis`, partes.length>0 && partes.every(p=>p.resp), "")
-    + item("partes","", `<b>Clasificación</b> de las partes interesadas: aliadas, neutrales, hostiles`, partes.length>0 && partes.every(p=>p.clase), "")
-    + (partes.length ? `<ul class="fsel">${partes.map(p=>`<li><b>${esc(p.nombre)}</b>${p.clase?`<span class="cls ${p.clase}">${CLASES.find(c=>c.k===p.clase).label}</span>`:""}${p.resp?`<span class="who">A cargo: ${esc(RN[p.resp]||p.resp)}</span>`:""}</li>`).join("")}</ul>` : "");
-  const c4 = item("plan","", `Lista de acciones relativas <b>a implementar</b>`, plan.length>0, "")
-    + item("plan","", `Una <b>persona identificada</b> a cargo de cada acción`, plan.length>0 && plan.every(p=>has(p.persona)), "")
-    + (plan.length ? `<ul class="fsel">${plan.map(p=>`<li><b>${esc(ro?p.accion:clip(p.accion,90))}</b><span class="who">${has(p.persona)?esc(p.persona):"Sin responsable"}${p.area?` · ${esc(RN[p.area]||p.area)}`:""}</span></li>`).join("")}</ul>` : "")
-    + (()=>{ const na = noAction(f); return na.length ? `<p class="fnoact"><b>Sin acción en este evento:</b> ${na.map(k=>esc(RN[k])).join(", ")}</p>` : `<p class="fnoact ok">Todas las áreas involucradas tienen acciones.</p>`; })();
-  return `<div class="fisa"><div class="fisa-top"><h3>FISA · Evento ${n}</h3><span class="hint">4 puntos del método</span></div>
-    <div class="fisa-banner">Para ser actualizado continuamente</div>
-    <div class="fisa-grid">${col(1,"Hechos",c1)}${col(2,"Impactos",c2)}${col(3,"Partes interesadas",c3)}${col(4,"Plan de acción",c4)}</div></div>`;
+  const c2 = item("impactos","", t("impItem1"), sel.length>0, "")
+    + item("impactos","", t("impItem2"), has(f.impactos.evaluacion), f.impactos.evaluacion)
+    + (sel.length ? `<ul class="fsel">${sel.map(x=>`<li><b>${esc(x.row)} · ${esc(x.col)}</b>${esc(ro?x.text:clip(x.text,90))}</li>`).join("")}</ul>` : `<p class="fempty">${t("impEmpty")}</p>`);
+  const c3 = item("partes","", t("parItem1"), partes.length>0, "")
+    + item("partes","", t("parItem2"), partes.length>0 && partes.every(p=>p.resp), "")
+    + item("partes","", t("parItem3"), partes.length>0 && partes.every(p=>p.clase), "")
+    + (partes.length ? `<ul class="fsel">${partes.map(p=>`<li><b>${esc(p.nombre)}</b>${p.clase?`<span class="cls ${p.clase}">${CLASES.find(c=>c.k===p.clase).label}</span>`:""}${p.resp?`<span class="who">${t("inChargeOf", esc(RN[p.resp]||p.resp))}</span>`:""}</li>`).join("")}</ul>` : "");
+  const c4 = item("plan","", t("planItem1"), plan.length>0, "")
+    + item("plan","", t("planItem2"), plan.length>0 && plan.every(p=>has(p.persona)), "")
+    + (plan.length ? `<ul class="fsel">${plan.map(p=>`<li><b>${esc(ro?p.accion:clip(p.accion,90))}</b><span class="who">${has(p.persona)?esc(p.persona):t("noOwner")}${p.area?` · ${esc(RN[p.area]||p.area)}`:""}</span></li>`).join("")}</ul>` : "")
+    + (()=>{ const na = noAction(f); return na.length ? `<p class="fnoact"><b>${t("noActionL")}</b> ${na.map(k=>esc(RN[k])).join(", ")}</p>` : `<p class="fnoact ok">${t("allHaveAction")}</p>`; })();
+  const H = t("colH");
+  return `<div class="fisa"><div class="fisa-top"><h3>${t("fisaTitle", n)}</h3><span class="hint">${t("fourPts")}</span></div>
+    <div class="fisa-banner">${t("banner")}</div>
+    <div class="fisa-grid">${col(1,H[0],c1)}${col(2,H[1],c2)}${col(3,H[2],c3)}${col(4,H[3],c4)}</div></div>`;
 }
 
 /* ---------- ventana para llenar cada punto del FISA ---------- */
 let MOD = null;
-function openModal(kind, key){ MOD = {kind, key, ev:STEPS[S.step].ev, st:STEPS[S.step].st}; renderModal(); }
+function openModal(kind, key){ LATE_OPEN = false; MOD = {kind, key, ev:STEPS[S.step].ev, st:STEPS[S.step].st}; renderModal(); }
 function closeModal(){ if (!MOD) return; MOD = null; const m = $("#modal"); m.hidden = true; m.innerHTML = ""; persist(); const y = window.scrollY; render(); window.scrollTo({top:y}); }
-function refreshNoAction(f){ const el = document.querySelector("#modal .fnoact"); if (!el) return; const na = noAction(f); el.classList.toggle("ok", !na.length); el.innerHTML = na.length ? `<b>Sin acción en este evento:</b> ${na.map(k=>esc(RN[k])).join(", ")}` : "Todas las áreas involucradas tienen acciones."; }
+function lateAddHtml(ro){
+  const list = (S.lateAreas||[]).map(x=>`${esc(RN[x.k])} (${t("evShort", EVENTS[x.ev].n)})`).join(", ");
+  if (ro) return (S.lateAreas||[]).length ? `<p class="hint" style="margin:16px 0 0">${t("lateListRo")} ${list}</p>` : "";
+  const others = ROLES.filter(r=>!involved().includes(r.k));
+  return `<details class="lateadd" ${LATE_OPEN?"open":""}><summary>${t("lateSum")}</summary>
+    <p class="mhint" style="margin:8px 0">${t("lateHelp")}</p>
+    ${others.length?`<div class="lrow"><select id="lateSel" aria-label="${t("lateSel")}"><option value="">${t("choose")}</option>${others.map(r=>`<option value="${r.k}">${esc(r.name)} · ${esc(r.es)}</option>`).join("")}</select><button class="btn ghost" data-laadd="1">${t("addArea")}</button></div>`:`<p class="hint" style="margin:0">${t("allInvolved")}</p>`}
+    ${(S.lateAreas||[]).length?`<p class="hint" style="margin:8px 0 0">${t("lateList")} ${list}</p>`:""}
+  </details>`;
+}
+let LATE_OPEN = false;
+function refreshNoAction(f){ const el = document.querySelector("#modal .fnoact"); if (!el) return; const na = noAction(f); el.classList.toggle("ok", !na.length); el.innerHTML = na.length ? `<b>${t("noActionL")}</b> ${na.map(k=>esc(RN[k])).join(", ")}` : t("allHaveAction"); }
 function areaOptions(sel){ return involved().map(k=>`<option value="${k}" ${sel===k?"selected":""}>${esc(RN[k])}</option>`).join(""); }
 function renderModal(focusSel){
   const m = $("#modal"); if (!MOD){ m.hidden = true; return; }
@@ -766,49 +1246,47 @@ function renderModal(focusSel){
   const q = Q(MOD.ev), f = q.fisa, ro = MOD.kind!=="prev" && (q.saved || !q.started);
   const dis = ro ? "disabled" : "";
   let title = "", body = "";
+  const CH = t("colH");
   if (MOD.kind==="hechos"){
-    title = "1. Hechos";
-    body = `<div class="answers" style="margin-top:0">${FISA_H.map((it,i)=>`<div class="ans"><label for="mh-${it.k}"><b>${i+1}</b>${it.pre} ${it.b}</label><p class="mhint" style="margin:0 0 6px">${esc(it.hint)}</p><textarea id="mh-${it.k}" data-mh="${it.k}" ${dis} placeholder="Escriban aquí…">${esc(f.hechos[it.k])}</textarea></div>`).join("")}</div>`;
+    title = "1. "+CH[0];
+    body = `<div class="answers" style="margin-top:0">${FISA_H.map((it,i)=>`<div class="ans"><label for="mh-${it.k}"><b>${i+1}</b>${it.pre} ${it.b}</label><p class="mhint" style="margin:0 0 6px">${esc(it.hint)}</p><textarea id="mh-${it.k}" data-mh="${it.k}" ${dis} placeholder="${t("writeHere")}">${esc(f.hechos[it.k])}</textarea></div>`).join("")}</div>`;
   } else if (MOD.kind==="impactos"){
-    title = "2. Impactos";
-    body = `<p class="mhint">Escriban los impactos en cada celda y marquen como <b>importante</b> los que deben quedar en el FISA.</p>
+    title = "2. "+CH[1];
+    body = `<p class="mhint">${t("impHelp")}</p>
       <div class="impwrap"><div class="imp">
-        <div class="ih first">Impacto</div>${IMP_COLS.map((c,i)=>`<div class="ih c${i}">${c.label}</div>`).join("")}
+        <div class="ih first">${t("impact")}</div>${IMP_COLS.map((c,i)=>`<div class="ih c${i}">${c.label}</div>`).join("")}
         ${IMP_ROWS.map(r=>`<div class="rh"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[r.k]}</svg><span>${r.label}</span></div>${IMP_COLS.map((c,i)=>{ const x = f.impactos.cells[r.k+"|"+c.k] || {text:"", imp:false};
-          return `<div class="cell c${i} ${x.imp?"isimp":""}"><textarea data-mc="${r.k}|${c.k}" aria-label="${r.label} · ${c.label}" ${dis} placeholder="—">${esc(x.text)}</textarea><button class="impbtn ${x.imp?"on":""}" data-mimp="${r.k}|${c.k}" aria-pressed="${!!x.imp}" ${dis}>${x.imp?"Importante ✓":"Marcar importante"}</button></div>`; }).join("")}`).join("")}
+          return `<div class="cell c${i} ${x.imp?"isimp":""}"><textarea data-mc="${r.k}|${c.k}" aria-label="${r.label} · ${c.label}" ${dis} placeholder="—">${esc(x.text)}</textarea><button class="impbtn ${x.imp?"on":""}" data-mimp="${r.k}|${c.k}" aria-pressed="${!!x.imp}" ${dis}>${x.imp?t("important")+" ✓":t("markImp")}</button></div>`; }).join("")}`).join("")}
       </div></div>
-      <div class="ans" style="margin-top:18px"><label for="mie">Evaluación de problemas</label><textarea id="mie" data-mie="1" ${dis} placeholder="¿Qué problemas generan estos impactos y cuáles son los más graves?">${esc(f.impactos.evaluacion)}</textarea></div>`;
+      <div class="ans" style="margin-top:18px"><label for="mie">${t("probEval")}</label><textarea id="mie" data-mie="1" ${dis} placeholder="${t("probPh")}">${esc(f.impactos.evaluacion)}</textarea></div>`;
   } else if (MOD.kind==="partes"){
-    title = "3. Partes interesadas";
-    body = `<p class="mhint">Identifiquen las partes interesadas, clasifíquenlas y asignen el miembro del equipo de crisis a cargo de cada una.</p>
-      ${ro?"":`<div class="sugs"><span class="hint">Agregar rápido:</span>${PARTES_SUG.filter(n=>!f.partes.some(p=>p.nombre===n)).map(n=>`<button class="sug" data-mpsug="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div>`}
-      <div class="rows">${f.partes.length?`<div class="rowh p"><span>Parte interesada</span><span>Clasificación</span><span>A cargo</span><span></span></div>`:""}${f.partes.map((p,i)=>`<div class="rowed p">
-        <input type="text" data-mp="${i}|nombre" value="${esc(p.nombre)}" placeholder="Parte interesada" aria-label="Parte interesada" ${dis}>
-        <select data-mp="${i}|clase" aria-label="Clasificación" ${dis}><option value="">Clasificación…</option>${CLASES.map(c=>`<option value="${c.k}" ${p.clase===c.k?"selected":""}>${c.label}</option>`).join("")}</select>
-        <select data-mp="${i}|resp" aria-label="Miembro del equipo a cargo" ${dis}><option value="">A cargo…</option>${areaOptions(p.resp)}</select>
-        ${ro?"<span></span>":`<button class="rdel" data-mpdel="${i}" aria-label="Quitar ${esc(p.nombre||"fila")}">Quitar</button>`}</div>`).join("")}</div>
-      ${ro?"":`<button class="btn ghost" data-mpadd="1" style="margin-top:12px">+ Agregar parte interesada</button>`}`;
+    title = "3. "+CH[2];
+    body = `<p class="mhint">${t("parHelp")}</p>
+      ${ro?"":`<div class="sugs"><span class="hint">${t("quickAdd")}</span>${PARTES_SUG.filter(n=>!f.partes.some(p=>p.nombre===n)).map(n=>`<button class="sug" data-mpsug="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div>`}
+      <div class="rows">${f.partes.length?`<div class="rowh p"><span>${t("stakeholder")}</span><span>${t("classification")}</span><span>${t("inCharge")}</span><span></span></div>`:""}${f.partes.map((p,i)=>`<div class="rowed p">
+        <input type="text" data-mp="${i}|nombre" value="${esc(p.nombre)}" placeholder="${t("stakeholder")}" aria-label="${t("stakeholder")}" ${dis}>
+        <select data-mp="${i}|clase" aria-label="${t("classification")}" ${dis}><option value="">${t("classPh")}</option>${CLASES.map(c=>`<option value="${c.k}" ${p.clase===c.k?"selected":""}>${c.label}</option>`).join("")}</select>
+        <select data-mp="${i}|resp" aria-label="${t("memberAria")}" ${dis}><option value="">${t("inChargePh")}</option>${areaOptions(p.resp)}</select>
+        ${ro?"<span></span>":`<button class="rdel" data-mpdel="${i}" aria-label="${t("removeAria", esc(p.nombre||t("row")))}">${t("remove")}</button>`}</div>`).join("")}</div>
+      ${ro?"":`<button class="btn ghost" data-mpadd="1" style="margin-top:12px">${t("addStake")}</button>`}
+      ${lateAddHtml(ro)}`;
   } else if (MOD.kind==="plan"){
-    title = "4. Plan de acción";
-    const others = ROLES.filter(r=>!involved().includes(r.k)), na = noAction(f);
-    body = `<p class="mhint">Listen las acciones a implementar, con una persona identificada a cargo y el área responsable de cada una.</p>
-      <div class="rows">${f.plan.length?`<div class="rowh a"><span>Acción</span><span>Persona a cargo</span><span>Área</span><span></span></div>`:""}${f.plan.map((p,i)=>`<div class="rowed a">
-        <input type="text" data-ma="${i}|accion" value="${esc(p.accion)}" placeholder="Acción a implementar" aria-label="Acción" ${dis}>
-        <input type="text" data-ma="${i}|persona" value="${esc(p.persona)}" placeholder="Nombre de la persona" aria-label="Persona a cargo" ${dis}>
-        <select data-ma="${i}|area" aria-label="Área" ${dis}><option value="">Área…</option>${areaOptions(p.area)}</select>
-        ${ro?"<span></span>":`<button class="rdel" data-madel="${i}" aria-label="Quitar acción">Quitar</button>`}</div>`).join("")}</div>
-      ${ro?"":`<button class="btn ghost" data-maadd="1" style="margin-top:12px">+ Agregar acción</button>`}
-      <div class="lateadd">
-        <p class="mhint" style="margin:0 0 8px">¿Hay que involucrar un área que no se activó al inicio? Agréguela aquí y quedará disponible en el plan de acción.</p>
-        ${ro?"":(others.length?`<div class="lrow"><select id="lateSel" aria-label="Área para agregar"><option value="">Elegir área…</option>${others.map(r=>`<option value="${r.k}">${esc(r.name)} · ${esc(r.es)}</option>`).join("")}</select><button class="btn ghost" data-laadd="1">+ Agregar área</button></div>`:`<p class="hint" style="margin:0">Ya están involucradas todas las áreas.</p>`)}
-        ${(S.lateAreas||[]).length?`<p class="hint" style="margin:8px 0 0">Agregadas después del inicio: ${S.lateAreas.map(x=>`${esc(RN[x.k])} (evento ${EVENTS[x.ev].n})`).join(", ")}</p>`:""}
-      </div>
-      <p class="fnoact ${na.length?"":"ok"}" style="margin-top:14px">${na.length?`<b>Sin acción en este evento:</b> ${na.map(k=>esc(RN[k])).join(", ")}`:"Todas las áreas involucradas tienen acciones."}</p>`;
+    title = "4. "+CH[3];
+    const na = noAction(f);
+    body = `<p class="mhint">${t("planHelp")}</p>
+      <div class="rows">${f.plan.length?`<div class="rowh a"><span>${t("action")}</span><span>${t("person")}</span><span>${t("area")}</span><span></span></div>`:""}${f.plan.map((p,i)=>`<div class="rowed a">
+        <input type="text" data-ma="${i}|accion" value="${esc(p.accion)}" placeholder="${t("actionPh")}" aria-label="${t("action")}" ${dis}>
+        <input type="text" data-ma="${i}|persona" value="${esc(p.persona)}" placeholder="${t("personPh")}" aria-label="${t("person")}" ${dis}>
+        <select data-ma="${i}|area" aria-label="${t("area")}" ${dis}><option value="">${t("areaPh")}</option>${areaOptions(p.area)}</select>
+        ${ro?"<span></span>":`<button class="rdel" data-madel="${i}" aria-label="${t("removeAction")}">${t("remove")}</button>`}</div>`).join("")}</div>
+      ${ro?"":`<button class="btn ghost" data-maadd="1" style="margin-top:12px">${t("addAction")}</button>`}
+      <p class="fnoact ${na.length?"":"ok"}" style="margin-top:14px">${na.length?`<b>${t("noActionL")}</b> ${na.map(k=>esc(RN[k])).join(", ")}`:t("allHaveAction")}</p>
+      ${lateAddHtml(ro)}`;
   } else if (MOD.kind==="prev"){
-    title = `FISA del evento ${evN(MOD.st-1)} (solo lectura)`;
+    title = t("prevTitle", evN(MOD.st-1));
     body = fisaBoard(prevFisa(MOD.st), evN(MOD.st-1), "ro");
   }
-  m.innerHTML = `<div class="mbox ${MOD.kind==="impactos"||MOD.kind==="prev"?"wide":""}" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mhead"><h3 id="mtitle">${esc(title)}</h3><button class="btn" id="mclose">Listo</button></div>${ro?`<p class="hint" style="margin:-6px 0 12px">Solo lectura: ${q.saved?"el evento está terminado.":"inicien el temporizador para editar."}</p>`:""}${body}</div>`;
+  m.innerHTML = `<div class="mbox ${MOD.kind==="impactos"||MOD.kind==="prev"?"wide":""}" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mhead"><h3 id="mtitle">${esc(title)}</h3><button class="btn" id="mclose">${t("done")}</button></div>${ro?`<p class="hint" style="margin:-6px 0 12px">${t("readOnly", q.saved?t("roDone"):t("roStart"))}</p>`:""}${body}</div>`;
   m.hidden = false;
   const box = m.querySelector(".mbox"); box.scrollTop = keep;
   if (focusSel){ const el = m.querySelector(focusSel); if (el) el.focus(); }
@@ -821,15 +1299,15 @@ function paintTimer(){
   const st = STEPS[S.step], ft = $("#footTimer");
   if (!st || st.t!=="qa"){ ft.hidden = true; return; }
   const ev = st.ev, e = EVENTS[ev], q = Q(ev), running = T.running && T.ev===ev;
-  const label = running ? "Pausar" : (q.started ? "Continuar" : "Iniciar");
+  const label = running ? t("pause") : (q.started ? t("resume") : t("startT"));
   const box = $("#timerBox");
   if (box){
     $("#tval").textContent = fmtS(q.left);
     $("#tbar").style.width = Math.max(0, 100*q.left/(e.min*60))+"%";
     box.classList.toggle("low", q.left<=30 && q.left>0);
     box.classList.toggle("end", q.left<=0);
-    $("#trow").innerHTML = q.saved ? `<span class="hint">Tiempo usado: ${fmt(q.used)}</span>`
-      : `<button class="btn pink" id="tstart">${label}</button>${q.left<=0?`<span class="hint over">Tiempo cumplido. El reloj sigue sumando.</span>`:""}`;
+    $("#trow").innerHTML = q.saved ? `<span class="hint">${t("timeUsed", fmt(q.used))}</span>`
+      : `<button class="btn pink" id="tstart">${label}</button>${q.left<=0?`<span class="hint over">${t("timeUp")}</span>`:""}`;
   }
   ft.hidden = false;
   ft.className = "foot-timer" + (q.left<=0 ? " end" : q.left<=30 ? " low" : "");
@@ -865,31 +1343,31 @@ function finishStage(){
 
 /* ---------- cierre ---------- */
 function renderClosing(){
-  return `<div class="head"><div><div class="eyebrow">Cierre</div><h2>Preguntas de cierre</h2></div></div>
+  return `<div class="head"><div><div class="eyebrow">${t("closing")}</div><h2>${t("closingQs")}</h2></div></div>
   <div class="two">
     <div class="answers" style="margin-top:0">
-      ${CLOSING_Q.map((x,i)=>`<div class="ans"><label for="c-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="c-${i}" data-close="${i}" placeholder="Respuesta del equipo…">${esc(S.closing[i])}</textarea></div>`).join("")}
+      ${CLOSING_Q.map((x,i)=>`<div class="ans"><label for="c-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="c-${i}" data-close="${i}" placeholder="${t("ansPh")}">${esc(S.closing[i])}</textarea></div>`).join("")}
     </div>
-    <div class="card"><div class="eyebrow">Lecciones clave</div><h3 style="margin:6px 0 10px">Lo que deja este ejercicio</h3><ul class="lessons">${LESSONS.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+    <div class="card"><div class="eyebrow">${t("lessonsL")}</div><h3 style="margin:6px 0 10px">${t("lessonsT")}</h3><ul class="lessons">${LESSONS.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
   </div>
   ${renderSummary()}`;
 }
 function renderSummary(){
-  return `<h3 style="font-size:24px;margin:34px 0 12px">Resumen de las preguntas</h3>
+  return `<h3 style="font-size:24px;margin:34px 0 12px">${t("summary")}</h3>
   <div class="rep">${STAGES.map(stg=>{
     const e = EVENTS[stg.ev], q = Q(stg.ev), ok = q.checks.filter(Boolean).length;
-    return `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00 · ${q.none?"no tuvimos en cuenta ninguna de las anteriores":`${ok} de ${e.chk.length} puntos tenidos en cuenta`}</div>
-      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
+    return `<div class="rsec"><h3>${t("event", e.n)}</h3><div class="meta">${esc(e.when)} · ${t("metaUsed", fmt(q.used), e.min)} · ${q.none?t("noneConsidered"):t("ptsConsidered", ok, e.chk.length)}</div>
+      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):t("noAnswer")}</div></div>`).join("")}
     </div>`;}).join("")}</div>`;
 }
 
 /* ---------- comentarios finales ---------- */
 function renderFinal(){
-  return `<div class="head"><div><div class="eyebrow">Cierre</div><h2>Comentarios finales</h2></div></div>
+  return `<div class="head"><div><div class="eyebrow">${t("closing")}</div><h2>${t("finalT")}</h2></div></div>
   <div class="answers" style="margin-top:0;max-width:900px">
-    ${FINAL.map(f=>`<div class="ans"><label for="f-${f.k}">${esc(f.label)}</label><textarea id="f-${f.k}" data-final="${f.k}" placeholder="Escriban aquí…">${esc(S.final[f.k])}</textarea></div>`).join("")}
+    ${FINAL.map(f=>`<div class="ans"><label for="f-${f.k}">${esc(f.label)}</label><textarea id="f-${f.k}" data-final="${f.k}" placeholder="${t("writeHere")}">${esc(S.final[f.k])}</textarea></div>`).join("")}
   </div>
-  <div class="actions"><span class="hint">Todo se guarda automáticamente. Al seguir se genera el reporte.</span></div>`;
+  <div class="actions"><span class="hint">${t("autosave")}</span></div>`;
 }
 
 /* ---------- reporte ---------- */
@@ -899,70 +1377,60 @@ function renderReport(){
   const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
   const qsTime = STAGES.reduce((a,stg)=>a+(Q(stg.ev).used||0),0);
   const okPts = STAGES.reduce((a,stg)=>a+Q(stg.ev).checks.filter(Boolean).length,0), allPts = STAGES.reduce((a,stg)=>a+EVENTS[stg.ev].chk.length,0);
-  let h = `<div class="head"><div><div class="eyebrow">Reporte del ejercicio</div><h2>${esc(S.team || "Equipo de crisis")}</h2></div><div class="when">${fmtDate(S.started)}</div></div>
+  const ans = a => `<div class="a ${has(a)?"":"empty"}">${has(a)?esc(a):t("noAnswer")}</div>`;
+  let h = `<div class="head"><div><div class="eyebrow">${t("repEyebrow")}</div><h2>${esc(S.team || t("teamDefault"))}</h2></div><div class="when">${fmtDate(S.started)}</div></div>
   <div class="rep">
     <div class="rep-head">
-      <div><b>${fmt(totalSeconds())}</b><span>Duración total</span></div>
-      <div><b>${fmt(qsTime)}</b><span>Tiempo en decisiones</span></div>
-      <div><b>${essOn}/${ess.length}</b><span>Áreas responsables activadas</span></div>
-      <div><b>${okPts}/${allPts}</b><span>Puntos tenidos en cuenta</span></div>
+      <div><b>${fmt(totalSeconds())}</b><span>${t("kTotal")}</span></div>
+      <div><b>${fmt(qsTime)}</b><span>${t("kDec")}</span></div>
+      <div><b>${essOn}/${ess.length}</b><span>${t("kAreas")}</span></div>
+      <div><b>${okPts}/${allPts}</b><span>${t("kPts")}</span></div>
     </div>
-    <div class="rsec"><h3>Activación del equipo de crisis</h3>
-      <div class="rq"><div class="q">¿Por qué es una situación de crisis?</div><div class="a ${S.why.trim()?"":"empty"}">${S.why.trim()?esc(S.why):"Sin respuesta"}</div></div>
-      <div class="rq"><div class="q">Áreas seleccionadas</div>
-        <div class="area-recap">${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<span class="${rv(r)}">${esc(r.name)} · ${A(r.k)?(r.need?"bien activada":"no debía activarse"):"faltó activarla"}</span>`).join("")}</div>
+    <div class="rsec"><h3>${t("actTitle")}</h3>
+      <div class="rq"><div class="q">${t("whyCrisis")}</div>${ans(S.why)}</div>
+      <div class="rq"><div class="q">${t("areasSel")}</div>
+        <div class="area-recap">${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<span class="${rv(r)}">${esc(r.name)} · ${A(r.k)?(r.need?t("aOk"):t("aWrong")):t("aMiss")}</span>`).join("")}</div>
       </div>
-      ${(S.lateAreas||[]).length?`<div class="rq"><div class="q">Áreas agregadas durante el ejercicio</div><div class="a">${S.lateAreas.map(x=>`${esc(RN[x.k])} (evento ${EVENTS[x.ev].n})`).join(", ")}</div></div>`:""}
+      ${(S.lateAreas||[]).length?`<div class="rq"><div class="q">${t("lateDuring")}</div><div class="a">${S.lateAreas.map(x=>`${esc(RN[x.k])} (${t("evShort", EVENTS[x.ev].n)})`).join(", ")}</div></div>`:""}
     </div>`;
   STAGES.forEach((stg,si)=>{
     const e = EVENTS[stg.ev], q = Q(stg.ev);
-    h += `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00</div>
-      <h4 class="rsub">1. FISA${q.fisa.mode==="copy"?` · continuación del evento ${si>0?evN(si-1):""}`:""}</h4>
+    h += `<div class="rsec"><h3>${t("event", e.n)}</h3><div class="meta">${esc(e.when)} · ${t("metaUsed", fmt(q.used), e.min)}</div>
+      <h4 class="rsub">1. FISA${q.fisa.mode==="copy"?t("fisaCopyOf", si>0?evN(si-1):""):""}</h4>
       ${fisaBoard(q.fisa, e.n, "ro")}
-      <h4 class="rsub">Análisis de impactos</h4>
+      <h4 class="rsub">${t("impAnalysis")}</h4>
       ${impactGrid(q.fisa)}
-      <h4 class="rsub">2. Preguntas</h4>
-      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
-      <h4 class="rsub">¿Tuvimos en cuenta esto?</h4>
-      <div class="rq">${q.none?`<div class="a" style="color:var(--bad)">No tuvimos en cuenta ninguna de las anteriores.</div>`:""}<ul class="chk-list">${e.chk.map((x,i)=>{const y=q.checks[i];return `<li><span class="${y?"y":"n"}">${y?"✓":"✗"}</span><span>${esc(x)}</span></li>`;}).join("")}</ul></div>
+      <h4 class="rsub">${t("tabQs")}</h4>
+      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div>${ans(q.answers[i])}</div>`).join("")}
+      <h4 class="rsub">${t("checkTitle")}</h4>
+      <div class="rq">${q.none?`<div class="a" style="color:var(--bad)">${t("noneOpt")}.</div>`:""}<ul class="chk-list">${e.chk.map((x,i)=>{const y=q.checks[i];return `<li><span class="${y?"y":"n"}">${y?"✓":"✗"}</span><span>${esc(x)}</span></li>`;}).join("")}</ul></div>
     </div>`;
   });
-  h += `<div class="rsec"><h3>Preguntas de cierre</h3>${CLOSING_Q.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${S.closing[i].trim()?"":"empty"}">${S.closing[i].trim()?esc(S.closing[i]):"Sin respuesta"}</div></div>`).join("")}</div>
-    <div class="rsec"><h3>Comentarios finales</h3>${FINAL.map(f=>`<div class="rq"><div class="q">${esc(f.label)}</div><div class="a ${S.final[f.k].trim()?"":"empty"}">${S.final[f.k].trim()?esc(S.final[f.k]):"Sin comentarios"}</div></div>`).join("")}</div>
+  h += `<div class="rsec"><h3>${t("closingQs")}</h3>${CLOSING_Q.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div>${ans(S.closing[i])}</div>`).join("")}</div>
+    <div class="rsec"><h3>${t("finalT")}</h3>${FINAL.map(f=>`<div class="rq"><div class="q">${esc(f.label)}</div><div class="a ${has(S.final[f.k])?"":"empty"}">${has(S.final[f.k])?esc(S.final[f.k]):t("noComments")}</div></div>`).join("")}</div>
   </div>
   <div class="actions">
-    <button class="btn pink" id="dlReport">Descargar reporte en PDF</button>
-    <button class="btn ghost" id="newSession">Nueva sesión</button>
-    <span class="hint" id="dlMsg">${DB ? "El reporte queda guardado en el juego y aparece en la pantalla de inicio." : "El reporte queda guardado en este navegador y aparece en la pantalla de inicio."}</span>
+    <button class="btn pink" id="dlReport">${t("dlPdf")}</button>
+    <button class="btn ghost" id="newSession">${t("newSession")}</button>
+    <span class="hint" id="dlMsg">${DB ? t("savedDb") : t("savedLocal")}</span>
   </div>`;
   return h;
 }
 function impactGrid(f){
   return `<div class="impwrap"><div class="imp ro">
-    <div class="ih first">Impacto</div>${IMP_COLS.map((c,i)=>`<div class="ih c${i}">${c.label}</div>`).join("")}
+    <div class="ih first">${t("impact")}</div>${IMP_COLS.map((c,i)=>`<div class="ih c${i}">${c.label}</div>`).join("")}
     ${IMP_ROWS.map(r=>`<div class="rh"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[r.k]}</svg><span>${r.label}</span></div>${IMP_COLS.map((c,i)=>{ const x = f.impactos.cells[r.k+"|"+c.k] || {text:"", imp:false};
-      return `<div class="cell c${i} ${x.imp&&has(x.text)?"isimp":""}">${x.imp&&has(x.text)?`<span class="impflag">Importante</span>`:""}<p>${has(x.text)?esc(x.text):'<span class="empty">—</span>'}</p></div>`; }).join("")}`).join("")}
+      return `<div class="cell c${i} ${x.imp&&has(x.text)?"isimp":""}">${x.imp&&has(x.text)?`<span class="impflag">${t("important")}</span>`:""}<p>${has(x.text)?esc(x.text):'<span class="empty">—</span>'}</p></div>`; }).join("")}`).join("")}
   </div></div>
-  <p class="rimpev"><b>Evaluación de problemas:</b> ${has(f.impactos.evaluacion)?esc(f.impactos.evaluacion):'<span class="empty">Sin información</span>'}</p>`;
+  <p class="rimpev"><b>${t("probEval")}:</b> ${has(f.impactos.evaluacion)?esc(f.impactos.evaluacion):`<span class="empty">${t("noInfo")}</span>`}</p>`;
 }
-function fisaReport(f){
-  const val = t => has(t) ? esc(t) : `<span class="empty">Sin información</span>`;
-  const sel = selImpacts(f), partes = f.partes.filter(p=>has(p.nombre)), plan = f.plan.filter(p=>has(p.accion));
-  return `<div class="fis-rep">
-    <div><h5>1. Hechos</h5>${FISA_H.map(x=>`<p><b>${x.pre} ${x.b}:</b> ${val(f.hechos[x.k])}</p>`).join("")}</div>
-    <div><h5>2. Impactos</h5>${sel.length?`<ul>${sel.map(x=>`<li><b>${esc(x.row)} · ${esc(x.col)}:</b> ${esc(x.text)}</li>`).join("")}</ul>`:`<p class="empty">Sin impactos seleccionados</p>`}<p><b>Evaluación de problemas:</b> ${val(f.impactos.evaluacion)}</p></div>
-    <div><h5>3. Partes interesadas</h5>${partes.length?`<ul>${partes.map(p=>`<li><b>${esc(p.nombre)}</b> · ${p.clase?CLASES.find(c=>c.k===p.clase).label:"sin clasificar"} · a cargo: ${p.resp?esc(RN[p.resp]||p.resp):"sin asignar"}</li>`).join("")}</ul>`:`<p class="empty">Sin partes interesadas</p>`}</div>
-    <div><h5>4. Plan de acción</h5>${plan.length?`<ul>${plan.map(p=>`<li><b>${esc(p.accion)}</b> · ${has(p.persona)?esc(p.persona):"sin responsable"}${p.area?` (${esc(RN[p.area]||p.area)})`:""}</li>`).join("")}</ul>`:`<p class="empty">Sin acciones</p>`}</div>
-  </div>`;
-}
-
 /* ---------- reporte PDF corporativo ---------- */
 function buildPdf(){
   const {jsPDF} = window.jspdf;
   const doc = new jsPDF({unit:"mm", format:"a4"});
   const W = 210, M = 18, CW = W - 2*M, BOTTOM = 279;
   const C = {green:[3,35,13], mid:[10,58,27], pink:[255,116,207], cream:[246,239,228], ink:[22,38,26], gray:[90,104,94], tint:[238,243,238], line:[214,224,215], good:[29,122,67], bad:[179,38,30], white:[255,255,255]};
-  const team = S.team || "Equipo de crisis";
+  const team = S.team || t("teamDefault");
   const clean = s => String(s==null?"":s).replace(/[“”«»]/g,'"').replace(/[‘’]/g,"'").replace(/[—–]/g,"-").replace(/…/g,"...").replace(/[^\x00-\xFF\n]/g,"");
   const PT = 0.3528;
   let y = 0;
@@ -971,7 +1439,7 @@ function buildPdf(){
     doc.setFillColor(...C.green); doc.rect(0,0,W,13,"F");
     doc.setFillColor(...C.pink); doc.rect(0,13,W,0.8,"F");
     doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...C.cream);
-    doc.text("Opella  |  Reporte del ejercicio de crisis", M, 8.3);
+    doc.text(clean(t("pdfHeader")), M, 8.3);
     doc.setFont("helvetica","normal"); doc.setTextColor(...C.pink);
     doc.text(clean(team), W-M, 8.3, {align:"right"});
     y = 24;
@@ -1012,13 +1480,15 @@ function buildPdf(){
     text((n?n+". ":"")+q, {bold:true, size:10.5, color:C.green});
     y += 1.2;
     const has = a && String(a).trim();
-    text(has ? a : "Sin respuesta", {x:M+4, w:CW-4, size:10, color:has?C.ink:C.gray, italic:!has, bar:C.pink});
+    text(has ? a : t("noAnswer"), {x:M+4, w:CW-4, size:10, color:has?C.ink:C.gray, italic:!has, bar:C.pink});
     y += 4;
   }
   function checkItem(label, yes){
     const size=10, lh=1.4*size*PT;
+    const tag = clean(yes?t("considered"):t("notConsidered"));
+    doc.setFont("helvetica","bold"); doc.setFontSize(8); const tagW = doc.getTextWidth(tag);
     doc.setFont("helvetica","normal"); doc.setFontSize(size);
-    const lines = doc.splitTextToSize(clean(label), CW-40);
+    const lines = doc.splitTextToSize(clean(label), CW-9-tagW-6);
     ensure(lines.length*lh + 2);
     const cy = y + 2.2;
     if (yes){ doc.setFillColor(...C.good); doc.circle(M+2, cy, 1.8, "F"); doc.setDrawColor(...C.white); doc.setLineWidth(0.5); doc.line(M+1.1, cy, M+1.8, cy+0.7); doc.line(M+1.8, cy+0.7, M+3, cy-0.8); }
@@ -1026,7 +1496,7 @@ function buildPdf(){
     doc.setFont("helvetica","normal"); doc.setFontSize(size); doc.setTextColor(...C.ink);
     lines.forEach((l,i)=>doc.text(l, M+7, y + size*PT*0.9 + i*lh));
     doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...(yes?C.good:C.bad));
-    doc.text(yes?"CONSIDERADO":"NO CONSIDERADO", M+CW, y + size*PT*0.9, {align:"right"});
+    doc.text(tag, M+CW, y + size*PT*0.9, {align:"right"});
     y += lines.length*lh + 2.2;
   }
 
@@ -1053,23 +1523,23 @@ function buildPdf(){
   function pdfFisa(f){
     const ws = [0.25,0.25,0.25,0.25], pad = 2.2, size = 8.6, lh = 1.32*size*PT;
     const xs = ws.map((w,i)=>M + ws.slice(0,i).reduce((a,b)=>a+b,0)*CW);
-    const heads = ["1. Hechos","2. Impactos","3. Partes interesadas","4. Plan de acción"];
+    const heads = t("colH").map((x,i)=>`${i+1}. ${x}`);
     const sel = selImpacts(f), partes = f.partes.filter(p=>has(p.nombre)), plan = f.plan.filter(p=>has(p.accion));
     const lines = (parts)=>{ const out=[]; parts.forEach(([b,t])=>{ if (b){ doc.setFont("helvetica","bold"); doc.setFontSize(size); doc.splitTextToSize(clean(b), ws[0]*CW-2*pad).forEach(l=>out.push({b:true,t:l})); } if (t!=null){ doc.setFont("helvetica","normal"); doc.setFontSize(size); doc.splitTextToSize(clean(has(t)?t:"-"), ws[0]*CW-2*pad).forEach(l=>out.push({b:false,t:l})); } out.push({gap:true}); }); return out; };
     const cols = [
       lines(FISA_H.map(x=>[`${x.pre} ${x.b}`, f.hechos[x.k]])),
-      lines([...(sel.length ? sel.map(x=>[`${x.row} · ${x.col}`, x.text]) : [["Impactos importantes", "Sin impactos seleccionados"]]), ["Evaluación de problemas", f.impactos.evaluacion]]),
-      lines(partes.length ? partes.map(p=>[p.nombre, `${p.clase?CLASES.find(c=>c.k===p.clase).label:"Sin clasificar"} · a cargo: ${p.resp?(RN[p.resp]||p.resp):"sin asignar"}`]) : [["Partes interesadas","Sin partes interesadas"]]),
-      lines([...(plan.length ? plan.map(p=>[p.accion, `${has(p.persona)?p.persona:"Sin responsable"}${p.area?" · "+(RN[p.area]||p.area):""}`]) : [["Acciones","Sin acciones"]]), ["Sin acción en este evento", noAction(f).length ? noAction(f).map(k=>RN[k]).join(", ") : "Ninguna: todas las áreas tienen acciones"]])
+      lines([...(sel.length ? sel.map(x=>[`${x.row} · ${x.col}`, x.text]) : [[t("impsImportant"), t("noImpSel")]]), [t("probEval"), f.impactos.evaluacion]]),
+      lines(partes.length ? partes.map(p=>[p.nombre, `${p.clase?CLASES.find(c=>c.k===p.clase).label:t("unclassified")} · ${t("inChargeOf", p.resp?(RN[p.resp]||p.resp):t("unassigned"))}`]) : [[t("colH")[2], t("noStake")]]),
+      lines([...(plan.length ? plan.map(p=>[p.accion, `${has(p.persona)?p.persona:t("noOwner")}${p.area?" · "+(RN[p.area]||p.area):""}`]) : [[t("actions"), t("noActions")]]), [t("noActionHdr"), noAction(f).length ? noAction(f).map(k=>RN[k]).join(", ") : t("noneAllHave")]])
     ];
     const head = ()=>{
       ensure(30);
       doc.setFillColor(...C.green); doc.rect(M, y, CW, 6.5, "F");
       doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(...C.pink);
-      doc.text("PARA SER ACTUALIZADO CONTINUAMENTE", M+CW/2, y+4.3, {align:"center"}); y += 6.5;
+      doc.text(clean(t("banner").toUpperCase()), M+CW/2, y+4.3, {align:"center"}); y += 6.5;
       doc.setFillColor(...C.mid); doc.rect(M, y, CW, 8, "F");
       doc.setFontSize(9); doc.setTextColor(...C.cream);
-      heads.forEach((h2,i)=>doc.text(h2, xs[i]+pad, y+5.3)); y += 8;
+      heads.forEach((h2,i)=>doc.text(clean(h2), xs[i]+pad, y+5.3)); y += 8;
     };
     head();
     const idx = [0,0,0,0];
@@ -1099,7 +1569,7 @@ function buildPdf(){
     const ws = [0.19,0.27,0.27,0.27], pad = 2, size = 8.6, lh = 1.32*size*PT;
     const xs = ws.map((w,i)=>M + ws.slice(0,i).reduce((a,b)=>a+b,0)*CW);
     const head = ()=>{ ensure(20); doc.setFillColor(...C.green); doc.rect(M, y, CW, 7, "F"); doc.setFont("helvetica","bold"); doc.setFontSize(8.5); doc.setTextColor(...C.cream);
-      ["Impacto", ...IMP_COLS.map(c=>c.label)].forEach((h2,i)=>doc.text(h2, xs[i]+pad, y+4.7)); y += 7; };
+      [t("impact"), ...IMP_COLS.map(c=>c.label)].forEach((h2,i)=>doc.text(clean(h2), xs[i]+pad, y+4.7)); y += 7; };
     head();
     IMP_ROWS.forEach(r=>{
       doc.setFont("helvetica","normal"); doc.setFontSize(size);
@@ -1115,7 +1585,7 @@ function buildPdf(){
       cells.forEach((c,i)=>{
         const x = xs[i+1], imp = c.imp && has(c.text);
         if (imp){ doc.setFillColor(255,232,246); doc.rect(x, y, ws[i+1]*CW, hgt, "F"); doc.setDrawColor(...C.pink); doc.setLineWidth(0.6); doc.rect(x+0.3, y+0.3, ws[i+1]*CW-0.6, hgt-0.6, "S");
-          doc.setFont("helvetica","bold"); doc.setFontSize(6.5); doc.setTextColor(194,24,126); doc.text("IMPORTANTE", x+pad, y+pad+2); }
+          doc.setFont("helvetica","bold"); doc.setFontSize(6.5); doc.setTextColor(194,24,126); doc.text(clean(t("impUp")), x+pad, y+pad+2); }
         doc.setFont("helvetica","normal"); doc.setFontSize(size); doc.setTextColor(...(has(c.text)?C.ink:C.gray));
         txt[i].forEach((l,j)=>doc.text(l, x+pad, y+pad+(imp?4:0)+size*PT*0.9+j*lh));
       });
@@ -1123,7 +1593,7 @@ function buildPdf(){
       y += hgt;
     });
     y += 3;
-    qa("Evaluación de problemas", f.impactos.evaluacion);
+    qa(t("probEval"), f.impactos.evaluacion);
   }
 
   /* portada */
@@ -1131,11 +1601,11 @@ function buildPdf(){
   doc.setFillColor(...C.mid); doc.rect(W-62,0,62,62,"F");
   doc.setFillColor(...C.pink); doc.rect(0,62,W,1.4,"F");
   doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...C.pink);
-  doc.text("OPELLA  |  EJERCICIO DE GESTIÓN DE CRISIS  |  NIVEL 1", M, 17);
+  doc.text(clean(t("pdfKicker")), M, 17);
   doc.setFontSize(28); doc.setTextColor(...C.cream);
-  doc.text("Accidente fatal en misión", M, 33);
+  doc.text(clean(t("pdfTitle")), M, 33);
   doc.setFont("helvetica","normal"); doc.setFontSize(12);
-  doc.text("Reporte del ejercicio", M, 42);
+  doc.text(clean(t("pdfSub")), M, 42);
   doc.setFontSize(10); doc.setTextColor(...C.pink);
   doc.text(clean(team) + "   ·   " + clean(fmtDate(S.started)), M, 52);
   y = 72;
@@ -1145,7 +1615,7 @@ function buildPdf(){
   const qsTime = STAGES.reduce((a,stg)=>a+(Q(stg.ev).used||0),0);
   const okPts = STAGES.reduce((a,stg)=>a+Q(stg.ev).checks.filter(Boolean).length,0);
   const allPts = STAGES.reduce((a,stg)=>a+EVENTS[stg.ev].chk.length,0);
-  const kpis = [[fmt(totalSeconds()),"Duración total"],[fmt(qsTime),"Tiempo en decisiones"],[essOn+"/"+ess.length,"Áreas responsables activadas"],[okPts+"/"+allPts,"Puntos tenidos en cuenta"]];
+  const kpis = [[fmt(totalSeconds()),t("kTotal")],[fmt(qsTime),t("kDec")],[essOn+"/"+ess.length,t("kAreas")],[okPts+"/"+allPts,t("kPts")]];
   const tw = (CW - 3*4)/4;
   kpis.forEach((k,i)=>{
     const x = M + i*(tw+4);
@@ -1164,15 +1634,15 @@ function buildPdf(){
   const ctxLines = doc.splitTextToSize(clean(CONTEXTO), CW-12);
   const ch = 10 + ctxLines.length*5;
   doc.roundedRect(M, y, CW, ch, 2, 2, "F"); doc.setFillColor(...C.pink); doc.rect(M, y, 1.4, ch, "F");
-  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...C.pink); doc.text("CONTEXTO", M+6, y+6);
+  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...C.pink); doc.text(clean(t("ctxUp")), M+6, y+6);
   doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...C.ink); doc.text(ctxLines, M+6, y+11.5);
   y += ch + 4;
 
   /* activación */
-  section("Activación del equipo de crisis");
-  qa("¿Por qué es una situación de crisis?", S.why);
+  section(t("actTitle"));
+  qa(t("whyCrisis"), S.why);
   ensure(10);
-  text("Áreas involucradas", {bold:true, size:10.5, color:C.green}); y += 1.5;
+  text(t("areasInv"), {bold:true, size:10.5, color:C.green}); y += 1.5;
   const areas = ROLES.filter(r=>A(r.k)||r.need);
   const colW = CW/2;
   for (let i=0;i<areas.length;i+=2){
@@ -1183,34 +1653,34 @@ function buildPdf(){
       doc.setFillColor(...(good?C.good:C.bad)); doc.circle(x+1.6, y+2.3, 1.3, "F");
       doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(...C.ink); doc.text(clean(r.name), x+5, y+3.3);
       doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...(good?C.good:C.bad));
-      doc.text(A(r.k)?(r.need?"Bien activada":"No debía activarse"):"Faltó activarla", x+5, y+7);
+      doc.text(clean(A(r.k)?(r.need?t("aOkC"):t("aWrongC")):t("aMissC")), x+5, y+7);
     });
     y += 10;
   }
-  if ((S.lateAreas||[]).length){ y += 2; qa("Áreas agregadas durante el ejercicio", S.lateAreas.map(x=>`${RN[x.k]} (evento ${EVENTS[x.ev].n})`).join(", ")); }
+  if ((S.lateAreas||[]).length){ y += 2; qa(t("lateDuring"), S.lateAreas.map(x=>`${RN[x.k]} (${t("evShort", EVENTS[x.ev].n)})`).join(", ")); }
 
   /* eventos con decisiones */
-  section("Decisiones por evento");
+  section(t("decByEvent"));
   STAGES.forEach((stg,si)=>{
     const e = EVENTS[stg.ev], q = Q(stg.ev);
-    band(`Evento ${e.n}  ·  ${e.when}`, `Tiempo usado ${fmt(q.used)} de ${e.min}:00`);
-    sub("1. FISA" + (q.fisa.mode==="copy" ? ` · continuación del evento ${si>0?evN(si-1):""}` : ""));
+    band(`${t("event", e.n)}  ·  ${e.when}`, t("timeUsedOf", fmt(q.used), e.min));
+    sub("1. FISA" + (q.fisa.mode==="copy" ? t("fisaCopyOf", si>0?evN(si-1):"") : ""));
     pdfFisa(q.fisa);
-    sub("Análisis de impactos");
+    sub(t("impAnalysis"));
     pdfImpacts(q.fisa);
-    sub("2. Preguntas");
+    sub(t("tabQs"));
     e.qs.forEach((x,i)=>qa(x, q.answers[i], i+1));
-    sub("¿Tuvimos en cuenta esto?");
-    if (q.none){ text("No tuvimos en cuenta ninguna de las anteriores.", {size:10, color:C.bad, bold:true}); y += 1; }
+    sub(t("checkTitle"));
+    if (q.none){ text(t("noneOpt")+".", {size:10, color:C.bad, bold:true}); y += 1; }
     e.chk.forEach((x,i)=>checkItem(x, !!q.checks[i]));
     y += 6;
   });
 
   /* cierre */
-  section("Preguntas de cierre");
+  section(t("closingQs"));
   CLOSING_Q.forEach((x,i)=>qa(x, S.closing[i], i+1));
 
-  section("Comentarios finales");
+  section(t("finalT"));
   FINAL.forEach(f=>qa(f.label, S.final[f.k]));
 
   /* pie de página */
@@ -1219,9 +1689,9 @@ function buildPdf(){
     doc.setPage(i);
     doc.setDrawColor(...C.line); doc.setLineWidth(0.3); doc.line(M, 286, W-M, 286);
     doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...C.gray);
-    doc.text("Opella Colombia  ·  Ejercicio de entrenamiento: escenario ficticio  ·  Uso interno", M, 290.5);
+    doc.text(clean(t("footer")), M, 290.5);
     doc.setTextColor(...C.green); doc.setFont("helvetica","bold");
-    doc.text(`Página ${i} de ${n}`, W-M, 290.5, {align:"right"});
+    doc.text(clean(t("page", i, n)), W-M, 290.5, {align:"right"});
   }
   return doc.output("blob");
 }
@@ -1229,18 +1699,18 @@ function buildPdf(){
 /* ---------- navegación ---------- */
 function blocked(){
   const st = STEPS[S.step];
-  if (st.t==="crisis") return !S.areasDone ? "Escriban por qué es una crisis y confirmen las áreas" : "";
-  if (st.t==="qa") return !Q(st.ev).saved ? "Terminen el evento para continuar" : "";
+  if (st.t==="crisis") return !S.areasDone ? t("blkCrisis") : "";
+  if (st.t==="qa") return !Q(st.ev).saved ? t("blkQa") : "";
   return "";
 }
 function renderFoot(){
   const st = STEPS[S.step], b = blocked();
-  const names = {crisis:"Activación", qa:"Decisiones", closing:"Preguntas de cierre", final:"Comentarios finales", report:"Reporte"};
-  const where = st.ev!=null ? `Evento ${EVENTS[st.ev].n} · ` + (st.t==="video" ? "Video" : names[st.t]) : names[st.t];
+  const names = {crisis:t("nActivation"), qa:t("nDec"), closing:t("closingQs"), final:t("finalT"), report:t("nReport")};
+  const where = st.ev!=null ? `${t("event", EVENTS[st.ev].n)} · ` + (st.t==="video" ? t("nVideo") : names[st.t]) : names[st.t];
   $("#where").textContent = b ? `${where} · ${b}` : where;
   const last = S.step === STEPS.length-1;
   const nx = STEPS[S.step+1];
-  $("#next").textContent = st.t==="final" ? "Generar reporte →" : (nx && nx.t==="video" ? `Evento ${EVENTS[nx.ev].n} →` : "Siguiente →");
+  $("#next").textContent = st.t==="final" ? t("genReport") : (nx && nx.t==="video" ? t("evArrow", EVENTS[nx.ev].n) : t("next"));
   $("#next").disabled = !!b || last;
   $("#next").hidden = last;
 }
@@ -1252,63 +1722,65 @@ function prev(){ stopTimer(); if (S.step>0) S.step--; else S.step=-1; persist();
    ========================================================= */
 document.addEventListener("click", async e=>{
   if (e.target.id==="modal"){ closeModal(); return; }
-  const t = e.target.closest("button"); if (!t) return;
-  if (t.id==="mclose"){ closeModal(); return; }
-  if (t.dataset.tab){ TAB = t.dataset.tab; const y = window.scrollY; render(); window.scrollTo({top:y}); return; }
-  if (t.dataset.mopen){ openModal(t.dataset.mopen, t.dataset.key||""); return; }
-  if (t.dataset.fmode){
+  const bt = e.target.closest("button"); if (!bt) return;
+  if (bt.id==="mclose"){ closeModal(); return; }
+  if (bt.dataset.tab){ TAB = bt.dataset.tab; const y = window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (bt.dataset.mopen){ openModal(bt.dataset.mopen, bt.dataset.key||""); return; }
+  if (bt.dataset.fmode){
     const st = STEPS[S.step], q = Q(st.ev);
-    if (t.dataset.fmode==="copy"){ const pf = prevFisa(st.st); if (!pf) return; q.fisa = JSON.parse(JSON.stringify(pf)); q.fisa.mode = "copy"; }
+    if (bt.dataset.fmode==="copy"){ const pf = prevFisa(st.st); if (!pf) return; q.fisa = JSON.parse(JSON.stringify(pf)); q.fisa.mode = "copy"; }
     else { q.fisa = emptyFisa(); q.fisa.mode = "new"; }
     persist(); const y = window.scrollY; render(); window.scrollTo({top:y}); return;
   }
   if (MOD && MOD.kind!=="prev"){
     const f = Q(MOD.ev).fisa;
-    if (t.dataset.mimp){ const k = t.dataset.mimp; const c = f.impactos.cells[k] || (f.impactos.cells[k] = {text:"", imp:false}); c.imp = !c.imp; persist(); renderModal(); return; }
-    if (t.dataset.mpadd){ f.partes.push({nombre:"", clase:"", resp:""}); persist(); renderModal(`[data-mp="${f.partes.length-1}|nombre"]`); return; }
-    if (t.dataset.mpsug){ f.partes.push({nombre:t.dataset.mpsug, clase:"", resp:""}); persist(); renderModal(); return; }
-    if (t.dataset.mpdel!=null){ f.partes.splice(+t.dataset.mpdel, 1); persist(); renderModal(); return; }
-    if (t.dataset.maadd){ f.plan.push({accion:"", persona:"", area:""}); persist(); renderModal(`[data-ma="${f.plan.length-1}|accion"]`); return; }
-    if (t.dataset.laadd){ const sel = $("#lateSel"); const k = sel && sel.value; if (!k) return; S.lateAreas = S.lateAreas || []; if (!involved().includes(k)) S.lateAreas.push({k, ev:MOD.ev}); persist(); renderModal(); return; }
-    if (t.dataset.madel!=null){ f.plan.splice(+t.dataset.madel, 1); persist(); renderModal(); return; }
+    if (bt.dataset.mimp){ const k = bt.dataset.mimp; const c = f.impactos.cells[k] || (f.impactos.cells[k] = {text:"", imp:false}); c.imp = !c.imp; persist(); renderModal(); return; }
+    if (bt.dataset.mpadd){ f.partes.push({nombre:"", clase:"", resp:""}); persist(); renderModal(`[data-mp="${f.partes.length-1}|nombre"]`); return; }
+    if (bt.dataset.mpsug){ f.partes.push({nombre:bt.dataset.mpsug, clase:"", resp:""}); persist(); renderModal(); return; }
+    if (bt.dataset.mpdel!=null){ f.partes.splice(+bt.dataset.mpdel, 1); persist(); renderModal(); return; }
+    if (bt.dataset.maadd){ f.plan.push({accion:"", persona:"", area:""}); persist(); renderModal(`[data-ma="${f.plan.length-1}|accion"]`); return; }
+    if (bt.dataset.laadd){ const sel = $("#lateSel"); const k = sel && sel.value; if (!k) return; S.lateAreas = S.lateAreas || []; if (!involved().includes(k)) S.lateAreas.push({k, ev:MOD.ev}); LATE_OPEN = true; persist(); renderModal(); return; }
+    if (bt.dataset.madel!=null){ f.plan.splice(+bt.dataset.madel, 1); persist(); renderModal(); return; }
   }
-  if (t.id==="start"){
+  if (bt.dataset.lang){ applyLang(bt.dataset.lang); PRE_LANG = LANG; try{ localStorage.setItem("crisis-lang", LANG); }catch(e){} S.team = ($("#teamName").value||"").trim(); renderIntro(); return; }
+  if (bt.id==="start"){
     const team = ($("#teamName").value||"").trim();
-    S = fresh(); S.team = team; S.id = "s"+Date.now()+Math.random().toString(36).slice(2,6); S.started = Date.now(); S.step = 0;
+    applyLang(PRE_LANG);
+    S = fresh(); S.team = team; S.lang = LANG; S.id = "s"+Date.now()+Math.random().toString(36).slice(2,6); S.started = Date.now(); S.step = 0;
     persist(true); render(); return;
   }
-  if (t.dataset.del){ DEL_ID = t.dataset.del; DEL_MSG = ""; renderIntro(); return; }
-  if (t.dataset.delno){ DEL_ID = null; renderIntro(); return; }
-  if (t.dataset.delok){
-    const id = t.dataset.delok;
+  if (bt.dataset.del){ DEL_ID = bt.dataset.del; DEL_MSG = ""; renderIntro(); return; }
+  if (bt.dataset.delno){ DEL_ID = null; renderIntro(); return; }
+  if (bt.dataset.delok){
+    const id = bt.dataset.delok;
     try{
       if (DB) await DB.doc("sesiones/"+id).delete();
       try{ const c = JSON.parse(localStorage.getItem("crisis-current")||"null"); if (c && c.id===id) localStorage.removeItem("crisis-current"); }catch(e){}
       const m = localSessions(); delete m[id]; writeLocalSessions(m);
-      PAST = PAST.filter(p=>p.id!==id); DEL_MSG = "Intento borrado.";
-    }catch(err){ DEL_MSG = "No se pudo borrar el intento. Intente de nuevo."; }
+      PAST = PAST.filter(p=>p.id!==id); DEL_MSG = t("deleted");
+    }catch(err){ DEL_MSG = t("delFail"); }
     DEL_ID = null; renderIntro(); return;
   }
-  if (t.dataset.open){ const p = PAST.find(x=>x.id===t.dataset.open); if (p){ S = Object.assign(fresh(), JSON.parse(JSON.stringify(p))); if (S.step<0) S.step=0; render(); } return; }
-  if (t.dataset.role){ if (S.areasDone) return; const k=t.dataset.role; S.roles = A(k) ? S.roles.filter(x=>x!==k) : [...S.roles,k]; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
-  if (t.id==="confirmAreas"){ if (!S.roles.length || !S.why.trim()) return; S.areasDone = true; persist(true); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
-  if (t.id==="redoAreas"){ S.areasDone = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
-  if (t.id==="tstart" || t.id==="tstart2") return toggleTimer();
-  if (t.id==="finishStage") return finishStage();
-  if (t.id==="reopen"){ const q = Q(STEPS[S.step].ev); q.saved = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
-  if (t.id==="next") return next();
-  if (t.id==="prev") return prev();
-  if (t.id==="newSession"){ stopTimer(); S = fresh(); try{ localStorage.removeItem("crisis-current"); }catch(e){} render(); return; }
-  if (t.id==="dlReport"){
-    const name = "Reporte-crisis-" + (S.team||"equipo").replace(/[^\wáéíóúñ-]+/gi,"-") + "-" + new Date(S.started||Date.now()).toISOString().slice(0,10) + ".pdf";
-    if (!window.jspdf){ $("#dlMsg").textContent = "No se pudo preparar el PDF. Recargue la página e intente de nuevo."; return; }
+  if (bt.dataset.open){ const p = PAST.find(x=>x.id===bt.dataset.open); if (p){ applyLang(p.lang||"es"); S = Object.assign(fresh(), JSON.parse(JSON.stringify(p))); S.lang = LANG; if (S.step<0) S.step=0; render(); } return; }
+  if (bt.dataset.role){ if (S.areasDone) return; const k=bt.dataset.role; S.roles = A(k) ? S.roles.filter(x=>x!==k) : [...S.roles,k]; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (bt.id==="confirmAreas"){ if (!S.roles.length || !S.why.trim()) return; S.areasDone = true; persist(true); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (bt.id==="redoAreas"){ S.areasDone = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (bt.id==="tstart" || bt.id==="tstart2") return toggleTimer();
+  if (bt.id==="finishStage") return finishStage();
+  if (bt.id==="reopen"){ const q = Q(STEPS[S.step].ev); q.saved = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (bt.id==="next") return next();
+  if (bt.id==="prev") return prev();
+  if (bt.id==="newSession"){ stopTimer(); applyLang(PRE_LANG); S = fresh(); try{ localStorage.removeItem("crisis-current"); }catch(e){} render(); return; }
+  if (bt.id==="dlReport"){
+    const name = t("fileBase") + "-" + (S.team||t("teamDefault")).replace(/[^\wáéíóúñ-]+/gi,"-") + "-" + new Date(S.started||Date.now()).toISOString().slice(0,10) + ".pdf";
+    if (!window.jspdf){ $("#dlMsg").textContent = t("pdfFail"); return; }
     try{
       const blob = buildPdf();
       if (DL) await DL.save({filename:name, data:blob});
       else { const u = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = u; link.download = name; document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(u), 4000); }
-      $("#dlMsg").textContent = "Reporte descargado.";
+      $("#dlMsg").textContent = t("dlOk");
     }
-    catch(err){ $("#dlMsg").textContent = err && err.code==="cancelled" ? "Descarga cancelada." : "No se pudo descargar el reporte."; }
+    catch(err){ $("#dlMsg").textContent = err && err.code==="cancelled" ? t("dlCancel") : t("dlFail"); }
   }
 });
 document.addEventListener("input", e=>{
@@ -1316,7 +1788,7 @@ document.addEventListener("input", e=>{
   if (d.bind==="why"){
     S.why = el.value; persist();
     const b = $("#confirmAreas"); if (b) b.disabled = !(S.roles.length && S.why.trim());
-    const h = $("#crisisHint"); if (h) h.textContent = S.why.trim() ? "" : "Escriban primero por qué es una crisis.";
+    const h = $("#crisisHint"); if (h) h.textContent = S.why.trim() ? "" : t("writeWhyFirst");
     renderFoot(); return;
   }
   if (d.ans!==undefined){ Q(STEPS[S.step].ev).answers[+d.ans] = el.value; persist(); updateTabCounts(); return; }
