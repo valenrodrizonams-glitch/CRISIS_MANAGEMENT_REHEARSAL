@@ -245,6 +245,12 @@ button.fitem:hover:not(:disabled){border-color:var(--pink)}
 .fsel li{display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}
 .fsel b{color:var(--cream);font-size:13px}
 .fsel .who{color:var(--muted);font-size:12px}
+.fnoact{margin:4px 0 0;padding-top:8px;border-top:1px dashed var(--line-2);font-size:12.5px;color:var(--warn)}
+.fnoact b{color:var(--warn)}
+.fnoact.ok{color:var(--good)}
+.lateadd{margin-top:18px;padding:14px;border:1px dashed var(--line-2);border-radius:10px}
+.lrow{display:flex;gap:8px;flex-wrap:wrap}
+.lrow select{flex:1;min-width:200px}
 .fempty{margin:0;font-size:12.5px;color:var(--muted)}
 .cls{display:inline-block;align-self:flex-start;font-family:var(--f-mono);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:4px;border:1px solid}
 .cls.aliada{color:var(--good);border-color:var(--good)}
@@ -482,7 +488,7 @@ const PARTES_SUG = ["Empleado","Familia del empleado","Familia de la víctima","
    ========================================================= */
 function fresh(){
   return {id:null, team:"", started:null, ended:null, step:-1,
-    why:"", roles:[], areasDone:false,
+    why:"", roles:[], areasDone:false, lateAreas:[],
     qa:{}, closing:["","","",""], final:{mejorar:"",recomendaciones:"",observaciones:"",positivo:""}};
 }
 let S = fresh();
@@ -499,6 +505,9 @@ function Q(ev){
   return q;
 }
 const has = t => !!(t && String(t).trim());
+/* Áreas involucradas: las activadas al inicio + las que se agregan después desde el plan de acción */
+function involved(){ const late = (S.lateAreas||[]).map(x=>x.k); return [...S.roles, ...late.filter(k=>!S.roles.includes(k))]; }
+function noAction(f){ return involved().filter(k=>!f.plan.some(p=>p.area===k && has(p.accion))); }
 const clip = (t,n) => { t = String(t||"").trim(); return t.length>n ? t.slice(0,n-1)+"…" : t; };
 function prevFisa(si){ if (si<=0) return null; const q = S.qa[STAGES[si-1].ev]; return q && q.fisa ? q.fisa : null; }
 function selImpacts(f){ return IMP_ROWS.flatMap(r=>IMP_COLS.map(c=>{ const x = f.impactos.cells[r.k+"|"+c.k]; return x && x.imp && has(x.text) ? {row:r.label, col:c.label, text:x.text} : null; })).filter(Boolean); }
@@ -574,7 +583,7 @@ function renderIntro(){
       <div class="ctx"><span class="eyebrow">Contexto</span><p>${esc(CONTEXTO)}</p></div>
       <div class="howto">
         <div><b class="n">1</b><p style="margin:0"><strong>Activen el equipo de crisis</strong><span>Decidan por qué es una situación de crisis y qué áreas deben estar involucradas.</span></p></div>
-        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada evento el equipo llena su FISA, define qué hará cada encargado y responde las preguntas, con el tiempo corriendo.</span></p></div>
+        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada evento el equipo llena su FISA (con el plan de acción por área) y responde las preguntas, con el tiempo corriendo.</span></p></div>
         <div><b class="n">3</b><p style="margin:0"><strong>Decisiones que se vuelven acciones</strong><span>Comparen sus respuestas con lo que se esperaba y conviertan los aprendizajes en acciones.</span></p></div>
       </div>
     </div>
@@ -678,21 +687,19 @@ function renderQA(ev){
   const stp = STEPS[S.step], si = stp.st, e = EVENTS[ev], q = Q(ev);
   if (TAB_STEP !== S.step){ TAB = "fisa"; TAB_STEP = S.step; }
   const lock = !q.started || q.saved;
-  const ansN = q.answers.filter(has).length, arN = S.roles.filter(k=>has(q.areas[k])).length;
+  const ansN = q.answers.filter(has).length;
   let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} de 5 · Decisiones</div><h2>Decisiones</h2></div><div class="when">${esc(e.when)}</div></div>`;
   h += `<div class="stagebar" id="timerBox">
       <div class="tblock"><span class="lab">Temporizador · ${e.min} minutos</span><span class="t" id="tval"></span></div>
       <div class="ring"><i id="tbar"></i></div>
       <div class="row" id="trow"></div>
     </div>`;
-  if (!q.started) h += `<div class="lockmsg">Inicien el temporizador para empezar a responder. El tiempo corre mientras llenan el FISA, los encargados y las preguntas.</div>`;
-  h += `<div class="tabs" role="tablist">${tabBtn("fisa","1. FISA",`${fisaCount(q.fisa)}/4`)}${tabBtn("areas","2. Encargados",`${arN}/${S.roles.length}`)}${tabBtn("preguntas","3. Preguntas",`${ansN}/${e.qs.length}`)}</div><div class="tabpane">`;
+  if (!q.started) h += `<div class="lockmsg">Inicien el temporizador para empezar a responder. El tiempo corre mientras llenan el FISA y las preguntas.</div>`;
+  h += `<div class="tabs" role="tablist">${tabBtn("fisa","1. FISA",`${fisaCount(q.fisa)}/4`)}${tabBtn("preguntas","2. Preguntas",`${ansN}/${e.qs.length}`)}</div><div class="tabpane">`;
   if (TAB==="preguntas"){
     h += `<div class="answers" style="margin-top:0">${e.qs.map((x,i)=>`<div class="ans"><label for="a-${ev}-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="a-${ev}-${i}" data-ans="${i}" ${lock?"disabled":""} placeholder="${q.started?"Respuesta del equipo…":"Inicien el temporizador para responder"}">${esc(q.answers[i])}</textarea></div>`).join("")}</div>`;
   } else if (TAB==="fisa"){
     h += renderFisaTab(q, si, lock);
-  } else {
-    h += `<p class="hint" style="margin:0 0 12px">¿Qué hará cada encargado desde su área en este evento?</p><div class="answers" style="margin-top:0">${S.roles.map(k=>{ const r = ROLES.find(x=>x.k===k); return `<div class="ans"><label for="ar-${ev}-${k}"><span class="aname">${esc(r.name)}</span> <span class="hint">${esc(r.es)}</span></label><textarea id="ar-${ev}-${k}" data-area="${k}" ${lock?"disabled":""} placeholder="${q.started?"Acciones de esta área en este evento…":"Inicien el temporizador para responder"}">${esc(q.areas[k]||"")}</textarea></div>`; }).join("")}</div>`;
   }
   h += `</div><div class="actions">${q.saved
     ? `<span class="saved">Evento terminado · tiempo usado ${fmt(q.used)}</span><button class="btn ghost" id="reopen">Reabrir evento</button>`
@@ -740,7 +747,8 @@ function fisaBoard(f, n, mode){
     + (partes.length ? `<ul class="fsel">${partes.map(p=>`<li><b>${esc(p.nombre)}</b>${p.clase?`<span class="cls ${p.clase}">${CLASES.find(c=>c.k===p.clase).label}</span>`:""}${p.resp?`<span class="who">A cargo: ${esc(RN[p.resp]||p.resp)}</span>`:""}</li>`).join("")}</ul>` : "");
   const c4 = item("plan","", `Lista de acciones relativas <b>a implementar</b>`, plan.length>0, "")
     + item("plan","", `Una <b>persona identificada</b> a cargo de cada acción`, plan.length>0 && plan.every(p=>has(p.persona)), "")
-    + (plan.length ? `<ul class="fsel">${plan.map(p=>`<li><b>${esc(ro?p.accion:clip(p.accion,90))}</b><span class="who">${has(p.persona)?esc(p.persona):"Sin responsable"}${p.area?` · ${esc(RN[p.area]||p.area)}`:""}</span></li>`).join("")}</ul>` : "");
+    + (plan.length ? `<ul class="fsel">${plan.map(p=>`<li><b>${esc(ro?p.accion:clip(p.accion,90))}</b><span class="who">${has(p.persona)?esc(p.persona):"Sin responsable"}${p.area?` · ${esc(RN[p.area]||p.area)}`:""}</span></li>`).join("")}</ul>` : "")
+    + (()=>{ const na = noAction(f); return na.length ? `<p class="fnoact"><b>Sin acción en este evento:</b> ${na.map(k=>esc(RN[k])).join(", ")}</p>` : `<p class="fnoact ok">Todas las áreas involucradas tienen acciones.</p>`; })();
   return `<div class="fisa"><div class="fisa-top"><h3>FISA · Evento ${n}</h3><span class="hint">4 puntos del método</span></div>
     <div class="fisa-banner">Para ser actualizado continuamente</div>
     <div class="fisa-grid">${col(1,"Hechos",c1)}${col(2,"Impactos",c2)}${col(3,"Partes interesadas",c3)}${col(4,"Plan de acción",c4)}</div></div>`;
@@ -750,7 +758,8 @@ function fisaBoard(f, n, mode){
 let MOD = null;
 function openModal(kind, key){ MOD = {kind, key, ev:STEPS[S.step].ev, st:STEPS[S.step].st}; renderModal(); }
 function closeModal(){ if (!MOD) return; MOD = null; const m = $("#modal"); m.hidden = true; m.innerHTML = ""; persist(); const y = window.scrollY; render(); window.scrollTo({top:y}); }
-function areaOptions(sel){ return S.roles.map(k=>`<option value="${k}" ${sel===k?"selected":""}>${esc(RN[k])}</option>`).join(""); }
+function refreshNoAction(f){ const el = document.querySelector("#modal .fnoact"); if (!el) return; const na = noAction(f); el.classList.toggle("ok", !na.length); el.innerHTML = na.length ? `<b>Sin acción en este evento:</b> ${na.map(k=>esc(RN[k])).join(", ")}` : "Todas las áreas involucradas tienen acciones."; }
+function areaOptions(sel){ return involved().map(k=>`<option value="${k}" ${sel===k?"selected":""}>${esc(RN[k])}</option>`).join(""); }
 function renderModal(focusSel){
   const m = $("#modal"); if (!MOD){ m.hidden = true; return; }
   const keep = m.querySelector(".mbox") ? m.querySelector(".mbox").scrollTop : 0;
@@ -781,13 +790,20 @@ function renderModal(focusSel){
       ${ro?"":`<button class="btn ghost" data-mpadd="1" style="margin-top:12px">+ Agregar parte interesada</button>`}`;
   } else if (MOD.kind==="plan"){
     title = "4. Plan de acción";
-    body = `<p class="mhint">Listen las acciones a implementar y una persona identificada a cargo de cada una.</p>
+    const others = ROLES.filter(r=>!involved().includes(r.k)), na = noAction(f);
+    body = `<p class="mhint">Listen las acciones a implementar, con una persona identificada a cargo y el área responsable de cada una.</p>
       <div class="rows">${f.plan.length?`<div class="rowh a"><span>Acción</span><span>Persona a cargo</span><span>Área</span><span></span></div>`:""}${f.plan.map((p,i)=>`<div class="rowed a">
         <input type="text" data-ma="${i}|accion" value="${esc(p.accion)}" placeholder="Acción a implementar" aria-label="Acción" ${dis}>
         <input type="text" data-ma="${i}|persona" value="${esc(p.persona)}" placeholder="Nombre de la persona" aria-label="Persona a cargo" ${dis}>
         <select data-ma="${i}|area" aria-label="Área" ${dis}><option value="">Área…</option>${areaOptions(p.area)}</select>
         ${ro?"<span></span>":`<button class="rdel" data-madel="${i}" aria-label="Quitar acción">Quitar</button>`}</div>`).join("")}</div>
-      ${ro?"":`<button class="btn ghost" data-maadd="1" style="margin-top:12px">+ Agregar acción</button>`}`;
+      ${ro?"":`<button class="btn ghost" data-maadd="1" style="margin-top:12px">+ Agregar acción</button>`}
+      <div class="lateadd">
+        <p class="mhint" style="margin:0 0 8px">¿Hay que involucrar un área que no se activó al inicio? Agréguela aquí y quedará disponible en el plan de acción.</p>
+        ${ro?"":(others.length?`<div class="lrow"><select id="lateSel" aria-label="Área para agregar"><option value="">Elegir área…</option>${others.map(r=>`<option value="${r.k}">${esc(r.name)} · ${esc(r.es)}</option>`).join("")}</select><button class="btn ghost" data-laadd="1">+ Agregar área</button></div>`:`<p class="hint" style="margin:0">Ya están involucradas todas las áreas.</p>`)}
+        ${(S.lateAreas||[]).length?`<p class="hint" style="margin:8px 0 0">Agregadas después del inicio: ${S.lateAreas.map(x=>`${esc(RN[x.k])} (evento ${EVENTS[x.ev].n})`).join(", ")}</p>`:""}
+      </div>
+      <p class="fnoact ${na.length?"":"ok"}" style="margin-top:14px">${na.length?`<b>Sin acción en este evento:</b> ${na.map(k=>esc(RN[k])).join(", ")}`:"Todas las áreas involucradas tienen acciones."}</p>`;
   } else if (MOD.kind==="prev"){
     title = `FISA del evento ${evN(MOD.st-1)} (solo lectura)`;
     body = fisaBoard(prevFisa(MOD.st), evN(MOD.st-1), "ro");
@@ -896,6 +912,7 @@ function renderReport(){
       <div class="rq"><div class="q">Áreas seleccionadas</div>
         <div class="area-recap">${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<span class="${rv(r)}">${esc(r.name)} · ${A(r.k)?(r.need?"bien activada":"no debía activarse"):"faltó activarla"}</span>`).join("")}</div>
       </div>
+      ${(S.lateAreas||[]).length?`<div class="rq"><div class="q">Áreas agregadas durante el ejercicio</div><div class="a">${S.lateAreas.map(x=>`${esc(RN[x.k])} (evento ${EVENTS[x.ev].n})`).join(", ")}</div></div>`:""}
     </div>`;
   STAGES.forEach((stg,si)=>{
     const e = EVENTS[stg.ev], q = Q(stg.ev);
@@ -904,9 +921,7 @@ function renderReport(){
       ${fisaBoard(q.fisa, e.n, "ro")}
       <h4 class="rsub">Análisis de impactos</h4>
       ${impactGrid(q.fisa)}
-      <h4 class="rsub">2. Encargados · ¿qué hará cada área?</h4>
-      ${S.roles.map(k=>`<div class="rq"><div class="q">${esc(RN[k])}</div><div class="a ${has(q.areas[k])?"":"empty"}">${has(q.areas[k])?esc(q.areas[k]):"Sin respuesta"}</div></div>`).join("")}
-      <h4 class="rsub">3. Preguntas</h4>
+      <h4 class="rsub">2. Preguntas</h4>
       ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
       <h4 class="rsub">¿Tuvimos en cuenta esto?</h4>
       <div class="rq">${q.none?`<div class="a" style="color:var(--bad)">No tuvimos en cuenta ninguna de las anteriores.</div>`:""}<ul class="chk-list">${e.chk.map((x,i)=>{const y=q.checks[i];return `<li><span class="${y?"y":"n"}">${y?"✓":"✗"}</span><span>${esc(x)}</span></li>`;}).join("")}</ul></div>
@@ -1045,7 +1060,7 @@ function buildPdf(){
       lines(FISA_H.map(x=>[`${x.pre} ${x.b}`, f.hechos[x.k]])),
       lines([...(sel.length ? sel.map(x=>[`${x.row} · ${x.col}`, x.text]) : [["Impactos importantes", "Sin impactos seleccionados"]]), ["Evaluación de problemas", f.impactos.evaluacion]]),
       lines(partes.length ? partes.map(p=>[p.nombre, `${p.clase?CLASES.find(c=>c.k===p.clase).label:"Sin clasificar"} · a cargo: ${p.resp?(RN[p.resp]||p.resp):"sin asignar"}`]) : [["Partes interesadas","Sin partes interesadas"]]),
-      lines(plan.length ? plan.map(p=>[p.accion, `${has(p.persona)?p.persona:"Sin responsable"}${p.area?" · "+(RN[p.area]||p.area):""}`]) : [["Acciones","Sin acciones"]])
+      lines([...(plan.length ? plan.map(p=>[p.accion, `${has(p.persona)?p.persona:"Sin responsable"}${p.area?" · "+(RN[p.area]||p.area):""}`]) : [["Acciones","Sin acciones"]]), ["Sin acción en este evento", noAction(f).length ? noAction(f).map(k=>RN[k]).join(", ") : "Ninguna: todas las áreas tienen acciones"]])
     ];
     const head = ()=>{
       ensure(30);
@@ -1172,6 +1187,7 @@ function buildPdf(){
     });
     y += 10;
   }
+  if ((S.lateAreas||[]).length){ y += 2; qa("Áreas agregadas durante el ejercicio", S.lateAreas.map(x=>`${RN[x.k]} (evento ${EVENTS[x.ev].n})`).join(", ")); }
 
   /* eventos con decisiones */
   section("Decisiones por evento");
@@ -1182,9 +1198,7 @@ function buildPdf(){
     pdfFisa(q.fisa);
     sub("Análisis de impactos");
     pdfImpacts(q.fisa);
-    sub("2. Encargados · ¿qué hará cada área?");
-    S.roles.forEach(k=>qa(RN[k], q.areas[k]));
-    sub("3. Preguntas");
+    sub("2. Preguntas");
     e.qs.forEach((x,i)=>qa(x, q.answers[i], i+1));
     sub("¿Tuvimos en cuenta esto?");
     if (q.none){ text("No tuvimos en cuenta ninguna de las anteriores.", {size:10, color:C.bad, bold:true}); y += 1; }
@@ -1255,6 +1269,7 @@ document.addEventListener("click", async e=>{
     if (t.dataset.mpsug){ f.partes.push({nombre:t.dataset.mpsug, clase:"", resp:""}); persist(); renderModal(); return; }
     if (t.dataset.mpdel!=null){ f.partes.splice(+t.dataset.mpdel, 1); persist(); renderModal(); return; }
     if (t.dataset.maadd){ f.plan.push({accion:"", persona:"", area:""}); persist(); renderModal(`[data-ma="${f.plan.length-1}|accion"]`); return; }
+    if (t.dataset.laadd){ const sel = $("#lateSel"); const k = sel && sel.value; if (!k) return; S.lateAreas = S.lateAreas || []; if (!involved().includes(k)) S.lateAreas.push({k, ev:MOD.ev}); persist(); renderModal(); return; }
     if (t.dataset.madel!=null){ f.plan.splice(+t.dataset.madel, 1); persist(); renderModal(); return; }
   }
   if (t.id==="start"){
@@ -1305,14 +1320,13 @@ document.addEventListener("input", e=>{
     renderFoot(); return;
   }
   if (d.ans!==undefined){ Q(STEPS[S.step].ev).answers[+d.ans] = el.value; persist(); updateTabCounts(); return; }
-  if (d.area!==undefined){ Q(STEPS[S.step].ev).areas[d.area] = el.value; persist(); updateTabCounts(); return; }
   if (MOD && MOD.kind!=="prev"){
     const f = Q(MOD.ev).fisa;
     if (d.mh!==undefined){ f.hechos[d.mh] = el.value; persist(); return; }
     if (d.mie!==undefined){ f.impactos.evaluacion = el.value; persist(); return; }
     if (d.mc!==undefined){ const c = f.impactos.cells[d.mc] || (f.impactos.cells[d.mc] = {text:"", imp:false}); c.text = el.value; persist(); return; }
     if (d.mp!==undefined){ const [i,k] = d.mp.split("|"); if (f.partes[+i]) f.partes[+i][k] = el.value; persist(); return; }
-    if (d.ma!==undefined){ const [i,k] = d.ma.split("|"); if (f.plan[+i]) f.plan[+i][k] = el.value; persist(); return; }
+    if (d.ma!==undefined){ const [i,k] = d.ma.split("|"); if (f.plan[+i]) f.plan[+i][k] = el.value; persist(); if (k==="area") renderModal(); else refreshNoAction(f); return; }
   }
   if (d.close!==undefined){ S.closing[+d.close] = el.value; persist(); return; }
   if (d.final!==undefined){ S.final[d.final] = el.value; persist(); return; }
@@ -1343,7 +1357,6 @@ function updateTabCounts(){
   const q = Q(st.ev), e = EVENTS[st.ev];
   const set = (k, v)=>{ const b = document.querySelector(`[data-tab="${k}"] small`); if (b) b.textContent = v; };
   set("preguntas", `${q.answers.filter(has).length}/${e.qs.length}`);
-  set("areas", `${S.roles.filter(k=>has(q.areas[k])).length}/${S.roles.length}`);
 }
 setInterval(()=>{ const el=$("#elapsed"); if (el && S.started) el.textContent = fmt(totalSeconds()); }, 1000);
 
