@@ -21,6 +21,9 @@
   --pink:#ff74cf;
   --pink-dim:rgba(255,116,207,.16);
   --on-pink:#2a0820;
+  --fisa-head:#123f20;
+  --imp-col0:#1a4527;
+  --imp-col:#14381f;
   --good:#86dba6;
   --warn:#f3c55a;
   --bad:#ff8574;
@@ -29,6 +32,9 @@
   --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+img,video{max-width:100%}
 html,body{height:100%}
 body{background:var(--bg);color:var(--cream);font-family:var(--f-body);font-size:17px;line-height:1.5;
   background-image:radial-gradient(1200px 600px at 85% -10%,rgba(255,116,207,.07),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(134,219,166,.06),transparent 60%)}
@@ -184,18 +190,123 @@ textarea{min-height:110px;resize:vertical;line-height:1.45}
 .area-recap span.bad{border-color:var(--bad)}
 .notice{font-size:14px;color:var(--warn)}
 
+
+/* etapa: barra de tiempo, pestañas */
+.stagebar{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 20px;margin-bottom:14px}
+.stagebar .tblock{display:flex;flex-direction:column;gap:2px}
+.stagebar .lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stagebar .t{font-family:var(--f-mono);font-size:44px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.stagebar.low .t{color:var(--warn)}
+.stagebar.end .t{color:var(--bad)}
+.stagebar .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.hint.over{color:var(--bad)}
+.lockmsg{border:1px dashed var(--pink);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:15px;background:var(--pink-dim)}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
+.tab{background:transparent;border:0;border-bottom:3px solid transparent;padding:10px 16px;font-family:var(--f-display);font-weight:700;font-size:17px;color:var(--muted);display:flex;align-items:baseline;gap:8px;margin-bottom:-1px}
+.tab small{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--muted)}
+.tab.on{color:var(--cream);border-bottom-color:var(--pink)}
+.tab.on small{color:var(--pink)}
+.tab:hover{color:var(--cream)}
+.tabpane{min-height:120px}
+textarea:disabled,input:disabled,select:disabled{opacity:.55;cursor:not-allowed}
+.ans .aname{font-family:var(--f-display);font-weight:700;color:var(--pink)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.foot-timer{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;padding-right:8px;border-right:1px solid var(--line)}
+.foot-timer.low span{color:var(--warn)}
+.foot-timer.end span{color:var(--bad)}
+.foot-timer .btn{min-width:0}
+
+/* FISA */
+.chooser{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--pink);border-radius:12px;padding:20px 22px}
+.chooser h3{font-size:22px;margin-bottom:6px}
+.chooser p{margin:0;color:var(--muted);font-size:15px;max-width:70ch}
+.fmode{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.fisa-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.fisa-top h3{font-size:24px}
+.fisa-banner{background:var(--fisa-head);border:1px solid var(--line-2);color:var(--pink);font-family:var(--f-display);font-weight:800;font-size:clamp(16px,2vw,22px);letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:8px 12px;border-radius:6px;margin-bottom:14px}
+.fisa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:stretch}
+.fcol{display:flex;flex-direction:column;min-width:0}
+.fcol h4{margin:0;background:var(--fisa-head);color:var(--cream);font-family:var(--f-display);font-size:19px;font-weight:800;padding:12px 14px;border-radius:8px 8px 0 0}
+.fcol h4 span{color:var(--pink)}
+.fbody{flex:1;border:1px solid var(--line-2);border-top:0;border-radius:0 0 8px 8px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg-2)}
+.fitem{position:relative;text-align:left;width:100%;border:1px solid var(--line);border-radius:8px;background:rgba(246,239,228,.03);padding:10px 10px 10px 30px;font-size:14.5px;line-height:1.35;display:flex;flex-direction:column;gap:4px}
+button.fitem:hover:not(:disabled){border-color:var(--pink)}
+.fitem::before{content:"";position:absolute;left:11px;top:14px;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--line-2)}
+.fitem.done::before{background:var(--good);border-color:var(--good)}
+.fitem small{color:var(--muted);font-size:12.5px;overflow-wrap:anywhere}
+.fitem small.full{white-space:pre-wrap;color:var(--cream)}
+.fitem:disabled{cursor:not-allowed;opacity:.6}
+.fsel{list-style:none;margin:2px 0 0;padding:8px 0 0;border-top:1px dashed var(--line-2);display:grid;gap:6px;font-size:13px}
+.fsel li{display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}
+.fsel b{color:var(--cream);font-size:13px}
+.fsel .who{color:var(--muted);font-size:12px}
+.fempty{margin:0;font-size:12.5px;color:var(--muted)}
+.cls{display:inline-block;align-self:flex-start;font-family:var(--f-mono);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:4px;border:1px solid}
+.cls.aliada{color:var(--good);border-color:var(--good)}
+.cls.neutral{color:var(--warn);border-color:var(--warn)}
+.cls.hostil{color:var(--bad);border-color:var(--bad)}
+
+/* ventana */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(1,12,4,.72);display:flex;align-items:flex-start;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px 16px;overflow:hidden}
+.mbox{background:var(--bg-2);border:1px solid var(--line-2);border-radius:14px;width:min(760px,100%);max-height:calc(100% - 8px);overflow:auto;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.mbox.wide{width:min(1180px,100%)}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;position:sticky;top:-22px;background:var(--bg-2);padding:8px 0;z-index:2}
+.mhead h3{font-size:22px}
+.mhint{margin:0 0 14px;color:var(--muted);font-size:15px}
+.impwrap{overflow-x:auto}
+.imp{display:grid;grid-template-columns:170px repeat(3,minmax(200px,1fr));gap:4px;min-width:780px}
+.imp .ih{font-family:var(--f-display);font-weight:800;font-size:18px;text-align:center;padding:10px;background:var(--imp-col);color:var(--cream)}
+.imp .ih.first{background:var(--fisa-head)}
+.imp .ih.c0,.imp .cell.c0{background:var(--imp-col0)}
+.imp .rh{display:flex;align-items:center;gap:10px;background:var(--fisa-head);padding:10px 12px;font-weight:700;font-size:14.5px;border-right:3px dotted var(--line-2)}
+.imp .rh svg{width:30px;height:30px;flex:none;fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.imp .cell{background:var(--imp-col);padding:6px;display:flex;flex-direction:column;gap:6px;border:2px solid transparent}
+.imp .cell.isimp{border-color:var(--pink)}
+.imp .cell textarea{min-height:78px;font-size:14px;background:var(--bg);padding:8px}
+.impbtn{align-self:flex-start;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--muted)}
+.impbtn.on{background:var(--pink);border-color:var(--pink);color:var(--on-pink);font-weight:700}
+.sugs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:14px}
+.sug{font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--line-2);background:transparent}
+.sug:hover{border-color:var(--pink)}
+.rows{display:grid;gap:8px}
+.rowh,.rowed{display:grid;gap:8px;align-items:center}
+.rowh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.rowh.p,.rowed.p{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.3fr) auto}
+.rowh.a,.rowed.a{grid-template-columns:minmax(0,2.2fr) minmax(0,1.2fr) minmax(0,1.2fr) auto}
+select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line-2);background:var(--bg);color:var(--cream);font:inherit;font-size:15px}
+.rdel{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px}
+.rdel:hover{border-color:var(--bad);color:var(--bad)}
+
+/* reporte: subtítulos y FISA */
+.rsub{font-family:var(--f-body);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);margin:18px 0 4px}
+.fis-rep{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 22px;padding:10px 0;border-top:1px solid var(--line)}
+.fis-rep h5{margin:0 0 6px;font-family:var(--f-display);font-size:16px;color:var(--cream)}
+.fis-rep p{margin:0 0 6px;font-size:14.5px;white-space:pre-wrap;overflow-wrap:anywhere}
+.fis-rep ul{margin:0 0 6px;padding-left:18px;font-size:14.5px;display:grid;gap:4px;overflow-wrap:anywhere}
+.fis-rep .empty{color:var(--muted);font-style:italic}
+
 /* pie */
 .foot{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(3,35,13,.95);border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px}
 .foot .where{font-size:13px;color:var(--muted);margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .foot .btn{min-width:130px}
 
+@media (max-width:1100px){
+  .fisa-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media (max-width:900px){
+  .stagebar{grid-template-columns:1fr}
+  .stagebar .row{justify-content:flex-start}
   .intro,.two,.qa{grid-template-columns:1fr}
   .timer{position:static}
   .chips{display:none}
   .rep-head{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:560px){
+  .fisa-grid{grid-template-columns:1fr}
+  .fis-rep{grid-template-columns:1fr}
+  .rowh{display:none}
+  .rowed.p,.rowed.a{grid-template-columns:1fr;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .foot-timer{font-size:15px}
   .role-grid{grid-template-columns:1fr}
   .foot .btn{min-width:0;flex:1}
   .foot .where{display:none}
@@ -218,12 +329,14 @@ textarea{min-height:110px;resize:vertical;line-height:1.45}
   </div>
   <main id="main"></main>
   <div class="foot" id="foot" hidden>
+    <div class="foot-timer" id="footTimer" hidden></div>
     <span class="where" id="where"></span>
     <button class="btn ghost" id="prev">← Atrás</button>
     <button class="btn" id="next">Siguiente →</button>
   </div>
 </div>
 
+<div class="modal" id="modal" hidden></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 /* =========================================================
@@ -320,14 +433,42 @@ const ROLES = [
 const RN = Object.fromEntries(ROLES.map(r=>[r.k,r.name]));
 
 /* Secuencia del ejercicio */
+/* Etapas: la etapa 3 junta los eventos 3 y 4 */
+const STAGES = [
+ {n:1, ev:0, sub:"Evento 1"},
+ {n:2, ev:1, sub:"Evento 2"},
+ {n:3, ev:3, sub:"Eventos 3 y 4"},
+ {n:4, ev:4, sub:"Evento 5"}
+];
 const STEPS = [
- {t:"video", ev:0}, {t:"crisis", ev:0}, {t:"qa", ev:0},
- {t:"video", ev:1}, {t:"qa", ev:1},
- {t:"video", ev:2},
- {t:"video", ev:3}, {t:"qa", ev:3},
- {t:"video", ev:4}, {t:"qa", ev:4},
+ {t:"video", ev:0, st:0}, {t:"crisis", ev:0, st:0}, {t:"qa", ev:0, st:0},
+ {t:"video", ev:1, st:1}, {t:"qa", ev:1, st:1},
+ {t:"video", ev:2, st:2}, {t:"video", ev:3, st:2}, {t:"qa", ev:3, st:2},
+ {t:"video", ev:4, st:3}, {t:"qa", ev:4, st:3},
  {t:"closing"}, {t:"final"}, {t:"report"}
 ];
+
+/* FISA: 4 puntos del método */
+const FISA_H = [
+ {k:"evaluacion", pre:"Evaluación de la", b:"situación", hint:"¿Qué está pasando? Describan la situación con lo que saben en este momento."},
+ {k:"recopilacion", pre:"Recopilación de", b:"información", hint:"¿Qué información tienen, de qué fuentes viene y qué falta confirmar?"},
+ {k:"compartir", pre:"Compartir toda la", b:"información", hint:"¿Con quién comparten la información, por qué canal y cada cuánto?"},
+ {k:"perimetro", pre:"Definición del perímetro de", b:"gestión de crisis", hint:"¿Qué cubre la gestión de esta crisis y qué queda por fuera?"}
+];
+const ICONS = {
+ humano:'<circle cx="8" cy="6" r="2.4"/><circle cx="16" cy="6" r="2.4"/><path d="M4.5 21v-6.5a3.5 3.5 0 0 1 7 0V21M12.5 21v-6.5a3.5 3.5 0 0 1 7 0V21"/>',
+ actividades:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 14.5h7M8.5 18h4"/>',
+ legal:'<path d="M12 3v17M7.5 20.5h9M5 7h14M5 7l-2.8 6h5.6zM19 7l-2.8 6h5.6z"/>',
+ imagen:'<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8.5 7l1.6-2.5h3.8L15.5 7"/>',
+ entorno:'<circle cx="12" cy="9" r="6"/><path d="M12 15v6M9 21h6"/>'
+};
+const IMP_ROWS = [
+ {k:"humano", label:"Humano"}, {k:"actividades", label:"Actividades"}, {k:"legal", label:"Legal"},
+ {k:"imagen", label:"Imagen y reputación"}, {k:"entorno", label:"Entorno"}
+];
+const IMP_COLS = [{k:"inmediato", label:"Inmediato"}, {k:"futuro", label:"Futuro"}, {k:"potencial", label:"Potencial"}];
+const CLASES = [{k:"aliada", label:"Aliada"}, {k:"neutral", label:"Neutral"}, {k:"hostil", label:"Hostil"}];
+const PARTES_SUG = ["Empleado","Familia del empleado","Familia de la víctima","Policía de Tránsito","Fiscalía","Aseguradora","Medios de comunicación","Grupo","Fuerza de ventas","COPASST","Abogado de la familia"];
 
 /* =========================================================
    ESTADO
@@ -341,7 +482,21 @@ let S = fresh();
 let PAST = [], DEL_ID = null, DEL_MSG = "";
 const A = k => S.roles.includes(k);
 const rv = r => r.need ? (A(r.k)?"good":"bad") : (A(r.k)?"bad":"good");
-function Q(ev){ return S.qa[ev] || (S.qa[ev] = {left:EVENTS[ev].min*60, used:0, timerDone:false, saved:false, answers:EVENTS[ev].qs.map(()=>""), checks:EVENTS[ev].chk.map(()=>false)}); }
+function emptyFisa(){ return {mode:null, hechos:{evaluacion:"",recopilacion:"",compartir:"",perimetro:""}, impactos:{cells:{}, evaluacion:""}, partes:[], plan:[]}; }
+function Q(ev){
+  let q = S.qa[ev];
+  if (!q) q = S.qa[ev] = {left:EVENTS[ev].min*60, used:0, started:false, saved:false, answers:EVENTS[ev].qs.map(()=>""), checks:EVENTS[ev].chk.map(()=>false), none:false};
+  if (q.started==null) q.started = !!(q.used>0 || q.timerDone);
+  if (!q.fisa) q.fisa = emptyFisa();
+  if (!q.areas) q.areas = {};
+  return q;
+}
+const has = t => !!(t && String(t).trim());
+const clip = (t,n) => { t = String(t||"").trim(); return t.length>n ? t.slice(0,n-1)+"…" : t; };
+function prevFisa(si){ if (si<=0) return null; const q = S.qa[STAGES[si-1].ev]; return q && q.fisa ? q.fisa : null; }
+function selImpacts(f){ return IMP_ROWS.flatMap(r=>IMP_COLS.map(c=>{ const x = f.impactos.cells[r.k+"|"+c.k]; return x && x.imp && has(x.text) ? {row:r.label, col:c.label, text:x.text} : null; })).filter(Boolean); }
+function fisaHasContent(f){ if (!f) return false; return Object.values(f.hechos).some(has) || Object.values(f.impactos.cells).some(c=>has(c.text)) || has(f.impactos.evaluacion) || f.partes.some(p=>has(p.nombre)) || f.plan.some(p=>has(p.accion)); }
+function fisaCount(f){ return [Object.values(f.hechos).some(has), selImpacts(f).length>0 || has(f.impactos.evaluacion), f.partes.some(p=>has(p.nombre)), f.plan.some(p=>has(p.accion))].filter(Boolean).length; }
 
 /* =========================================================
    GUARDADO (db compartida + respaldo local)
@@ -379,7 +534,7 @@ const fmtDate = t => t ? new Date(t).toLocaleString("es-CO",{dateStyle:"medium",
 function render(){
   const intro = S.step < 0;
   $("#hud").hidden = intro; $("#foot").hidden = intro;
-  if (intro){ renderIntro(); return; }
+  if (intro){ $("#footTimer").hidden = true; renderIntro(); return; }
   const st = STEPS[S.step];
   renderChips(st);
   let h = "";
@@ -392,14 +547,14 @@ function render(){
   stopAllAudio();
   $("#main").innerHTML = h;
   renderFoot();
-  if (st.t==="qa") paintTimer();
+  paintTimer();
   if (st.t==="video") setupMedia();
   window.scrollTo({top:0});
 }
 
 function renderChips(st){
-  const cur = st.ev!=null ? st.ev : (st.t==="report" ? 6 : 5);
-  const labels = ["E1","E2","E3","E4","E5","Cierre","Reporte"];
+  const cur = st.st!=null ? st.st : (st.t==="report" ? 5 : 4);
+  const labels = ["Etapa 1","Etapa 2","Etapa 3","Etapa 4","Cierre","Reporte"];
   $("#chips").innerHTML = labels.map((l,i)=>`<span class="chip ${i===cur?"on":i<cur?"past":""}">${l}</span>`).join("");
 }
 
@@ -412,7 +567,7 @@ function renderIntro(){
       <div class="ctx"><span class="eyebrow">Contexto</span><p>${esc(CONTEXTO)}</p></div>
       <div class="howto">
         <div><b class="n">1</b><p style="margin:0"><strong>Activen el equipo de crisis</strong><span>Decidan por qué es una situación de crisis y qué áreas deben estar involucradas.</span></p></div>
-        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada evento, el equipo responde las preguntas con el tiempo corriendo.</span></p></div>
+        <div><b class="n">2</b><p style="margin:0"><strong>Decisiones</strong><span>En cada etapa el equipo responde las preguntas, llena su FISA y define qué hará cada área, con el tiempo corriendo.</span></p></div>
         <div><b class="n">3</b><p style="margin:0"><strong>Decisiones que se vuelven acciones</strong><span>Comparen sus respuestas con lo que se esperaba y conviertan los aprendizajes en acciones.</span></p></div>
       </div>
     </div>
@@ -425,7 +580,7 @@ function renderIntro(){
         : `<div class="prow"><button class="popen" data-open="${esc(p.id)}"><span>${esc(p.team||"Equipo de crisis")}</span><small>${fmtDate(p.started)}${p.ended?"":" · en curso"}</small></button><button class="pdel" data-del="${esc(p.id)}" aria-label="Borrar intento de ${esc(p.team||"Equipo de crisis")}">Borrar</button></div>`).join("")}</div>${DEL_MSG?`<p class="hint" style="margin:8px 0 0">${esc(DEL_MSG)}</p>`:""}</div>` : (DEL_MSG?`<p class="hint">${esc(DEL_MSG)}</p>`:"")}
       <div class="facts side-facts">
         <div><small>Duración</small>~45 minutos</div>
-        <div><small>Escenas</small>5 eventos + cierre</div>
+        <div><small>Etapas</small>4 etapas + cierre</div>
         <div><small>Marco</small>Ciclo FISA · SitRep</div>
       </div>
     </div>
@@ -444,7 +599,8 @@ const MEDIA = {
 };
 function renderVideoStep(ev){
   const e = EVENTS[ev], m = MEDIA[e.id];
-  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} de 5</div><h2>Evento ${e.n}</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  const stg = STAGES[STEPS[S.step].st];
+  let h = `<div class="head"><div><div class="eyebrow">Etapa ${stg.n} de 4 · ${esc(stg.sub)}</div><h2>Evento ${e.n}</h2></div><div class="when">${esc(e.when)}</div></div>`;
   h += `<div class="vwrap"><video class="vid" id="evVideo" src="${esc(m.video)}" controls loop autoplay muted playsinline preload="auto"></video></div>`;
   h += `<audio id="evAudio" src="${esc(m.audio)}" preload="auto"></audio>`;
   h += `<div class="actions"><button class="btn pink" id="soundOn" hidden>Activar audio de fondo</button><button class="btn ghost" id="replayAudio" hidden>Repetir audio</button><span class="hint" id="audioHint"></span></div>`;
@@ -487,7 +643,7 @@ function roleBtn(r){
 function renderCrisis(){
   const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
   const wrong = ROLES.filter(r=>!r.need && A(r.k)).length;
-  return `<div class="head"><div><div class="eyebrow">Evento 1 · Activación</div><h2>¿Es una situación de crisis?</h2></div><div class="when">${esc(EVENTS[0].when)}</div></div>
+  return `<div class="head"><div><div class="eyebrow">Etapa 1 · Activación</div><h2>¿Es una situación de crisis?</h2></div><div class="when">${esc(EVENTS[0].when)}</div></div>
   <div class="two">
     <div class="card">
       <h3>¿Por qué es una situación de crisis?</h3>
@@ -508,44 +664,152 @@ function renderCrisis(){
   </div>`;
 }
 
-/* ---------- preguntas con temporizador ---------- */
+/* ---------- etapa: preguntas + FISA + áreas, con temporizador ---------- */
 const T = {ev:null, iv:null, running:false, ac:null};
+let TAB = "preguntas", TAB_STEP = null;
+function tabBtn(k, label, count){ return `<button class="tab ${TAB===k?"on":""}" data-tab="${k}" role="tab" aria-selected="${TAB===k}">${label}<small>${count}</small></button>`; }
 function renderQA(ev){
-  const e = EVENTS[ev], q = Q(ev);
-  let h = `<div class="head"><div><div class="eyebrow">Evento ${e.n} · Preguntas para el equipo</div><h2>Decisiones</h2></div><div class="when">${esc(e.when)}</div></div>`;
-  h += `<div class="qa"><div><ul class="qlist">${e.qs.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
-    <div class="timer" id="timerBox">
-      <span class="lab">Temporizador · ${e.min} minutos</span>
-      <span class="t" id="tval">${fmt(q.left)}</span>
-      <div class="ring"><i id="tbar" style="width:${100*q.left/(e.min*60)}%"></i></div>
+  const stp = STEPS[S.step], si = stp.st, stg = STAGES[si], e = EVENTS[ev], q = Q(ev);
+  if (TAB_STEP !== S.step){ TAB = "preguntas"; TAB_STEP = S.step; }
+  const lock = !q.started || q.saved;
+  const ansN = q.answers.filter(has).length, arN = S.roles.filter(k=>has(q.areas[k])).length;
+  let h = `<div class="head"><div><div class="eyebrow">Etapa ${stg.n} de 4 · ${esc(stg.sub)}</div><h2>Decisiones</h2></div><div class="when">${esc(e.when)}</div></div>`;
+  h += `<div class="stagebar" id="timerBox">
+      <div class="tblock"><span class="lab">Temporizador · ${e.min} minutos</span><span class="t" id="tval"></span></div>
+      <div class="ring"><i id="tbar"></i></div>
       <div class="row" id="trow"></div>
-    </div></div>`;
-  if (q.timerDone){
-    h += `<div class="answers"><h3>Respuestas del equipo</h3>
-      ${e.qs.map((x,i)=>`<div class="ans"><label for="a-${ev}-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="a-${ev}-${i}" data-ans="${i}" placeholder="Respuesta del equipo…">${esc(q.answers[i])}</textarea></div>`).join("")}
-      <div class="actions">${q.saved ? `<span class="saved">Respuestas guardadas · tiempo usado ${fmt(q.used)}</span><button class="btn ghost" id="editAns">Editar respuestas</button>` : `<button class="btn pink" id="saveAns">Guardar respuestas</button>`}</div>
     </div>`;
+  if (!q.started) h += `<div class="lockmsg">Inicien el temporizador para empezar a responder. El tiempo corre mientras llenan las preguntas, el FISA y las áreas.</div>`;
+  h += `<div class="tabs" role="tablist">${tabBtn("preguntas","Preguntas",`${ansN}/${e.qs.length}`)}${tabBtn("fisa","FISA",`${fisaCount(q.fisa)}/4`)}${tabBtn("areas","Áreas",`${arN}/${S.roles.length}`)}</div><div class="tabpane">`;
+  if (TAB==="preguntas"){
+    h += `<div class="answers" style="margin-top:0">${e.qs.map((x,i)=>`<div class="ans"><label for="a-${ev}-${i}"><b>${i+1}</b>${esc(x)}</label><textarea id="a-${ev}-${i}" data-ans="${i}" ${lock?"disabled":""} placeholder="${q.started?"Respuesta del equipo…":"Inicien el temporizador para responder"}">${esc(q.answers[i])}</textarea></div>`).join("")}</div>`;
+  } else if (TAB==="fisa"){
+    h += renderFisaTab(q, si, lock);
+  } else {
+    h += `<p class="hint" style="margin:0 0 12px">¿Qué hará cada área en esta etapa?</p><div class="answers" style="margin-top:0">${S.roles.map(k=>{ const r = ROLES.find(x=>x.k===k); return `<div class="ans"><label for="ar-${ev}-${k}"><span class="aname">${esc(r.name)}</span> <span class="hint">${esc(r.es)}</span></label><textarea id="ar-${ev}-${k}" data-area="${k}" ${lock?"disabled":""} placeholder="${q.started?"Acciones de esta área en esta etapa…":"Inicien el temporizador para responder"}">${esc(q.areas[k]||"")}</textarea></div>`; }).join("")}</div>`;
   }
+  h += `</div><div class="actions">${q.saved
+    ? `<span class="saved">Etapa terminada · tiempo usado ${fmt(q.used)}</span><button class="btn ghost" id="reopen">Reabrir etapa</button>`
+    : `<button class="btn pink" id="finishStage" ${q.started?"":"disabled"}>Terminar etapa</button><span class="hint">Al terminar se detiene el tiempo y aparece la retroalimentación.</span>`}</div>`;
   if (q.saved){
-    h += `<div class="check"><h3>¿Tuvimos en cuenta esto?</h3><p>Marquen lo que el equipo sí consideró en sus respuestas.</p>
+    h += `<div class="check" id="checkBox"><h3>¿Tuvimos en cuenta esto?</h3><p>Marquen lo que el equipo sí consideró en sus respuestas.</p>
       ${e.chk.map((x,i)=>`<label class="ck"><input type="checkbox" data-chk="${i}" ${q.checks[i]?"checked":""}><span>${esc(x)}</span></label>`).join("")}
       <label class="ck none"><input type="checkbox" data-none="1" ${q.none?"checked":""}><span>No tuvimos en cuenta ninguna de las anteriores</span></label>
     </div>`;
   }
   return h;
 }
+
+/* ---------- FISA ---------- */
+function renderFisaTab(q, si, lock){
+  const pf = prevFisa(si), can = fisaHasContent(pf);
+  if (si>0 && !q.fisa.mode){
+    return `<div class="chooser"><h3>¿Cómo llevan el FISA en esta etapa?</h3>
+      <p>Cada etapa guarda su propio FISA. Si continúan, se hace una copia del FISA de la etapa ${si} para editarla aquí; el FISA de la etapa ${si} queda igual.</p>
+      <div class="actions"><button class="btn pink" data-fmode="copy" ${lock||!can?"disabled":""}>Continuar con el FISA de la etapa ${si}</button><button class="btn ghost" data-fmode="new" ${lock?"disabled":""}>Empezar un FISA nuevo</button>${can?`<button class="btn ghost" data-mopen="prev">Ver FISA de la etapa ${si}</button>`:""}</div>
+      ${!can?`<p class="hint" style="margin-top:10px">La etapa ${si} no tiene FISA para continuar.</p>`:""}${!q.started?`<p class="hint" style="margin-top:10px">Inicien el temporizador para elegir.</p>`:""}</div>`;
+  }
+  let h = "";
+  if (si>0) h += `<div class="fmode"><span class="hint">${q.fisa.mode==="copy"?`Continuación del FISA de la etapa ${si}. Los cambios solo quedan en esta etapa.`:"FISA nuevo para esta etapa."}</span>${can?`<button class="btn ghost sm" data-mopen="prev">Ver FISA de la etapa ${si}</button>`:""}</div>`;
+  return h + fisaBoard(q.fisa, si+1, lock ? "lock" : "edit");
+}
+function fisaBoard(f, n, mode){
+  const ro = mode==="ro", dis = mode==="lock";
+  const item = (kind, key, html, done, preview) => ro
+    ? `<div class="fitem ro ${done?"done":""}"><span>${html}</span>${has(preview)?`<small class="full">${esc(preview)}</small>`:""}</div>`
+    : `<button class="fitem ${done?"done":""}" data-mopen="${kind}" data-key="${key}" ${dis?"disabled":""}><span>${html}</span>${has(preview)?`<small>${esc(clip(preview,110))}</small>`:""}</button>`;
+  const sel = selImpacts(f);
+  const partes = f.partes.filter(p=>has(p.nombre)), plan = f.plan.filter(p=>has(p.accion));
+  const col = (n2, title, body) => `<div class="fcol"><h4><span>${n2}.</span> ${title}</h4><div class="fbody">${body}</div></div>`;
+  const c1 = FISA_H.map(x=>item("hechos", x.k, `${x.pre} <b>${x.b}</b>`, has(f.hechos[x.k]), f.hechos[x.k])).join("");
+  const c2 = item("impactos","", `<b>Identificación de todos</b> los impactos (inmediatos, futuros)`, sel.length>0, "")
+    + item("impactos","", `<b>Evaluación</b> de problemas`, has(f.impactos.evaluacion), f.impactos.evaluacion)
+    + (sel.length ? `<ul class="fsel">${sel.map(x=>`<li><b>${esc(x.row)} · ${esc(x.col)}</b>${esc(ro?x.text:clip(x.text,90))}</li>`).join("")}</ul>` : `<p class="fempty">Marquen en la tabla los impactos más importantes para que queden aquí.</p>`);
+  const c3 = item("partes","", `<b>Identificación</b> de las partes interesadas`, partes.length>0, "")
+    + item("partes","", `<b>Distribución</b> entre los miembros del equipo de crisis`, partes.length>0 && partes.every(p=>p.resp), "")
+    + item("partes","", `<b>Clasificación</b> de las partes interesadas: aliadas, neutrales, hostiles`, partes.length>0 && partes.every(p=>p.clase), "")
+    + (partes.length ? `<ul class="fsel">${partes.map(p=>`<li><b>${esc(p.nombre)}</b>${p.clase?`<span class="cls ${p.clase}">${CLASES.find(c=>c.k===p.clase).label}</span>`:""}${p.resp?`<span class="who">A cargo: ${esc(RN[p.resp]||p.resp)}</span>`:""}</li>`).join("")}</ul>` : "");
+  const c4 = item("plan","", `Lista de acciones relativas <b>a implementar</b>`, plan.length>0, "")
+    + item("plan","", `Una <b>persona identificada</b> a cargo de cada acción`, plan.length>0 && plan.every(p=>has(p.persona)), "")
+    + (plan.length ? `<ul class="fsel">${plan.map(p=>`<li><b>${esc(ro?p.accion:clip(p.accion,90))}</b><span class="who">${has(p.persona)?esc(p.persona):"Sin responsable"}${p.area?` · ${esc(RN[p.area]||p.area)}`:""}</span></li>`).join("")}</ul>` : "");
+  return `<div class="fisa"><div class="fisa-top"><h3>FISA · Etapa ${n}</h3><span class="hint">4 puntos del método</span></div>
+    <div class="fisa-banner">Para ser actualizado continuamente</div>
+    <div class="fisa-grid">${col(1,"Hechos",c1)}${col(2,"Impactos",c2)}${col(3,"Partes interesadas",c3)}${col(4,"Plan de acción",c4)}</div></div>`;
+}
+
+/* ---------- ventana para llenar cada punto del FISA ---------- */
+let MOD = null;
+function openModal(kind, key){ MOD = {kind, key, ev:STEPS[S.step].ev, st:STEPS[S.step].st}; renderModal(); }
+function closeModal(){ if (!MOD) return; MOD = null; const m = $("#modal"); m.hidden = true; m.innerHTML = ""; persist(); const y = window.scrollY; render(); window.scrollTo({top:y}); }
+function areaOptions(sel){ return S.roles.map(k=>`<option value="${k}" ${sel===k?"selected":""}>${esc(RN[k])}</option>`).join(""); }
+function renderModal(focusSel){
+  const m = $("#modal"); if (!MOD){ m.hidden = true; return; }
+  const keep = m.querySelector(".mbox") ? m.querySelector(".mbox").scrollTop : 0;
+  const q = Q(MOD.ev), f = q.fisa, ro = MOD.kind!=="prev" && (q.saved || !q.started);
+  const dis = ro ? "disabled" : "";
+  let title = "", body = "";
+  if (MOD.kind==="hechos"){
+    const it = FISA_H.find(x=>x.k===MOD.key);
+    title = `1. Hechos · ${it.pre} ${it.b}`;
+    body = `<p class="mhint">${esc(it.hint)}</p><textarea id="mh" data-mh="${it.k}" style="min-height:240px" ${dis} placeholder="Escriban aquí…">${esc(f.hechos[it.k])}</textarea>`;
+  } else if (MOD.kind==="impactos"){
+    title = "2. Impactos";
+    body = `<p class="mhint">Escriban los impactos en cada celda y marquen como <b>importante</b> los que deben quedar en el FISA.</p>
+      <div class="impwrap"><div class="imp">
+        <div class="ih first">Impacto</div>${IMP_COLS.map((c,i)=>`<div class="ih c${i}">${c.label}</div>`).join("")}
+        ${IMP_ROWS.map(r=>`<div class="rh"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[r.k]}</svg><span>${r.label}</span></div>${IMP_COLS.map((c,i)=>{ const x = f.impactos.cells[r.k+"|"+c.k] || {text:"", imp:false};
+          return `<div class="cell c${i} ${x.imp?"isimp":""}"><textarea data-mc="${r.k}|${c.k}" aria-label="${r.label} · ${c.label}" ${dis} placeholder="—">${esc(x.text)}</textarea><button class="impbtn ${x.imp?"on":""}" data-mimp="${r.k}|${c.k}" aria-pressed="${!!x.imp}" ${dis}>${x.imp?"Importante ✓":"Marcar importante"}</button></div>`; }).join("")}`).join("")}
+      </div></div>
+      <div class="ans" style="margin-top:18px"><label for="mie">Evaluación de problemas</label><textarea id="mie" data-mie="1" ${dis} placeholder="¿Qué problemas generan estos impactos y cuáles son los más graves?">${esc(f.impactos.evaluacion)}</textarea></div>`;
+  } else if (MOD.kind==="partes"){
+    title = "3. Partes interesadas";
+    body = `<p class="mhint">Identifiquen las partes interesadas, clasifíquenlas y asignen el miembro del equipo de crisis a cargo de cada una.</p>
+      ${ro?"":`<div class="sugs"><span class="hint">Agregar rápido:</span>${PARTES_SUG.filter(n=>!f.partes.some(p=>p.nombre===n)).map(n=>`<button class="sug" data-mpsug="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div>`}
+      <div class="rows">${f.partes.length?`<div class="rowh p"><span>Parte interesada</span><span>Clasificación</span><span>A cargo</span><span></span></div>`:""}${f.partes.map((p,i)=>`<div class="rowed p">
+        <input type="text" data-mp="${i}|nombre" value="${esc(p.nombre)}" placeholder="Parte interesada" aria-label="Parte interesada" ${dis}>
+        <select data-mp="${i}|clase" aria-label="Clasificación" ${dis}><option value="">Clasificación…</option>${CLASES.map(c=>`<option value="${c.k}" ${p.clase===c.k?"selected":""}>${c.label}</option>`).join("")}</select>
+        <select data-mp="${i}|resp" aria-label="Miembro del equipo a cargo" ${dis}><option value="">A cargo…</option>${areaOptions(p.resp)}</select>
+        ${ro?"<span></span>":`<button class="rdel" data-mpdel="${i}" aria-label="Quitar ${esc(p.nombre||"fila")}">Quitar</button>`}</div>`).join("")}</div>
+      ${ro?"":`<button class="btn ghost" data-mpadd="1" style="margin-top:12px">+ Agregar parte interesada</button>`}`;
+  } else if (MOD.kind==="plan"){
+    title = "4. Plan de acción";
+    body = `<p class="mhint">Listen las acciones a implementar y una persona identificada a cargo de cada una.</p>
+      <div class="rows">${f.plan.length?`<div class="rowh a"><span>Acción</span><span>Persona a cargo</span><span>Área</span><span></span></div>`:""}${f.plan.map((p,i)=>`<div class="rowed a">
+        <input type="text" data-ma="${i}|accion" value="${esc(p.accion)}" placeholder="Acción a implementar" aria-label="Acción" ${dis}>
+        <input type="text" data-ma="${i}|persona" value="${esc(p.persona)}" placeholder="Nombre de la persona" aria-label="Persona a cargo" ${dis}>
+        <select data-ma="${i}|area" aria-label="Área" ${dis}><option value="">Área…</option>${areaOptions(p.area)}</select>
+        ${ro?"<span></span>":`<button class="rdel" data-madel="${i}" aria-label="Quitar acción">Quitar</button>`}</div>`).join("")}</div>
+      ${ro?"":`<button class="btn ghost" data-maadd="1" style="margin-top:12px">+ Agregar acción</button>`}`;
+  } else if (MOD.kind==="prev"){
+    title = `FISA de la etapa ${MOD.st} (solo lectura)`;
+    body = fisaBoard(prevFisa(MOD.st), MOD.st, "ro");
+  }
+  m.innerHTML = `<div class="mbox ${MOD.kind==="impactos"||MOD.kind==="prev"?"wide":""}" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mhead"><h3 id="mtitle">${esc(title)}</h3><button class="btn" id="mclose">Listo</button></div>${ro?`<p class="hint" style="margin:-6px 0 12px">Solo lectura: ${q.saved?"la etapa está terminada.":"inicien el temporizador para editar."}</p>`:""}${body}</div>`;
+  m.hidden = false;
+  const box = m.querySelector(".mbox"); box.scrollTop = keep;
+  if (focusSel){ const el = m.querySelector(focusSel); if (el) el.focus(); }
+  else if (MOD.kind==="hechos" && !ro){ const el = $("#mh"); if (el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
+}
+
+/* ---------- temporizador ---------- */
+const fmtS = s => s<0 ? "+"+fmt(-s) : fmt(s);
 function paintTimer(){
-  const st = STEPS[S.step]; if (!st || st.t!=="qa") return;
-  const ev = st.ev, e = EVENTS[ev], q = Q(ev);
-  const box = $("#timerBox"); if (!box) return;
-  $("#tval").textContent = fmt(q.left);
-  $("#tbar").style.width = (100*q.left/(e.min*60))+"%";
-  box.classList.toggle("low", q.left<=30 && q.left>0);
-  box.classList.toggle("end", q.left<=0);
-  const running = T.running && T.ev===ev;
-  $("#trow").innerHTML = q.timerDone
-    ? `<span class="hint">Tiempo usado: ${fmt(q.used)}</span>`
-    : `<button class="btn pink" id="tstart">${running?"Pausar":(q.left<e.min*60?"Continuar":"Iniciar")}</button>${q.left<e.min*60?`<button class="btn ghost" id="tfinish">Terminar ya</button>`:""}`;
+  const st = STEPS[S.step], ft = $("#footTimer");
+  if (!st || st.t!=="qa"){ ft.hidden = true; return; }
+  const ev = st.ev, e = EVENTS[ev], q = Q(ev), running = T.running && T.ev===ev;
+  const label = running ? "Pausar" : (q.started ? "Continuar" : "Iniciar");
+  const box = $("#timerBox");
+  if (box){
+    $("#tval").textContent = fmtS(q.left);
+    $("#tbar").style.width = Math.max(0, 100*q.left/(e.min*60))+"%";
+    box.classList.toggle("low", q.left<=30 && q.left>0);
+    box.classList.toggle("end", q.left<=0);
+    $("#trow").innerHTML = q.saved ? `<span class="hint">Tiempo usado: ${fmt(q.used)}</span>`
+      : `<button class="btn pink" id="tstart">${label}</button>${q.left<=0?`<span class="hint over">Tiempo cumplido. El reloj sigue sumando.</span>`:""}`;
+  }
+  ft.hidden = false;
+  ft.className = "foot-timer" + (q.left<=0 ? " end" : q.left<=30 ? " low" : "");
+  ft.innerHTML = `<span>${fmtS(q.left)}</span>${q.saved ? "" : `<button class="btn sm" id="tstart2">${label}</button>`}`;
 }
 function beep(){
   try{ const ac=T.ac; if(!ac) return; [0,0.3,0.6].forEach(d=>{ const o=ac.createOscillator(), g=ac.createGain(); o.frequency.value=880; g.gain.setValueAtTime(0.0001,ac.currentTime+d); g.gain.exponentialRampToValueAtTime(0.25,ac.currentTime+d+0.02); g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+d+0.22); o.connect(g).connect(ac.destination); o.start(ac.currentTime+d); o.stop(ac.currentTime+d+0.25); }); }catch(e){}
@@ -553,23 +817,26 @@ function beep(){
 function stopTimer(){ T.running=false; clearInterval(T.iv); T.iv=null; }
 function toggleTimer(){
   const ev = STEPS[S.step].ev, q = Q(ev);
+  if (q.saved) return;
   if (!T.ac){ try{ T.ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
   if (T.running && T.ev===ev){ stopTimer(); persist(); paintTimer(); return; }
   stopTimer(); T.ev = ev; T.running = true;
+  const first = !q.started; q.started = true;
   T.iv = setInterval(()=>{
     q.left--; q.used++;
-    if (q.left<=0){ q.left=0; finishTimer(ev, true); return; }
+    if (q.left===0) beep();
     if (q.used % 10 === 0) persist();
     paintTimer();
   }, 1000);
-  paintTimer();
+  persist();
+  if (first){ const y = window.scrollY; render(); window.scrollTo({top:y}); } else paintTimer();
 }
-function finishTimer(ev, natural){
-  stopTimer();
-  const q = Q(ev); q.timerDone = true;
-  if (natural) beep();
-  persist(true);
-  if (STEPS[S.step].t==="qa" && STEPS[S.step].ev===ev){ render(); const f=$(`#a-${ev}-0`); if (f) f.focus(); }
+function finishStage(){
+  const ev = STEPS[S.step].ev, q = Q(ev);
+  if (!q.started) return;
+  stopTimer(); q.saved = true; persist(true);
+  render();
+  const c = $("#checkBox"); if (c) c.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 /* ---------- cierre ---------- */
@@ -584,12 +851,11 @@ function renderClosing(){
   ${renderSummary()}`;
 }
 function renderSummary(){
-  return `<h3 style="font-size:24px;margin:34px 0 12px">Resumen de las preguntas</h3>
-  <div class="rep">${EVENTS.filter(e=>e.qs).map(e=>{
-    const ev = EVENTS.indexOf(e), q = S.qa[ev];
-    const ok = q ? q.checks.filter(Boolean).length : 0;
-    return `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${q?fmt(q.used):"—"} de ${e.min}:00 · ${q&&q.none?"no tuvimos en cuenta ninguna de las anteriores":`${ok} de ${e.chk.length} puntos tenidos en cuenta`}</div>
-      ${e.qs.map((x,i)=>{const a=q?q.answers[i]:"";return `<div class="rq"><div class="q">${esc(x)}</div><div class="a ${a&&a.trim()?"":"empty"}">${a&&a.trim()?esc(a):"Sin respuesta"}</div></div>`;}).join("")}
+  return `<h3 style="font-size:24px;margin:34px 0 12px">Resumen de las etapas</h3>
+  <div class="rep">${STAGES.map(stg=>{
+    const e = EVENTS[stg.ev], q = Q(stg.ev), ok = q.checks.filter(Boolean).length;
+    return `<div class="rsec"><h3>Etapa ${stg.n} · ${esc(stg.sub)}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00 · ${q.none?"no tuvimos en cuenta ninguna de las anteriores":`${ok} de ${e.chk.length} puntos tenidos en cuenta`}</div>
+      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
     </div>`;}).join("")}</div>`;
 }
 
@@ -607,14 +873,15 @@ function totalSeconds(){ const end = S.ended || Date.now(); return S.started ? (
 function renderReport(){
   if (!S.ended){ S.ended = Date.now(); persist(true); }
   const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
-  const qsTime = Object.values(S.qa).reduce((a,q)=>a+(q.used||0),0);
+  const qsTime = STAGES.reduce((a,stg)=>a+(Q(stg.ev).used||0),0);
+  const okPts = STAGES.reduce((a,stg)=>a+Q(stg.ev).checks.filter(Boolean).length,0), allPts = STAGES.reduce((a,stg)=>a+EVENTS[stg.ev].chk.length,0);
   let h = `<div class="head"><div><div class="eyebrow">Reporte del ejercicio</div><h2>${esc(S.team || "Equipo de crisis")}</h2></div><div class="when">${fmtDate(S.started)}</div></div>
   <div class="rep">
     <div class="rep-head">
       <div><b>${fmt(totalSeconds())}</b><span>Duración total</span></div>
-      <div><b>${fmt(qsTime)}</b><span>Tiempo en preguntas</span></div>
+      <div><b>${fmt(qsTime)}</b><span>Tiempo en etapas</span></div>
       <div><b>${essOn}/${ess.length}</b><span>Áreas responsables activadas</span></div>
-      <div><b>${EVENTS.filter(e=>e.qs).reduce((a,e)=>{const q=S.qa[EVENTS.indexOf(e)];return a+(q?q.checks.filter(Boolean).length:0);},0)}/${EVENTS.filter(e=>e.qs).reduce((a,e)=>a+e.chk.length,0)}</b><span>Puntos tenidos en cuenta</span></div>
+      <div><b>${okPts}/${allPts}</b><span>Puntos tenidos en cuenta</span></div>
     </div>
     <div class="rsec"><h3>Activación del equipo de crisis</h3>
       <div class="rq"><div class="q">¿Por qué es una situación de crisis?</div><div class="a ${S.why.trim()?"":"empty"}">${S.why.trim()?esc(S.why):"Sin respuesta"}</div></div>
@@ -622,12 +889,17 @@ function renderReport(){
         <div class="area-recap">${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<span class="${rv(r)}">${esc(r.name)} · ${A(r.k)?(r.need?"bien activada":"no debía activarse"):"faltó activarla"}</span>`).join("")}</div>
       </div>
     </div>`;
-  EVENTS.forEach((e,ev)=>{
-    if (!e.qs) return;
-    const q = S.qa[ev];
-    h += `<div class="rsec"><h3>Evento ${e.n}</h3><div class="meta">${esc(e.when)} · tiempo usado ${q?fmt(q.used):"—"} de ${e.min}:00</div>
-      ${e.qs.map((x,i)=>{const a=q?q.answers[i]:"";return `<div class="rq"><div class="q">${esc(x)}</div><div class="a ${a&&a.trim()?"":"empty"}">${a&&a.trim()?esc(a):"Sin respuesta"}</div></div>`;}).join("")}
-      <div class="rq"><div class="q">¿Tuvimos en cuenta esto?</div>${q&&q.none?`<div class="a" style="color:var(--bad)">No tuvimos en cuenta ninguna de las anteriores.</div>`:""}<ul class="chk-list">${e.chk.map((x,i)=>{const y=q&&q.checks[i];return `<li><span class="${y?"y":"n"}">${y?"✓":"✗"}</span><span>${esc(x)}</span></li>`;}).join("")}</ul></div>
+  STAGES.forEach(stg=>{
+    const e = EVENTS[stg.ev], q = Q(stg.ev);
+    h += `<div class="rsec"><h3>Etapa ${stg.n} · ${esc(stg.sub)}</h3><div class="meta">${esc(e.when)} · tiempo usado ${fmt(q.used)} de ${e.min}:00</div>
+      <h4 class="rsub">Preguntas</h4>
+      ${e.qs.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${has(q.answers[i])?"":"empty"}">${has(q.answers[i])?esc(q.answers[i]):"Sin respuesta"}</div></div>`).join("")}
+      <h4 class="rsub">FISA${q.fisa.mode==="copy"?" · continuación de la etapa anterior":""}</h4>
+      ${fisaReport(q.fisa)}
+      <h4 class="rsub">¿Qué hará cada área?</h4>
+      ${S.roles.map(k=>`<div class="rq"><div class="q">${esc(RN[k])}</div><div class="a ${has(q.areas[k])?"":"empty"}">${has(q.areas[k])?esc(q.areas[k]):"Sin respuesta"}</div></div>`).join("")}
+      <h4 class="rsub">¿Tuvimos en cuenta esto?</h4>
+      <div class="rq">${q.none?`<div class="a" style="color:var(--bad)">No tuvimos en cuenta ninguna de las anteriores.</div>`:""}<ul class="chk-list">${e.chk.map((x,i)=>{const y=q.checks[i];return `<li><span class="${y?"y":"n"}">${y?"✓":"✗"}</span><span>${esc(x)}</span></li>`;}).join("")}</ul></div>
     </div>`;
   });
   h += `<div class="rsec"><h3>Preguntas de cierre</h3>${CLOSING_Q.map((x,i)=>`<div class="rq"><div class="q">${esc(x)}</div><div class="a ${S.closing[i].trim()?"":"empty"}">${S.closing[i].trim()?esc(S.closing[i]):"Sin respuesta"}</div></div>`).join("")}</div>
@@ -640,19 +912,15 @@ function renderReport(){
   </div>`;
   return h;
 }
-function reportHtml(){
-  const css = `body{font-family:Arial,Helvetica,sans-serif;color:#16261a;max-width:860px;margin:32px auto;padding:0 20px;line-height:1.5}h1{color:#03230d;margin-bottom:0}h2{color:#03230d;border-bottom:3px solid #ff74cf;padding-bottom:4px;margin-top:32px}.meta{color:#4d5c50;font-size:14px}.q{font-weight:bold;margin-top:14px}.a{white-space:pre-wrap;margin:4px 0 0}.e{color:#888;font-style:italic}li{margin:4px 0}.y{color:#1d7a43}.n{color:#b3261e}`;
-  const ans = a => a && a.trim() ? `<p class="a">${esc(a)}</p>` : `<p class="a e">Sin respuesta</p>`;
-  let b = `<h1>Reporte · Accidente fatal en misión</h1><p class="meta">${esc(S.team||"Equipo de crisis")} · ${fmtDate(S.started)} · Duración total ${fmt(totalSeconds())}</p>`;
-  b += `<h2>Activación del equipo de crisis</h2><p class="q">¿Por qué es una situación de crisis?</p>${ans(S.why)}<p class="q">Áreas</p><ul>${ROLES.filter(r=>A(r.k)||r.need).map(r=>`<li class="${rv(r)==="good"?"y":"n"}">${esc(r.name)}: ${A(r.k)?(r.need?"bien activada":"no debía activarse"):"faltó activarla"}</li>`).join("")}</ul>`;
-  EVENTS.forEach((e,ev)=>{ if(!e.qs) return; const q=S.qa[ev];
-    b += `<h2>Evento ${e.n}</h2><p class="meta">${esc(e.when)} · tiempo usado ${q?fmt(q.used):"—"} de ${e.min}:00</p>`;
-    e.qs.forEach((x,i)=>{ b += `<p class="q">${esc(x)}</p>${ans(q?q.answers[i]:"")}`; });
-    b += `<p class="q">¿Tuvimos en cuenta esto?</p>${q&&q.none?`<p class="a n">No tuvimos en cuenta ninguna de las anteriores.</p>`:""}<ul>${e.chk.map((x,i)=>{const y=q&&q.checks[i];return `<li class="${y?"y":"n"}">${y?"✓":"✗"} ${esc(x)}</li>`;}).join("")}</ul>`;
-  });
-  b += `<h2>Preguntas de cierre</h2>${CLOSING_Q.map((x,i)=>`<p class="q">${esc(x)}</p>${ans(S.closing[i])}`).join("")}`;
-  b += `<h2>Comentarios finales</h2>${FINAL.map(f=>`<p class="q">${esc(f.label)}</p>${ans(S.final[f.k])}`).join("")}`;
-  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Reporte ejercicio de crisis</title><style>${css}</style></head><body>${b}</body></html>`;
+function fisaReport(f){
+  const val = t => has(t) ? esc(t) : `<span class="empty">Sin información</span>`;
+  const sel = selImpacts(f), partes = f.partes.filter(p=>has(p.nombre)), plan = f.plan.filter(p=>has(p.accion));
+  return `<div class="fis-rep">
+    <div><h5>1. Hechos</h5>${FISA_H.map(x=>`<p><b>${x.pre} ${x.b}:</b> ${val(f.hechos[x.k])}</p>`).join("")}</div>
+    <div><h5>2. Impactos</h5>${sel.length?`<ul>${sel.map(x=>`<li><b>${esc(x.row)} · ${esc(x.col)}:</b> ${esc(x.text)}</li>`).join("")}</ul>`:`<p class="empty">Sin impactos seleccionados</p>`}<p><b>Evaluación de problemas:</b> ${val(f.impactos.evaluacion)}</p></div>
+    <div><h5>3. Partes interesadas</h5>${partes.length?`<ul>${partes.map(p=>`<li><b>${esc(p.nombre)}</b> · ${p.clase?CLASES.find(c=>c.k===p.clase).label:"sin clasificar"} · a cargo: ${p.resp?esc(RN[p.resp]||p.resp):"sin asignar"}</li>`).join("")}</ul>`:`<p class="empty">Sin partes interesadas</p>`}</div>
+    <div><h5>4. Plan de acción</h5>${plan.length?`<ul>${plan.map(p=>`<li><b>${esc(p.accion)}</b> · ${has(p.persona)?esc(p.persona):"sin responsable"}${p.area?` (${esc(RN[p.area]||p.area)})`:""}</li>`).join("")}</ul>`:`<p class="empty">Sin acciones</p>`}</div>
+  </div>`;
 }
 
 /* ---------- reporte PDF corporativo ---------- */
@@ -729,6 +997,43 @@ function buildPdf(){
     y += lines.length*lh + 2.2;
   }
 
+  function sub(title){ ensure(14); y += 2; text(title.toUpperCase(), {bold:true, size:8.5, color:C.pink}); y += 1.5; }
+  function minor(title){ ensure(12); text(title, {bold:true, size:10.5, color:C.green}); y += 1; }
+  function table(heads, rows, ws){
+    const size = 9.2, lh = 1.35*size*PT, pad = 2;
+    const xs = []; let acc = M; ws.forEach(w=>{ xs.push(acc); acc += w*CW; });
+    const head = ()=>{ ensure(16); doc.setFillColor(...C.green); doc.rect(M, y, CW, 7, "F"); doc.setFont("helvetica","bold"); doc.setFontSize(8.3); doc.setTextColor(...C.cream); heads.forEach((h2,i)=>doc.text(clean(h2), xs[i]+pad, y+4.7)); y += 7; };
+    head();
+    rows.forEach((r,ri)=>{
+      doc.setFont("helvetica","normal"); doc.setFontSize(size);
+      const cells = r.map((c,i)=>doc.splitTextToSize(clean(has(c)?c:"-"), ws[i]*CW-2*pad));
+      const hgt = Math.max(...cells.map(c=>c.length))*lh + 2*pad;
+      if (y + hgt > BOTTOM){ doc.addPage(); contHeader(); head(); }
+      if (ri%2===1){ doc.setFillColor(...C.tint); doc.rect(M, y, CW, hgt, "F"); }
+      doc.setFont("helvetica","normal"); doc.setFontSize(size); doc.setTextColor(...C.ink);
+      cells.forEach((c,i)=>c.forEach((l,j)=>doc.text(l, xs[i]+pad, y+pad+size*PT*0.9+j*lh)));
+      y += hgt; doc.setDrawColor(...C.line); doc.setLineWidth(0.2); doc.line(M, y, M+CW, y);
+    });
+    y += 4;
+  }
+  function pdfFisa(f){
+    minor("1. Hechos");
+    FISA_H.forEach(x=>qa(`${x.pre} ${x.b}`, f.hechos[x.k]));
+    minor("2. Impactos");
+    const sel = selImpacts(f);
+    if (sel.length) table(["Impacto","Horizonte","Descripción"], sel.map(x=>[x.row, x.col, x.text]), [0.22,0.16,0.62]);
+    else { text("Sin impactos seleccionados", {italic:true, color:C.gray}); y += 2; }
+    qa("Evaluación de problemas", f.impactos.evaluacion);
+    minor("3. Partes interesadas");
+    const partes = f.partes.filter(p=>has(p.nombre));
+    if (partes.length) table(["Parte interesada","Clasificación","A cargo"], partes.map(p=>[p.nombre, p.clase?CLASES.find(c=>c.k===p.clase).label:"Sin clasificar", p.resp?(RN[p.resp]||p.resp):"Sin asignar"]), [0.42,0.2,0.38]);
+    else { text("Sin partes interesadas", {italic:true, color:C.gray}); y += 3; }
+    minor("4. Plan de acción");
+    const plan = f.plan.filter(p=>has(p.accion));
+    if (plan.length) table(["Acción","Persona a cargo","Área"], plan.map(p=>[p.accion, p.persona, p.area?(RN[p.area]||p.area):""]), [0.52,0.24,0.24]);
+    else { text("Sin acciones", {italic:true, color:C.gray}); y += 3; }
+  }
+
   /* portada */
   doc.setFillColor(...C.green); doc.rect(0,0,W,62,"F");
   doc.setFillColor(...C.mid); doc.rect(W-62,0,62,62,"F");
@@ -745,11 +1050,10 @@ function buildPdf(){
 
   /* indicadores */
   const ess = ROLES.filter(r=>r.need), essOn = ess.filter(r=>A(r.k)).length;
-  const qsTime = Object.values(S.qa).reduce((a,q)=>a+(q.used||0),0);
-  const evs = EVENTS.filter(e=>e.qs);
-  const okPts = evs.reduce((a,e)=>{const q=S.qa[EVENTS.indexOf(e)];return a+(q?q.checks.filter(Boolean).length:0);},0);
-  const allPts = evs.reduce((a,e)=>a+e.chk.length,0);
-  const kpis = [[fmt(totalSeconds()),"Duración total"],[fmt(qsTime),"Tiempo en preguntas"],[essOn+"/"+ess.length,"Áreas responsables activadas"],[okPts+"/"+allPts,"Puntos tenidos en cuenta"]];
+  const qsTime = STAGES.reduce((a,stg)=>a+(Q(stg.ev).used||0),0);
+  const okPts = STAGES.reduce((a,stg)=>a+Q(stg.ev).checks.filter(Boolean).length,0);
+  const allPts = STAGES.reduce((a,stg)=>a+EVENTS[stg.ev].chk.length,0);
+  const kpis = [[fmt(totalSeconds()),"Duración total"],[fmt(qsTime),"Tiempo en etapas"],[essOn+"/"+ess.length,"Áreas responsables activadas"],[okPts+"/"+allPts,"Puntos tenidos en cuenta"]];
   const tw = (CW - 3*4)/4;
   kpis.forEach((k,i)=>{
     const x = M + i*(tw+4);
@@ -792,18 +1096,21 @@ function buildPdf(){
     y += 10;
   }
 
-  /* eventos */
-  section("Decisiones por evento");
-  EVENTS.forEach((e,ev)=>{
-    if (!e.qs) return;
-    const q = S.qa[ev];
-    band(`Evento ${e.n}  ·  ${e.when}`, `Tiempo usado ${q?fmt(q.used):"--:--"} de ${e.min}:00`);
-    e.qs.forEach((x,i)=>qa(x, q?q.answers[i]:"", i+1));
-    ensure(12);
-    text("¿Tuvimos en cuenta esto?", {bold:true, size:10.5, color:C.green}); y += 1.5;
-    if (q && q.none){ text("No tuvimos en cuenta ninguna de las anteriores.", {size:10, color:C.bad, bold:true}); y += 1; }
-    e.chk.forEach((x,i)=>checkItem(x, !!(q && q.checks[i])));
-    y += 5;
+  /* etapas */
+  section("Decisiones por etapa");
+  STAGES.forEach(stg=>{
+    const e = EVENTS[stg.ev], q = Q(stg.ev);
+    band(`Etapa ${stg.n}  ·  ${stg.sub}`, `Tiempo usado ${fmt(q.used)} de ${e.min}:00`);
+    sub("Preguntas");
+    e.qs.forEach((x,i)=>qa(x, q.answers[i], i+1));
+    sub("FISA" + (q.fisa.mode==="copy" ? " · continuación de la etapa anterior" : ""));
+    pdfFisa(q.fisa);
+    sub("¿Qué hará cada área?");
+    S.roles.forEach(k=>qa(RN[k], q.areas[k]));
+    sub("¿Tuvimos en cuenta esto?");
+    if (q.none){ text("No tuvimos en cuenta ninguna de las anteriores.", {size:10, color:C.bad, bold:true}); y += 1; }
+    e.chk.forEach((x,i)=>checkItem(x, !!q.checks[i]));
+    y += 6;
   });
 
   /* cierre */
@@ -830,27 +1137,47 @@ function buildPdf(){
 function blocked(){
   const st = STEPS[S.step];
   if (st.t==="crisis") return !S.areasDone ? "Escriban por qué es una crisis y confirmen las áreas" : "";
-  if (st.t==="qa") return !Q(st.ev).saved ? "Guarden las respuestas para continuar" : "";
+  if (st.t==="qa") return !Q(st.ev).saved ? "Terminen la etapa para continuar" : "";
   return "";
 }
 function renderFoot(){
   const st = STEPS[S.step], b = blocked();
-  const names = {video:"Video", crisis:"Activación", qa:"Preguntas", closing:"Preguntas de cierre", final:"Comentarios finales", report:"Reporte"};
-  const where = (st.ev!=null ? `Evento ${EVENTS[st.ev].n} · ` : "") + names[st.t];
+  const names = {crisis:"Activación", qa:"Decisiones", closing:"Preguntas de cierre", final:"Comentarios finales", report:"Reporte"};
+  const where = st.st!=null ? `Etapa ${st.st+1} · ` + (st.t==="video" ? `Evento ${EVENTS[st.ev].n}` : names[st.t]) : names[st.t];
   $("#where").textContent = b ? `${where} · ${b}` : where;
   const last = S.step === STEPS.length-1;
-  $("#next").textContent = st.t==="final" ? "Generar reporte →" : (STEPS[S.step+1] && STEPS[S.step+1].t==="video" ? `Evento ${EVENTS[STEPS[S.step+1].ev].n} →` : "Siguiente →");
+  const nx = STEPS[S.step+1];
+  $("#next").textContent = st.t==="final" ? "Generar reporte →" : (nx && nx.t==="video" ? (nx.st!==st.st ? `Etapa ${nx.st+1} →` : `Evento ${EVENTS[nx.ev].n} →`) : "Siguiente →");
   $("#next").disabled = !!b || last;
   $("#next").hidden = last;
 }
-function next(){ if (S.step<0 || blocked() || S.step>=STEPS.length-1) return; stopTimer(); S.step++; persist(); render(); }
+function next(){ if (MOD || S.step<0 || blocked() || S.step>=STEPS.length-1) return; stopTimer(); S.step++; persist(); render(); }
 function prev(){ stopTimer(); if (S.step>0) S.step--; else S.step=-1; persist(); render(); }
 
 /* =========================================================
    EVENTOS
    ========================================================= */
 document.addEventListener("click", async e=>{
+  if (e.target.id==="modal"){ closeModal(); return; }
   const t = e.target.closest("button"); if (!t) return;
+  if (t.id==="mclose"){ closeModal(); return; }
+  if (t.dataset.tab){ TAB = t.dataset.tab; const y = window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (t.dataset.mopen){ openModal(t.dataset.mopen, t.dataset.key||""); return; }
+  if (t.dataset.fmode){
+    const st = STEPS[S.step], q = Q(st.ev);
+    if (t.dataset.fmode==="copy"){ const pf = prevFisa(st.st); if (!pf) return; q.fisa = JSON.parse(JSON.stringify(pf)); q.fisa.mode = "copy"; }
+    else { q.fisa = emptyFisa(); q.fisa.mode = "new"; }
+    persist(); const y = window.scrollY; render(); window.scrollTo({top:y}); return;
+  }
+  if (MOD && MOD.kind!=="prev"){
+    const f = Q(MOD.ev).fisa;
+    if (t.dataset.mimp){ const k = t.dataset.mimp; const c = f.impactos.cells[k] || (f.impactos.cells[k] = {text:"", imp:false}); c.imp = !c.imp; persist(); renderModal(); return; }
+    if (t.dataset.mpadd){ f.partes.push({nombre:"", clase:"", resp:""}); persist(); renderModal(`[data-mp="${f.partes.length-1}|nombre"]`); return; }
+    if (t.dataset.mpsug){ f.partes.push({nombre:t.dataset.mpsug, clase:"", resp:""}); persist(); renderModal(); return; }
+    if (t.dataset.mpdel!=null){ f.partes.splice(+t.dataset.mpdel, 1); persist(); renderModal(); return; }
+    if (t.dataset.maadd){ f.plan.push({accion:"", persona:"", area:""}); persist(); renderModal(`[data-ma="${f.plan.length-1}|accion"]`); return; }
+    if (t.dataset.madel!=null){ f.plan.splice(+t.dataset.madel, 1); persist(); renderModal(); return; }
+  }
   if (t.id==="start"){
     const team = ($("#teamName").value||"").trim();
     S = fresh(); S.team = team; S.id = "s"+Date.now()+Math.random().toString(36).slice(2,6); S.started = Date.now(); S.step = 0;
@@ -872,10 +1199,9 @@ document.addEventListener("click", async e=>{
   if (t.dataset.role){ if (S.areasDone) return; const k=t.dataset.role; S.roles = A(k) ? S.roles.filter(x=>x!==k) : [...S.roles,k]; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
   if (t.id==="confirmAreas"){ if (!S.roles.length || !S.why.trim()) return; S.areasDone = true; persist(true); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
   if (t.id==="redoAreas"){ S.areasDone = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
-  if (t.id==="tstart") return toggleTimer();
-  if (t.id==="tfinish"){ const ev = STEPS[S.step].ev; finishTimer(ev, false); return; }
-  if (t.id==="saveAns"){ const q = Q(STEPS[S.step].ev); q.saved = true; persist(true); const y=window.scrollY; render(); window.scrollTo({top:y+260, behavior:"smooth"}); return; }
-  if (t.id==="editAns"){ const q = Q(STEPS[S.step].ev); q.saved = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
+  if (t.id==="tstart" || t.id==="tstart2") return toggleTimer();
+  if (t.id==="finishStage") return finishStage();
+  if (t.id==="reopen"){ const q = Q(STEPS[S.step].ev); q.saved = false; persist(); const y=window.scrollY; render(); window.scrollTo({top:y}); return; }
   if (t.id==="next") return next();
   if (t.id==="prev") return prev();
   if (t.id==="newSession"){ stopTimer(); S = fresh(); try{ localStorage.removeItem("crisis-current"); }catch(e){} render(); return; }
@@ -899,7 +1225,16 @@ document.addEventListener("input", e=>{
     const h = $("#crisisHint"); if (h) h.textContent = S.why.trim() ? "" : "Escriban primero por qué es una crisis.";
     renderFoot(); return;
   }
-  if (d.ans!==undefined){ Q(STEPS[S.step].ev).answers[+d.ans] = el.value; persist(); return; }
+  if (d.ans!==undefined){ Q(STEPS[S.step].ev).answers[+d.ans] = el.value; persist(); updateTabCounts(); return; }
+  if (d.area!==undefined){ Q(STEPS[S.step].ev).areas[d.area] = el.value; persist(); updateTabCounts(); return; }
+  if (MOD && MOD.kind!=="prev"){
+    const f = Q(MOD.ev).fisa;
+    if (d.mh!==undefined){ f.hechos[d.mh] = el.value; persist(); return; }
+    if (d.mie!==undefined){ f.impactos.evaluacion = el.value; persist(); return; }
+    if (d.mc!==undefined){ const c = f.impactos.cells[d.mc] || (f.impactos.cells[d.mc] = {text:"", imp:false}); c.text = el.value; persist(); return; }
+    if (d.mp!==undefined){ const [i,k] = d.mp.split("|"); if (f.partes[+i]) f.partes[+i][k] = el.value; persist(); return; }
+    if (d.ma!==undefined){ const [i,k] = d.ma.split("|"); if (f.plan[+i]) f.plan[+i][k] = el.value; persist(); return; }
+  }
   if (d.close!==undefined){ S.closing[+d.close] = el.value; persist(); return; }
   if (d.final!==undefined){ S.final[d.final] = el.value; persist(); return; }
 });
@@ -917,11 +1252,20 @@ document.addEventListener("change", e=>{
   }
 });
 document.addEventListener("keydown", e=>{
-  if (e.target.matches("textarea,input")) return;
+  if (e.key==="Escape" && MOD){ closeModal(); return; }
+  if (MOD) return;
+  if (e.target.matches("textarea,input,select")) return;
   if (S.step<0) return;
   if (e.key==="ArrowRight") next();
   else if (e.key==="ArrowLeft") prev();
 });
+function updateTabCounts(){
+  const st = STEPS[S.step]; if (!st || st.t!=="qa") return;
+  const q = Q(st.ev), e = EVENTS[st.ev];
+  const set = (k, v)=>{ const b = document.querySelector(`[data-tab="${k}"] small`); if (b) b.textContent = v; };
+  set("preguntas", `${q.answers.filter(has).length}/${e.qs.length}`);
+  set("areas", `${S.roles.filter(k=>has(q.areas[k])).length}/${S.roles.length}`);
+}
 setInterval(()=>{ const el=$("#elapsed"); if (el && S.started) el.textContent = fmt(totalSeconds()); }, 1000);
 
 /* =========================================================

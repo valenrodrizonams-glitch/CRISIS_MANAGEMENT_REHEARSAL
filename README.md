@@ -6,9 +6,13 @@ Escenario ficticio de entrenamiento basado en el *Tabletop Crisis Exercise · Fa
 ## Qué hace
 
 1. **Contexto** y botón *Comenzar*.
-2. **Evento 1:** video, ¿por qué es una situación de crisis? y selección de áreas responsables.
-3. **Preguntas por evento** con temporizador (5, 5, 7 y 8 minutos), respuestas en texto y lista *¿Tuvimos en cuenta esto?*.
-4. **Evento 3:** solo video.
+2. **4 etapas** (la etapa 3 junta los eventos 3 y 4). Cada etapa empieza con su video y audio.
+3. **Etapa 1:** ¿por qué es una situación de crisis? y selección de áreas responsables.
+4. **En cada etapa**, desde que se inicia el temporizador (5, 5, 7 y 8 minutos):
+   - **Preguntas** de la etapa.
+   - **FISA** propio de la etapa (Hechos, Impactos, Partes interesadas, Plan de acción). Cada punto se llena en una ventana; en Impactos se llena la tabla Humano / Actividades / Legal / Imagen y reputación / Entorno × Inmediato / Futuro / Potencial y se marcan los más importantes. Desde la etapa 2 se puede continuar con una copia del FISA anterior (el original no cambia) o empezar uno nuevo.
+   - **Áreas:** qué hará cada área activada.
+   - Al terminar la etapa: lista *¿Tuvimos en cuenta esto?*.
 5. **Cierre:** preguntas de cierre, resumen y comentarios finales.
 6. **Reporte** en pantalla y descargable en PDF con los colores corporativos.
 
