@@ -1,4 +1,4 @@
-# Sala de Crisis Opella · Accidente fatal en misión
+# Sala de Crisis Opella · Simulación de caso de crisis
 
 Ejercicio guiado de gestión de crisis (nivel 1) para el equipo de crisis de Opella Colombia.
 Escenario ficticio de entrenamiento basado en el *Tabletop Crisis Exercise · Fatal Road Accident on Duty*.

@@ -347,7 +347,7 @@ select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--lin
 <div class="app">
   <div class="hud" id="hud" hidden>
     <div class="hud-row">
-      <div class="brand"><b id="brandTitle">Opella · Sala de crisis</b><span id="brandSub">Accidente fatal en misión</span><span class="langbadge" id="langBadge"></span></div>
+      <div class="brand"><b id="brandTitle">Opella · Sala de crisis</b><span id="brandSub">Simulación de caso de crisis</span><span class="langbadge" id="langBadge"></span></div>
       <div class="chips" id="chips"></div>
       <div class="elapsed"><span id="elapsedLab">Tiempo del ejercicio</span> <b id="elapsed">00:00</b></div>
     </div>
@@ -631,8 +631,8 @@ const CONTENT = {
 
 const UI = {
  es:{
-  level:"Ensayo de gestión de crisis · Nivel 1", title1:"Accidente fatal", title2:"en misión",
-  brandTitle:"Opella · Sala de crisis", brandSub:"Accidente fatal en misión",
+  level:"Ensayo de gestión de crisis · Nivel 1", title1:"Simulación", title2:"caso de crisis",
+  brandTitle:"Opella · Sala de crisis", brandSub:"Simulación de caso de crisis",
   context:"Contexto",
   how1t:"Activen el equipo de crisis", how1d:"Decidan por qué es una situación de crisis y qué áreas deben estar involucradas.",
   how2t:"Decisiones", how2d:"En cada evento el equipo llena su FISA (con el plan de acción por área) y responde las preguntas, con el tiempo corriendo.",
@@ -706,7 +706,7 @@ const UI = {
   nActivation:"Activación", nDec:"Decisiones", nVideo:"Video", nReport:"Reporte",
   blkCrisis:"Escriban por qué es una crisis y confirmen las áreas", blkQa:"Terminen el evento para continuar",
   pdfHeader:"Opella  |  Reporte del ejercicio de crisis", pdfKicker:"OPELLA  |  EJERCICIO DE GESTIÓN DE CRISIS  |  NIVEL 1",
-  pdfTitle:"Accidente fatal en misión", pdfSub:"Reporte del ejercicio", ctxUp:"CONTEXTO", areasInv:"Áreas involucradas",
+  pdfTitle:"Simulación de caso de crisis", pdfSub:"Reporte del ejercicio", ctxUp:"CONTEXTO", areasInv:"Áreas involucradas",
   aOkC:"Bien activada", aWrongC:"No debía activarse", aMissC:"Faltó activarla", decByEvent:"Decisiones por evento",
   timeUsedOf:(u,m)=>`Tiempo usado ${u} de ${m}:00`, considered:"CONSIDERADO", notConsidered:"NO CONSIDERADO", impUp:"IMPORTANTE",
   impsImportant:"Impactos importantes", noImpSel:"Sin impactos seleccionados", noStake:"Sin partes interesadas", unclassified:"Sin clasificar",
@@ -714,8 +714,8 @@ const UI = {
   footer:"Opella Colombia  ·  Ejercicio de entrenamiento: escenario ficticio  ·  Uso interno", page:(i,n)=>`Página ${i} de ${n}`
  },
  en:{
-  level:"Crisis management rehearsal · Level 1", title1:"Fatal road accident", title2:"on duty",
-  brandTitle:"Opella · Crisis room", brandSub:"Fatal road accident on duty",
+  level:"Crisis management rehearsal · Level 1", title1:"Crisis case", title2:"simulation",
+  brandTitle:"Opella · Crisis room", brandSub:"Crisis case simulation",
   context:"Context",
   how1t:"Activate the crisis team", how1d:"Decide why this is a crisis situation and which areas must be involved.",
   how2t:"Decisions", how2d:"In each event the team fills in its FISA (with an action plan by area) and answers the questions, against the clock.",
@@ -789,7 +789,7 @@ const UI = {
   nActivation:"Activation", nDec:"Decisions", nVideo:"Video", nReport:"Report",
   blkCrisis:"Write why it is a crisis and confirm the areas", blkQa:"Finish the event to continue",
   pdfHeader:"Opella  |  Crisis exercise report", pdfKicker:"OPELLA  |  CRISIS MANAGEMENT EXERCISE  |  LEVEL 1",
-  pdfTitle:"Fatal road accident on duty", pdfSub:"Exercise report", ctxUp:"CONTEXT", areasInv:"Areas involved",
+  pdfTitle:"Crisis case simulation", pdfSub:"Exercise report", ctxUp:"CONTEXT", areasInv:"Areas involved",
   aOkC:"Correctly activated", aWrongC:"Should not have been activated", aMissC:"Not activated", decByEvent:"Decisions by event",
   timeUsedOf:(u,m)=>`Time used ${u} of ${m}:00`, considered:"TAKEN INTO ACCOUNT", notConsidered:"NOT TAKEN INTO ACCOUNT", impUp:"IMPORTANT",
   impsImportant:"Important impacts", noImpSel:"No impacts selected", noStake:"No stakeholders", unclassified:"Unclassified",
@@ -797,8 +797,8 @@ const UI = {
   footer:"Opella Colombia  ·  Training exercise: fictitious scenario  ·  Internal use", page:(i,n)=>`Page ${i} of ${n}`
  },
  pt:{
-  level:"Ensaio de gestão de crise · Nível 1", title1:"Acidente fatal", title2:"em missão",
-  brandTitle:"Opella · Sala de crise", brandSub:"Acidente fatal em missão",
+  level:"Ensaio de gestão de crise · Nível 1", title1:"Simulação", title2:"caso de crise",
+  brandTitle:"Opella · Sala de crise", brandSub:"Simulação de caso de crise",
   context:"Contexto",
   how1t:"Ativem a equipe de crise", how1d:"Decidam por que esta é uma situação de crise e quais áreas devem estar envolvidas.",
   how2t:"Decisões", how2d:"Em cada evento a equipe preenche o seu FISA (com o plano de ação por área) e responde às perguntas, com o tempo correndo.",
@@ -872,7 +872,7 @@ const UI = {
   nActivation:"Ativação", nDec:"Decisões", nVideo:"Vídeo", nReport:"Relatório",
   blkCrisis:"Escrevam por que é uma crise e confirmem as áreas", blkQa:"Concluam o evento para continuar",
   pdfHeader:"Opella  |  Relatório do exercício de crise", pdfKicker:"OPELLA  |  EXERCÍCIO DE GESTÃO DE CRISE  |  NÍVEL 1",
-  pdfTitle:"Acidente fatal em missão", pdfSub:"Relatório do exercício", ctxUp:"CONTEXTO", areasInv:"Áreas envolvidas",
+  pdfTitle:"Simulação de caso de crise", pdfSub:"Relatório do exercício", ctxUp:"CONTEXTO", areasInv:"Áreas envolvidas",
   aOkC:"Ativada corretamente", aWrongC:"Não deveria ser ativada", aMissC:"Faltou ativá-la", decByEvent:"Decisões por evento",
   timeUsedOf:(u,m)=>`Tempo usado ${u} de ${m}:00`, considered:"LEVADO EM CONTA", notConsidered:"NÃO LEVADO EM CONTA", impUp:"IMPORTANTE",
   impsImportant:"Impactos importantes", noImpSel:"Nenhum impacto selecionado", noStake:"Sem partes interessadas", unclassified:"Sem classificação",
